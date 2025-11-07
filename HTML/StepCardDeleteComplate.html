@@ -1,0 +1,68 @@
+<!--ステップカード削除完了画面-->
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ステップカード削除完了</title>
+  <style>
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN",
+                   "メイリオ", "Noto Sans JP", sans-serif;
+      display: grid;
+      place-items: center;
+      background: #fff;
+      color: #000;
+    }
+    .wrap {
+      text-align: center;
+      padding: 2rem;
+      box-sizing: border-box;
+      width: 100%;
+      max-width: 1100px;
+      display: flex;
+      flex-direction: column;
+      align-items: center; /* メッセージは中央表示のまま */
+    }
+    /* 大きなメッセージ */
+    .message[name="message"] {
+      font-weight: 700;
+      margin: 0 0 1.5rem;
+      font-size: clamp(48px, 10vw, 140px);
+      line-height: 1;
+    }
+    /* 下に出すが右寄りに見せるために左マージンを付与 */
+    a.link[name="link_list"] {
+      margin-top: 0.6rem;
+      margin-left: clamp(120px, 14vw, 360px); /* ここで「右寄り」の度合いを調整 */
+      text-decoration: underline;
+      font-weight: 700;
+      font-size: clamp(16px, 2.2vw, 28px);
+      color: inherit;
+      display: inline-block;
+    }
+
+    a.link:focus {
+      outline: 3px solid rgba(0,0,0,0.12);
+      outline-offset: 4px;
+      border-radius: 4px;
+    }
+    /* 狭い画面でははみ出さないように調整（リンクを中央寄せ） */
+    @media (max-width: 700px) {
+      .message[name="message"] { white-space: normal; font-size: clamp(40px, 12vw, 80px); }
+      a.link[name="link_list"] {
+        margin-left: clamp(20px, 6vw, 80px);
+        transform: none;
+        align-self: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap" role="main" aria-live="polite">
+    <div class="message" name="message">削除完了！</div>
+    <a href="#" class="link" name="link_list" id="link_list">一覧に戻る</a>
+  </main>
+</body>
+</html>
