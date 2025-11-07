@@ -1,0 +1,57 @@
+<!-- 管理者ダッシュボード画面 -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ErrorMate（管理者タブ）</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin-top: 150px;
+      background-color: #fff;
+    }
+
+    .button-area {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+    }
+
+    .btn {
+      width: 200px;
+      height: 120px;
+      font-size: 20px;
+      font-weight: bold;
+      border: 2px solid #000;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-library {
+      background-color: #5ba5ff; /* 青 */
+      color: #000;
+    }
+
+    .btn-allanalysis {
+      background-color: #36c472; /* 緑 */
+      color: #000;
+    }
+
+    .btn:hover {
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="button-area">
+    <!-- カードライブラリボタン -->
+    <button type="submit" name="btn_library" class="btn btn-library">カードライブラリ</button>
+
+    <!-- 全体分析ボタン -->
+    <button type="button" name="btn_allanalysis" class="btn btn-allanalysis">全体分析</button>
+  </div>
+
+</body>
+</html>
