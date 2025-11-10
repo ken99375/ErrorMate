@@ -138,6 +138,5 @@ form.addEventListener('submit', (e) => {
 // });
 
 
-
 // 初期表示
 renderList();
