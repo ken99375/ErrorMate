@@ -1,0 +1,189 @@
+    body {
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #ffe071;
+    }
+
+    header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    border-bottom: 2px solid #555;
+    background: #ffd24d;
+    }
+
+    .app-title {
+    font-size: 28px;
+    color: #ff9c5a;
+    font-weight: bold;
+    }
+
+    .hamburger {
+    width: 28px;
+    height: 22px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    }
+
+    .hamburger span {
+    display: block;
+    height: 3px;
+    background: #333;
+    border-radius: 2px;
+    }
+
+    main {
+    padding: 16px;
+    }
+
+    .screen {
+    display: none;
+    }
+
+    .screen.active {
+    display: block;
+    }
+
+    /* ステップカード一覧 */
+
+    .screen-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 16px;
+    }
+
+    .toolbar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+    }
+
+    .link-button {
+    color: #0066cc;
+    cursor: pointer;
+    text-decoration: underline;
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    padding: 0;
+    }
+
+    .empty-message {
+    text-align: center;
+    margin-top: 80px;
+    font-size: 20px;
+    }
+
+    .empty-message p {
+    margin: 8px 0;
+    }
+
+    .card-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    }
+
+    .card-item {
+    background: #ffeaa7;
+    border: 2px solid #c9a742;
+    padding: 12px;
+    border-radius: 4px;
+    }
+
+    .card-title {
+    font-weight: bold;
+    margin-bottom: 4px;
+    }
+
+    .card-summary {
+    font-size: 14px;
+    color: #444;
+    margin-bottom: 8px;
+    min-height: 40px;
+    }
+
+    .card-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    }
+
+    .card-actions button {
+    font-size: 13px;
+    padding: 4px 8px;
+    border-radius: 3px;
+    border: 1px solid #555;
+    background: #fff;
+    cursor: pointer;
+    }
+
+    /* 新規作成フォーム */
+
+    .form-box {
+    background: #ffeaa7;
+    border: 2px solid #c9a742;
+    padding: 16px;
+    max-width: 640px;
+    margin: 0 auto;
+    border-radius: 4px;
+    }
+
+    .form-box h2 {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 22px;
+    }
+
+    .form-row {
+    margin-bottom: 12px;
+    }
+
+    .form-row label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 4px;
+    }
+
+    .form-row input[type="text"],
+    .form-row textarea {
+    width: 100%;
+    padding: 6px;
+    border-radius: 3px;
+    border: 1px solid #777;
+    box-sizing: border-box;
+    background: #fff9e6;
+    }
+
+    .form-row textarea {
+    resize: vertical;
+    min-height: 60px;
+    }
+
+    .form-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+    }
+
+    .btn-primary {
+    padding: 6px 16px;
+    border-radius: 3px;
+    border: 1px solid #555;
+    background: #e0e0e0;
+    cursor: pointer;
+    }
+
+    .back-link {
+    color: #0066cc;
+    cursor: pointer;
+    text-decoration: underline;
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    padding: 0;
+    }
