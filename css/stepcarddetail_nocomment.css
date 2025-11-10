@@ -1,0 +1,84 @@
+body {
+  font-family: "Segoe UI", sans-serif;
+  background-color: #A7C7E7; 
+  margin: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* 全体スクロール領域 */
+.scroll-area {
+  height: 100vh;
+  overflow-y: scroll;
+  padding: 40px;
+  box-sizing: border-box;
+}
+
+/* コメント＋コード枠 */
+.comment-section {
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  padding: 15px 20px 30px 20px;
+  max-width: 600px;
+  margin: 0 auto;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* タイトル */
+.comment-title,
+.code-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  margin-top: 20px;
+}
+
+/* コメント入力欄 */
+.comment-input {
+  width: 100%;
+  height: 100px;
+  resize: vertical;
+  font-family: sans-serif;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+  outline: none;
+}
+
+/* コード入力欄 */
+.code-input {
+  width: 100%;
+  height: 160px;
+  resize: vertical;
+  font-family: monospace;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+  outline: none;
+}
+
+/* コメントなしメッセージ */
+.no-comment {
+  text-align: center;
+  font-size: 25px;
+  font-weight: bold;
+  color: #333;
+  margin-top: 55px;
+}
+
+/* 一覧に戻るリンク */
+.back-link {
+  display: inline-block;
+  margin-top: 40px;
+  font-size: 18px;
+  color: #007bff;
+  text-decoration: none;
+  position: relative;
+  left: 110px; 
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
