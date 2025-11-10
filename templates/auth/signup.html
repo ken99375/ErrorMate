@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}ユーザー登録 - ErrorMate{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h2>開発用ユーザー登録</h2>
+
+    <!-- フラッシュメッセージの表示エリア -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flashes">
+        {% for category, message in messages %}
+          <li class="flash-{{ category }}">{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <form method="post" class="auth-form">
+        <div class="form-group">
+            <label for="user_name">ユーザー名</label>
+            <input type="text" id="user_name" name="user_name" required placeholder="例: 山田 太郎">
+        </div>
+        <div class="form-group">
+            <label for="mail">メールアドレス</label>
+            <input type="email" id="mail" name="mail" required placeholder="example@school.ac.jp">
+        </div>
+        <div class="form-group">
+            <label for="password">パスワード</label>
+            <input type="password" id="password" name="password" required placeholder="パスワードを入力">
+        </div>
+        <div class="form-group">
+            <label for="role">ロール（役割）</label>
+            <select name="role" id="role" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                <option value="student">学生</option>
+                <option value="teacher">教師</option>
+            </select>
+        </div>
+        <button type="submit" class="btn-primary">登録</button>
+    </form>
+
+    <p class="auth-link">
+        すでにアカウントをお持ちの方は <a href="{{ url_for('auth.login') }}">こちらからログイン</a>
+    </p>
+</div>
+{% endblock %}
