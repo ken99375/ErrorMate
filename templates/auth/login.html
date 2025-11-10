@@ -1,0 +1,40 @@
+<!-- 本来はMoodleからのログインになるが、開発段階はauthからとする。-->
+<!--適当でいいのでGPTで作成する-->
+
+{% extends 'base.html' %}
+
+{% block title %}ログイン - ErrorMate{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h2>ログイン</h2>
+
+    <!-- フラッシュメッセージの表示エリア -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flashes">
+        {% for category, message in messages %}
+          <li class="flash-{{ category }}">{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <form method="post" class="auth-form">
+        <div class="form-group">
+            <label for="mail">メールアドレス</label>
+            <input type="email" id="mail" name="mail" required placeholder="example@school.ac.jp">
+        </div>
+        <div class="form-group">
+            <label for="password">パスワード</label>
+            <input type="password" id="password" name="password" required placeholder="パスワードを入力">
+        </div>
+        <button type="submit" class="btn-primary">ログイン</button>
+    </form>
+
+    <p class="auth-link">
+        アカウントをお持ちでない方は <a href="{{ url_for('auth.signup') }}">こちらから登録（開発用）</a>
+    </p>
+    <p class="dev-info">※テスト用アカウント: 作成したユーザーでログインしてください</p>
+</div>
+{% endblock %}

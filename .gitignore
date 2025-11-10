@@ -1,0 +1,58 @@
+venv/
+*.pyc
+__pycache__/
+instance/
+.env
+```
+
+#### ② `requirements.txt` の作成
+仮想環境が有効になっているターミナルで、以下のコマンドを実行します。これにより、現在インストールされているライブラリ（Flask, Flask-Login, Flask-SQLAlchemyなど）のリストが `requirements.txt` というファイルに書き出されます。
+
+```bash
+pip freeze > requirements.txt
+```
+
+#### ③ Gitへプッシュ
+作成された `requirements.txt` をGitにコミットし、プッシュしてチームに共有します。
+
+```bash
+git add requirements.txt
+git commit -m "Add requirements.txt for team development"
+git push
+```
+
+---
+
+### 2. 受け取る人（他のチームメンバー）が行う操作
+
+他のメンバーは、Gitから最新のソースコードを取得した後、自分のPC上で仮想環境を再現します。
+
+#### ① 最新コードの取得
+```bash
+git pull
+```
+
+#### ② 仮想環境の作成（初回のみ）
+自分のPC用に新しい `venv` を作ります。
+```bash
+# Windows
+python -m venv venv
+
+# Mac/Linux
+python3 -m venv venv
+```
+
+#### ③ 仮想環境の有効化（毎回開発時）
+```bash
+# Windows (PowerShell)
+.\venv\Scripts\Activate.ps1
+# もしくはコマンドプロンプトなら: .\venv\Scripts\activate
+
+# Mac/Linux
+source venv/bin/activate
+```
+
+#### ④ ライブラリの一括インストール
+共有された設計図をもとに、ライブラリを一気にインストールします。
+```bash
+pip install -r requirements.txt
