@@ -4,8 +4,10 @@ from config import config
 from models import db, User
 
 # Blueprintのインポート
-from blueprints.main import main_bp
-from blueprints.auth import auth_bp
+from Blueprints.main import main_bp
+from Blueprints.auth import auth_bp
+from Blueprints.step_card import step_card_bp
+
 
 
 app = Flask(__name__)
@@ -27,6 +29,9 @@ def load_user(user_id):
 
 # Blueprintの登録
 app.register_blueprint(main_bp)
+
+app.register_blueprint(step_card_bp, url_prefix='/card')
+
 app.register_blueprint(auth_bp, url_prefix='/auth')
 
 

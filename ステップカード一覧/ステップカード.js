@@ -127,5 +127,17 @@ form.addEventListener('submit', (e) => {
   showScreen(screenList);
 });
 
+// form.addEventListener('submit', (e) => {
+//   e.preventDefault();  // 画面リロードは止める
+
+//   // ここで必要ならバリデーションだけする（必須チェックとか）
+
+//   // 保存完了画面へ遷移
+//   window.location.href = "../HTML/StepCardCreateComplate.html";
+//   // ↑パスは実際のフォルダ構成に合わせて修正
+// });
+
+
+
 // 初期表示
 renderList();
