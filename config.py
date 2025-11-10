@@ -7,6 +7,9 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = True
     # DB とかあればここに書く
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///errormate.db'  # ここ追加
+    SQLALCHEMY_TRACK_MODIFICATIONS = False              # おまけでOFFにしとく
+
     # SQLALCHEMY_DATABASE_URI = "..."
 
 class ProductionConfig(Config):

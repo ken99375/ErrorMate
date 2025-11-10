@@ -65,7 +65,7 @@
     <div class="message" name="message" role="status" aria-live="polite">保存完了！</div>
 
     <!-- name 属性: link_list （下に出したまま右寄りに表示） -->
-    <a href="../ステップカード一覧/ステップカード一覧画面.html" class="link" name="link_list" id="link_list">一覧に戻る</a>
+    <a href="{{ url_for('step_card.list_cards') }}" class="link" name="link_list" id="link_list">一覧に戻る</a>
   </main>
 </body>
 </html>

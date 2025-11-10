@@ -1,0 +1,42 @@
+    {% extends "base.html" %}
+
+    {% block title %}ステップカード一覧 | ErrorMate{% endblock %}
+
+    {% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/stepcard.css') }}">
+    {% endblock %}
+
+    {% block content %}
+    <section id="screen-list" class="screen active">
+    <div class="screen-title">ステップカード一覧</div>
+
+    {# カードが1件以上あるときだけ右上の新規作成を出す #}
+    {% if cards %}
+    <div class="toolbar" id="toolbar">
+        <a class="link-button"
+        id="link_create"
+        name="link_create"
+        href="{{ url_for('step_card.create_card') }}">
+        新規作成
+        </a>
+    </div>
+    {% endif %}
+
+    {# カード0件のときだけ真ん中のメッセージ＋新規作成ボタン #}
+    {% if not cards %}
+    <div id="empty_area" class="empty-message">
+        <p style="color: #e53935;">ステップカードが作られていません</p>
+        <a class="link-button"
+        id="link_create_empty"
+        name="link_create_empty"
+        href="{{ url_for('step_card.create_card') }}">
+        新規作成
+        </a>
+    </div>
+    {% endif %}
+
+    <div id="card_list" class="card-list">
+        {# ここに cards の中身をそのうち並べる #}
+    </div>
+    </section>
+    {% endblock %}

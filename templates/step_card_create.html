@@ -1,0 +1,63 @@
+    {% extends "base.html" %}
+
+    {% block title %}ステップカード新規作成 | ErrorMate{% endblock %}
+
+    {% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/stepcard.css') }}">
+    {% endblock %}
+
+    {% block content %}
+    <section id="screen-editor" class="screen active">
+    <div class="form-box">
+        <h2>エラータイトル</h2>
+        <form id="step_form" method="post">
+        <div class="form-row">
+            <label for="text_title">エラータイトル</label>
+            <input type="text" id="text_title" name="text_title" maxlength="255" required>
+        </div>
+
+        <div class="form-row">
+            <label for="text_error">エラーコード</label>
+            <textarea id="text_error" name="text_error" rows="3"></textarea>
+        </div>
+
+        <div class="form-row">
+            <label for="text_fixcode">修正コード</label>
+            <textarea id="text_fixcode" name="text_fixcode" rows="3"></textarea>
+        </div>
+
+        <div class="form-row">
+            <label for="text_message">エラーメッセージ</label>
+            <textarea id="text_message" name="text_message" rows="3"></textarea>
+        </div>
+
+        <div class="form-row">
+            <label for="text_result">実装結果</label>
+            <textarea id="text_result" name="text_result" rows="3"></textarea>
+        </div>
+
+        <div class="form-footer">
+            <!-- 一覧へ戻る -->
+            <a href="{{ url_for('step_card.list_cards') }}"
+            class="back-link"
+            id="link_list"
+            name="link_list">
+            一覧に戻る
+            </a>
+
+            <!-- 保存ボタン -->
+            <button type="submit"
+                    class="btn-primary"
+                    id="btn_save"
+                    name="btn_save">
+            保存
+            </button>
+        </div>
+        </form>
+    </div>
+    </section>
+    {% endblock %}
+
+    {% block extra_js %}
+    <script src="{{ url_for('static', filename='js/stepcard_edit.js') }}" defer></script>
+    {% endblock %}
