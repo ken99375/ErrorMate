@@ -36,15 +36,6 @@
     .personal-content {
         padding-left: 8px;
     }
-
-    /* コンテンツカード例 */
-    .data-panel {
-        background: #fff;
-        border: 2px solid #263238;
-        border-radius: 6px;
-        padding: 16px;
-        min-height: 200px;
-    }
 </style>
 {% endblock %}
 
@@ -65,14 +56,5 @@
                class="{{ 'active' if active_key=='trend' else '' }}">コメント傾向</a>
         </nav>
     </aside>
-
-    <!-- 各ページ固有コンテンツ -->
-    <!-- <section class="personal-content">
-        {% block personal_content %}
-        <div class="data-panel">
-            データが取得できませんでした
-        </div>
-        {% endblock %}
-    </section> -->
 </div>
 {% endblock %}
