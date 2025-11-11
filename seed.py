@@ -31,7 +31,7 @@ def seed_data():
         # --- 3. ステップカードの作成 ---
         print("ステップカードを作成中...")
         card1 = StepCard(
-            user_id=student1.user_id, # 山田くんのカード
+            user_id=student1.user_id,
             title='PythonでNameErrorが出ます',
             error_code='print(hello)',
             error_message="NameError: name 'hello' is not defined",
@@ -39,12 +39,9 @@ def seed_data():
             execution_result='hello',
             status='public'
         )
-        # タグ付け（中間テーブル経由で自動的に紐付く）
-        card1.tags.append(tags['Python'])
-        card1.tags.append(tags['文法エラー'])
 
         card2 = StepCard(
-            user_id=student2.user_id, # 鈴木さんのカード
+            user_id=student2.user_id,
             title='Javaのセミコロン忘れ',
             error_code='System.out.println("Hello World")',
             error_message="error: ';' expected",
@@ -52,12 +49,19 @@ def seed_data():
             execution_result='Hello World',
             status='public'
         )
+
+        # カードをセッションに追加してからタグを紐付ける
+        db.session.add_all([card1, card2])
+        db.session.flush()  # IDを確定させる
+
+        # タグ付け（カードがセッションにある状態で実行）
+        card1.tags.append(tags['Python'])
+        card1.tags.append(tags['文法エラー'])
+
         card2.tags.append(tags['Java'])
         card2.tags.append(tags['文法エラー'])
 
-        db.session.add_all([card1, card2])
         db.session.commit()
-
         # --- 4. コメントの作成 ---
         print("コメントを作成中...")
         # 佐藤先生が山田くんのカードにコメント
@@ -75,3 +79,8 @@ def seed_data():
 
         db.session.add_all([comment1, comment2])
         db.session.commit()
+
+# このブロックを追加
+if __name__ == '__main__':
+    seed_data()
+    print("データベースシーディング完了！")
