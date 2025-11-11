@@ -7,10 +7,7 @@ auth_bp = Blueprint('auth', __name__)
 # ログイン画面
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    # すでにログインしていたらトップへ飛ばす
-    if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
-
+    
     if request.method == 'POST':
         # フォームからメールアドレスとパスワードを取得
         mail = request.form.get('mail')
@@ -32,6 +29,7 @@ def login():
             flash('メールアドレスまたはパスワードが誤っています。', 'error')
 
     return render_template('auth/login.html')
+
 # ログアウト機能
 @auth_bp.route('/logout')
 @login_required
