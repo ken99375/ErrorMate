@@ -56,5 +56,11 @@
                class="{{ 'active' if active_key=='trend' else '' }}">コメント傾向</a>
         </nav>
     </aside>
+        <!-- 各ページ固有コンテンツ -->
+    <section class="personal-content">
+        {% block personal_content %}
+        <!-- ここに各ページの内容が入る -->
+        {% endblock %}
+    </section>
 </div>
 {% endblock %}
