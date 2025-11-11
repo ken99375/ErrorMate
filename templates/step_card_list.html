@@ -10,33 +10,44 @@
     <section id="screen-list" class="screen active">
     <div class="screen-title">ステップカード一覧</div>
 
-    {# カードが1件以上あるときだけ右上の新規作成を出す #}
+    {# カード1件以上なら一覧＋右上の新規作成 #}
     {% if cards %}
-    <div class="toolbar" id="toolbar">
+        <div class="toolbar" id="toolbar">
         <a class="link-button"
-        id="link_create"
-        name="link_create"
-        href="{{ url_for('step_card.create_card') }}">
-        新規作成
+            href="{{ url_for('step_card.create_card') }}">
+            新規作成
         </a>
-    </div>
-    {% endif %}
+        </div>
 
-    {# カード0件のときだけ真ん中のメッセージ＋新規作成ボタン #}
-    {% if not cards %}
-    <div id="empty_area" class="empty-message">
+        <div id="card_list" class="card-list">
+            {% for card in cards %}
+                <div class="card-item">
+                <h3 class="card-title">
+                    {{ card.title }}
+                </h3>
+                {# 作成日はmodels.pyで作成しているcreated_atデータベースをstep_card.pyでコミットした瞬間に自動で時間の表記がされる #}
+                <p>作成日: {{ card.created_at.strftime('%Y-%m-%d %H:%M') if card.created_at }}</p>
+                <p>エラーコード: {{ card.error_code | default('') }}</p>
+                <div class="card-actions">
+                    <a href="{{ url_for('step_card.detail_card', card_id=card.card_id) }}"
+                    class="btn-detail">
+                    詳細
+                    </a>
+                </div>
+                </div>
+        {% endfor %}
+        </div>
+
+
+    {# 0件なら真ん中の新規作成だけ #}
+    {% else %}
+        <div id="empty_area" class="empty-message">
         <p style="color: #e53935;">ステップカードが作られていません</p>
         <a class="link-button"
-        id="link_create_empty"
-        name="link_create_empty"
-        href="{{ url_for('step_card.create_card') }}">
-        新規作成
+            href="{{ url_for('step_card.create_card') }}">
+            新規作成
         </a>
-    </div>
+        </div>
     {% endif %}
-
-    <div id="card_list" class="card-list">
-        {# ここに cards の中身をそのうち並べる #}
-    </div>
     </section>
     {% endblock %}

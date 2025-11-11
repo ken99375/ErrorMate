@@ -1,0 +1,64 @@
+    {% extends "base.html" %}
+
+    {% block title %}ステップカード詳細 | ErrorMate{% endblock %}
+
+    {% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/stepcard.css') }}">
+    {% endblock %}
+
+    {% block content %}
+    <section class="screen active detail-screen">
+    <div class="detail-box">
+        <!-- エラ―タイトル -->
+        <h2 class="detail-title" name="text_errortitle">
+        {{ card.title }}
+        </h2>
+
+        <div class="detail-grid">
+        <div class="detail-cell">
+            <h3>エラーコード</h3>
+            <p name="text_errorcode">{{ card.error_code or '' }}</p>
+        </div>
+
+        <div class="detail-cell">
+            <h3>修正コード</h3>
+            <p name="text_fixcode">{{ card.modifying_code or '' }}</p>
+        </div>
+
+        <div class="detail-cell">
+            <h3>エラーメッセージ</h3>
+            <p name="text_message">{{ card.error_message or '' }}</p>
+        </div>
+
+        <div class="detail-cell">
+            <h3>実装結果</h3>
+            <p name="text_impcode">{{ card.execution_result or '' }}</p>
+        </div>
+        </div>
+
+        <div class="detail-footer">
+        <a href="{{ url_for('step_card.list_cards') }}"
+            class="link-back"
+            name="link_list">
+            一覧に戻る
+        </a>
+
+        <!-- 編集・削除はルート作るまでダミーでもOK -->
+        <form method="get"
+                action="#"
+                class="detail-actions">
+            <button type="submit"
+                    class="btn-edit"
+                    name="btn_edit">
+            編集
+            </button>
+            <button type="button"
+                    class="btn-delete"
+                    name="btn_delete">
+            削除
+            </button>
+        </form>
+        </div>
+    </div>
+    </section>
+    {% endblock %}
