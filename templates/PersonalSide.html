@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}個人データ｜ErrorMate{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* レイアウト構造 */
+    .personal-shell {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 16px;
+        min-height: 70vh;
+    }
+
+    .personal-sidebar {
+        border-right: 2px solid #263238;
+        padding-right: 16px;
+    }
+
+    /* サイドメニュー */
+    .personal-sidebar nav a {
+        display: block;
+        margin: 10px 0;
+        color: #3b5bd7;
+        font-weight: 700;
+        font-size: 1.1rem;
+        text-decoration: underline;
+    }
+
+    .personal-sidebar nav a.active {
+        text-decoration: none;
+        color: #263238;
+    }
+
+    /* メイン側 */
+    .personal-content {
+        padding-left: 8px;
+    }
+
+    /* コンテンツカード例 */
+    .data-panel {
+        background: #fff;
+        border: 2px solid #263238;
+        border-radius: 6px;
+        padding: 16px;
+        min-height: 200px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="personal-shell">
+    <!-- 左メニュー -->
+    <aside class="personal-sidebar">
+        <nav>
+            <a href=".html" data-key="errors"
+               class="{{ 'active' if active_key=='errors' else '' }}">エラー発生回数</a>
+            <a href=".html" data-key="lang"
+               class="{{ 'active' if active_key=='lang' else '' }}">言語種別比率</a>
+            <a href=".html" data-key="types"
+               class="{{ 'active' if active_key=='types' else '' }}">エラー種別比率</a>
+            <a href=".html" data-key="comments"
+               class="{{ 'active' if active_key=='comments' else '' }}">コメント回数</a>
+            <a href=".html" data-key="trend"
+               class="{{ 'active' if active_key=='trend' else '' }}">コメント傾向</a>
+        </nav>
+    </aside>
+
+    <!-- 各ページ固有コンテンツ -->
+    <!-- <section class="personal-content">
+        {% block personal_content %}
+        <div class="data-panel">
+            データが取得できませんでした
+        </div>
+        {% endblock %}
+    </section> -->
+</div>
+{% endblock %}
