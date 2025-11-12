@@ -10,7 +10,7 @@
     <section id="screen-editor" class="screen active">
     <div class="form-box">
         <h2>エラータイトル</h2>
-        <form id="step_form" method="post">
+        <form id="step_form" method="post" action="{{ url_for('step_card.create_card') }}">
         <div class="form-row">
             <label for="text_title">エラータイトル</label>
             <input type="text" id="text_title" name="text_title" maxlength="255" required>
@@ -37,27 +37,12 @@
         </div>
 
         <div class="form-footer">
-            <!-- 一覧へ戻る -->
-            <a href="{{ url_for('step_card.list_cards') }}"
-            class="back-link"
-            id="link_list"
-            name="link_list">
+            <a href="{{ url_for('step_card.list_cards') }}" class="back-link">
             一覧に戻る
             </a>
-
-            <!-- 保存ボタン -->
-            <button type="submit"
-                    class="btn-primary"
-                    id="btn_save"
-                    name="btn_save">
-            保存
-            </button>
+            <button type="submit" class="btn-primary">保存</button>
         </div>
         </form>
     </div>
     </section>
-    {% endblock %}
-
-    {% block extra_js %}
-    <script src="{{ url_for('static', filename='js/stepcard_edit.js') }}" defer></script>
     {% endblock %}
