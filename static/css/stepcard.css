@@ -176,6 +176,12 @@
     margin-top: 16px;
     }
 
+    .form-error {
+        color: #e53935;
+        font-size: 0.9rem;
+        margin-top: 4px;
+    }
+
     .btn-primary {
     padding: 6px 16px;
     border-radius: 3px;
