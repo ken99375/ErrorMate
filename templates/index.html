@@ -36,7 +36,7 @@
 
       <div class="menu-section">
       <span class="menu-title">ヘルプ要求カード</span>
-      <a href=".html">・新規作成</a>
+      <a href="templates/help/help_card_create.html">・新規作成</a>
       </div>
 
       <div class="menu-section">
@@ -69,7 +69,7 @@
           <a href="../html/.html" class="card blue d-flex align-items-center justify-content-center">カードライブラリ</a>
         </div>
         <div class="col-10 col-md-5 col-lg-4">
-          <a href="../html/.html" class="card gray d-flex align-items-center justify-content-center">ヘルプ要求カード</a>
+          <a href="{{ url_for('templates/help/help_card_create.html') }}" class="card gray d-flex align-items-center justify-content-center">ヘルプ要求カード</a>
         </div>
         <div class="col-10 col-md-5 col-lg-4">
           <a href="../html/.html" class="card green d-flex align-items-center justify-content-center">個人分析</a>
