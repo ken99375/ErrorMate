@@ -43,14 +43,10 @@
             一覧に戻る
         </a>
 
-        <!-- 編集・削除はルート作るまでダミーでもOK -->
-        <form method="get"
-                action="#"
-                class="detail-actions">
-            <button type="submit"
-                    class="btn-edit"
-                    name="btn_edit">
-            編集
+
+        <form method="get"action="{{ url_for('step_card.edit_card',card_id = card.card_id)}}"class="detail-actions">
+            <button type="submit"class="btn-edit"name="btn_edit">
+                編集
             </button>
             <button type="button"
                     class="btn-delete"
