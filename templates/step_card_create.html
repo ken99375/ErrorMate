@@ -4,36 +4,66 @@
 
     {% block extra_css %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/stepcard.css') }}">
+    <style>
+    /* 適当に。既にCSSあるならそっちでもいい */
+    .form-error {
+        color: #e53935;
+        font-size: 0.9rem;
+        margin-top: 4px;
+    }
+    </style>
     {% endblock %}
 
     {% block content %}
     <section id="screen-editor" class="screen active">
     <div class="form-box">
         <h2>エラータイトル</h2>
+
         <form id="step_form" method="post" action="{{ url_for('step_card.create_card') }}">
         <div class="form-row">
             <label for="text_title">エラータイトル</label>
-            <input type="text" id="text_title" name="text_title" maxlength="255" required>
+            <input
+            type="text"
+            id="text_title"
+            name="text_title"
+            maxlength="255"
+            value="{{ form_data.text_title }}"
+            >
+            {% if errors.text_title %}
+            <p class="form-error">{{ errors.text_title }}</p>
+            {% endif %}
         </div>
 
         <div class="form-row">
             <label for="text_error">エラーコード</label>
-            <textarea id="text_error" name="text_error" rows="3"></textarea>
+            <textarea id="text_error" name="text_error" rows="3">{{ form_data.text_error }}</textarea>
+            {% if errors.text_error %}
+            <p class="form-error">{{ errors.text_error }}</p>
+            {% endif %}
         </div>
 
         <div class="form-row">
             <label for="text_fixcode">修正コード</label>
-            <textarea id="text_fixcode" name="text_fixcode" rows="3"></textarea>
+            <textarea id="text_fixcode" name="text_fixcode" rows="3">{{ form_data.text_fixcode }}</textarea>
+            {% if errors.text_fixcode %}
+            <p class="form-error">{{ errors.text_fixcode }}</p>
+            {% endif %}
         </div>
 
         <div class="form-row">
             <label for="text_message">エラーメッセージ</label>
-            <textarea id="text_message" name="text_message" rows="3"></textarea>
+            <textarea id="text_message" name="text_message" rows="3">{{ form_data.text_message }}</textarea>
+            {% if errors.text_message %}
+            <p class="form-error">{{ errors.text_message }}</p>
+            {% endif %}
         </div>
 
         <div class="form-row">
             <label for="text_result">実装結果</label>
-            <textarea id="text_result" name="text_result" rows="3"></textarea>
+            <textarea id="text_result" name="text_result" rows="3">{{ form_data.text_result }}</textarea>
+            {% if errors.text_result %}
+            <p class="form-error">{{ errors.text_result }}</p>
+            {% endif %}
         </div>
 
         <div class="form-footer">
