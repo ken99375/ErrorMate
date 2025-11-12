@@ -1,13 +1,13 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ステップカード共有詳細（コメントなし）</title>
-  <link rel="stylesheet" href="../css/helpcarddetail_nocomment.css" />
-</head>
-<body>
-  <div class="detail-container">
+{% extends "base.html" %}
+
+{% block title %}ステップカード共有詳細（コメントなし）- ErrorMate{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/helpcarddetail_nocomment.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="detail-container">
     <div class="scroll-area">
       
       <!-- コメント・コード入力枠 -->
@@ -23,9 +23,8 @@
       <p class="no-comment">コメントはありません</p>
 
       <!-- 一覧に戻るリンク -->
-      <a href=".html" class="back-link"> 一覧に戻る</a>
+      <a href="{{ url_for('share.list_help_cards') }}" class="back-link">一覧に戻る</a>
 
     </div>
   </div>
-</body>
-</html>
+{% endblock %}

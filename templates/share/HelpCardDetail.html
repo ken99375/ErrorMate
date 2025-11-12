@@ -1,26 +1,23 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ステップカード共有詳細</title>
-    <link rel="stylesheet" href="../css/helpcarddetail.css" />
-</head>
-<body>
-    <div class="detail-container">
+{% extends "base.html" %}
+
+{% block title %}ヘルプカード詳細 - ErrorMate{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/helpcarddetail.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="detail-container">
     <div class="scroll-area">
-    
-    <div class="comment-section">
-        <h2 class="comment-title">コメント</h2>
-        <textarea class="comment-input" placeholder="コメントを入力してください。"></textarea>
+        <div class="comment-section">
+            <h2 class="comment-title">コメント</h2>
+            <textarea class="comment-input" placeholder="コメントを入力してください。"></textarea>
 
-        <h2 class="code-title">コード</h2>
-        <textarea class="code-input" placeholder="ここにコードを入力してください。"></textarea>
+            <h2 class="code-title">コード</h2>
+            <textarea class="code-input" placeholder="ここにコードを入力してください。"></textarea>
 
-        <button class="send-btn">送信</button>
+            <button class="send-btn">送信</button>
+        </div>
     </div>
-
-    </div>
-    </div>
-</body>
-</html>
+</div>
+{% endblock %}
