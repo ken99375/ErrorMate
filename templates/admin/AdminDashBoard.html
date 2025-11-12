@@ -1,57 +1,48 @@
-<!-- 管理者ダッシュボード画面 -->
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <title>ErrorMate（管理者タブ）</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      margin-top: 150px;
-      background-color: #fff;
-    }
+{% extends "base.html" %}
 
-    .button-area {
-      display: flex;
-      justify-content: center;
-      gap: 40px;
-    }
+{% block title %}ErrorMate（管理者タブ）{% endblock %}
 
-    .btn {
-      width: 200px;
-      height: 120px;
-      font-size: 20px;
-      font-weight: bold;
-      border: 2px solid #000;
-      border-radius: 4px;
-      cursor: pointer;
-    }
+{% block extra_css %}
+<style>
+  .button-area {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 3rem;
+  }
 
-    .btn-library {
-      background-color: #5ba5ff; /* 青 */
-      color: #000;
-    }
+  .btn {
+    width: 200px;
+    height: 120px;
+    font-size: 20px;
+    font-weight: bold;
+    border: 2px solid #000;
+    border-radius: 4px;
+    cursor: pointer;
+  }
 
-    .btn-allanalysis {
-      background-color: #36c472; /* 緑 */
-      color: #000;
-    }
+  .btn-library {
+    background-color: #5ba5ff; /* 青 */
+    color: #000;
+  }
 
-    .btn:hover {
-      opacity: 0.8;
-    }
-  </style>
-</head>
-<body>
+  .btn-allanalysis {
+    background-color: #36c472; /* 緑 */
+    color: #000;
+  }
 
-  <div class="button-area">
-    <!-- カードライブラリボタン -->
-    <button type="submit" name="btn_library" class="btn btn-library">カードライブラリ</button>
+  .btn:hover {
+    opacity: 0.8;
+  }
+</style>
+{% endblock %}
 
-    <!-- 全体分析ボタン -->
-    <button type="button" name="btn_allanalysis" class="btn btn-allanalysis">全体分析</button>
-  </div>
+{% block content %}
+<div class="button-area">
+  <!-- カードライブラリボタン -->
+  <button type="submit" name="btn_library" class="btn btn-library">カードライブラリ</button>
 
-</body>
-</html>
+  <!-- 全体分析ボタン -->
+  <button type="button" name="btn_allanalysis" class="btn btn-allanalysis">全体分析</button>
+</div>
+{% endblock %}

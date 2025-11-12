@@ -1,10 +1,8 @@
-<!--ステップカード削除完了画面-->
-<!doctype html>
-<html lang="ja">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>ステップカード削除完了</title>
+{% extends "base.html" %}
+
+{% block title %}ステップカード削除完了 - ErrorMate{% endblock %}
+
+{% block extra_css %}
   <style>
     html, body { height: 100%; margin: 0; }
     body {
@@ -57,12 +55,8 @@
         align-self: center;
       }
     }
-  </style>
-</head>
-<body>
-  <main class="wrap" role="main" aria-live="polite">
+{% endblock %}
+{% block content %}
     <div class="message" name="message">削除完了！</div>
     <a href="#" class="link" name="link_list" id="link_list">一覧に戻る</a>
-  </main>
-</body>
-</html>
+{% endblock %}

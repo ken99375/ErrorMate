@@ -1,13 +1,13 @@
-<!doctype html>
-<html lang="ja">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ヘルプカード新規作成</title>
-  <link rel="stylesheet" href="HelpCardCreate.css">
-</head>
-<body>
-  <div class="container">
+{% extends "base.html" %}
+
+{% block title %}ヘルプカード新規作成 - ErrorMate{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/HelpCardCreate.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
     <h2>エラータイトル</h2>
     <input type="text" class="input-box" placeholder="エラータイトルを入力">
 
@@ -30,9 +30,8 @@
     </div>
 
     <div class="button-section">
-      <a href="HelpCardList.html" class="back-link">一覧に戻る</a>
+      <a href="{{ url_for('help_card.list_cards') }}" class="back-link">一覧に戻る</a>
       <button class="submit-btn">投稿</button>
     </div>
   </div>
-</body>
-</html>
+{% endblock %}
