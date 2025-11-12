@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ヘルプカード新規作成</title>
+  <link rel="stylesheet" href="HelpCardCreate.css">
+</head>
+<body>
+  <div class="container">
+    <h2>エラータイトル</h2>
+    <input type="text" class="input-box" placeholder="エラータイトルを入力">
+
+    <h2>エラーコード</h2>
+    <input type="text" class="input-box" placeholder="エラーコードを入力">
+
+    <h2>エラーメッセージ</h2>
+    <textarea class="message-box" placeholder="エラーメッセージを入力"></textarea>
+
+    <div class="tag-section">
+      <input type="text" class="tag-label" value="#タグ" readonly>
+      <input type="text" class="tag-input" placeholder="タグを入力">
+      <button class="add-btn">＋</button>
+    </div>
+
+    <div class="destination-section">
+      <label class="dest-label">投稿先選択</label>
+      <label><input type="checkbox" name="dest" value="teacher"> 教師</label>
+      <label><input type="checkbox" name="dest" value="student"> 学生</label>
+    </div>
+
+    <div class="button-section">
+      <a href="HelpCardList.html" class="back-link">一覧に戻る</a>
+      <button class="submit-btn">投稿</button>
+    </div>
+  </div>
+</body>
+</html>
