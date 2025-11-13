@@ -7,20 +7,26 @@
     /* レイアウト構造 */
     .personal-shell {
         display: grid;
-        grid-template-columns: 280px 1fr;
+        grid-template-columns: 180px 1fr;
         gap: 16px;
         min-height: 70vh;
     }
 
     .personal-sidebar {
         border-right: 2px solid #263238;
-        padding-right: 16px;
+        padding-inline: 0;
+    }
+
+    .personal-sidebar nav{
+    margin: 0;
+    padding: 0;
     }
 
     /* サイドメニュー */
     .personal-sidebar nav a {
         display: block;
-        margin: 10px 0;
+        padding: 6px 0;
+        margin: 0;
         color: #3b5bd7;
         font-weight: 700;
         font-size: 1.1rem;
@@ -34,7 +40,7 @@
 
     /* メイン側 */
     .personal-content {
-        padding-left: 8px;
+        padding-left: 20px;
     }
 </style>
 {% endblock %}
@@ -44,16 +50,16 @@
     <!-- 左メニュー -->
     <aside class="personal-sidebar">
         <nav>
-            <a href=".html" data-key="errors"
-               class="{{ 'active' if active_key=='errors' else '' }}">エラー発生回数</a>
-            <a href=".html" data-key="lang"
-               class="{{ 'active' if active_key=='lang' else '' }}">言語種別比率</a>
-            <a href=".html" data-key="types"
-               class="{{ 'active' if active_key=='types' else '' }}">エラー種別比率</a>
-            <a href=".html" data-key="comments"
-               class="{{ 'active' if active_key=='comments' else '' }}">コメント回数</a>
-            <a href=".html" data-key="trend"
-               class="{{ 'active' if active_key=='trend' else '' }}">コメント傾向</a>
+            <a href="{{ url_for('personal.data_error_count') }}" data-key="errors"
+                class="{{ 'active' if active_key=='errors' else '' }}">エラー発生回数</a>
+            <a href="{{ url_for('personal.data_language_ratio') }}" data-key="lang"
+                class="{{ 'active' if active_key=='lang' else '' }}">言語種別比率</a>
+            <a href="{{ url_for('personal.data_error_type_ratio') }}" data-key="types"
+                class="{{ 'active' if active_key=='types' else '' }}">エラー種別比率</a>
+            <a href="{{ url_for('personal.data_comment_count') }}" data-key="comments"
+                class="{{ 'active' if active_key=='comments' else '' }}">コメント回数</a>
+            <a href="{{ url_for('personal.data_comment_trend') }}" data-key="trend"
+                class="{{ 'active' if active_key=='trend' else '' }}">コメント傾向</a>
         </nav>
     </aside>
         <!-- 各ページ固有コンテンツ -->

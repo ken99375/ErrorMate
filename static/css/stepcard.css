@@ -297,3 +297,19 @@
     .btn-detail:hover {
     opacity: 0.9;
     }
+
+
+    .complete-box {
+    max-width: 600px;
+    margin: 80px auto;
+    text-align: center;
+    padding: 60px 20px;
+    background: #ffeb88;
+    border-radius: 8px;
+    }
+
+    .complete-message {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    }

@@ -1,41 +1,19 @@
-<!-- 通信エラー画面 -->
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <title>通信エラー</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      margin-top: 150px;
-    }
-    .message-main {
-      font-size: 40px;
-      font-weight: bold;
-    }
-    .message-sub {
-      font-size: 20px;
-      margin-top: 15px;
-    }
-    .link-menu {
-      display: inline-block;
-      margin-top: 40px;
-      font-size: 18px;
-      text-decoration: underline;
-    }
-  </style>
-</head>
-<body>
+{% extends "base.html" %}
 
-  <!-- メインメッセージ -->
+{% block title %}通信エラー - ErrorMate{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ...existing code... */
+  body { font-family: sans-serif; text-align: center; margin-top: 150px; }
+  .message-main { font-size: 40px; font-weight: bold; }
+  .message-sub { font-size: 20px; margin-top: 15px; }
+  .link-menu { display: inline-block; margin-top: 40px; font-size: 18px; text-decoration: underline; }
+</style>
+{% endblock %}
+
+{% block content %}
   <div class="message-main" name="message">通信エラー</div>
-
-  <!-- サブメッセージ -->
   <div class="message-sub" name="message">時間が経ってからお試しください</div>
-
-  <!-- メニューリンク -->
-  <a href="menu.html" class="link-menu" name="link_menu">メニュー画面に戻る</a>
-
-</body>
-</html>
+  <a href="{{ url_for('main.index') }}" class="link-menu" name="link_menu">メニュー画面に戻る</a>
+{% endblock %}

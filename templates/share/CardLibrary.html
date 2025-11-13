@@ -1,14 +1,14 @@
-[CardLibrary.html](http://_vscodecontentref_/1){% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block title %}カードライブラリ - ErrorMate{% endblock %}
 
 {% block content %}
 <div class="row g-4 justify-content-center">
   <div class="col-10 col-md-5 col-lg-4">
-    <a href="{{ url_for('step_card.list_cards') }}" class="card yellow d-flex align-items-center justify-content-center">ステップカード</a>
+    <a href="{{ url_for('share.share_step_card_list') }}" class="card yellow d-flex align-items-center justify-content-center">ステップカード</a>
   </div>
   <div class="col-10 col-md-5 col-lg-4">
-    <a href="#" class="card gray d-flex align-items-center justify-content-center">ヘルプカード要求</a>
+    <a href="{{ url_for('share.share_help_card_list') }}" class="card gray d-flex align-items-center justify-content-center">ヘルプカード要求</a>
   </div>
 </div>
 {% endblock %}
