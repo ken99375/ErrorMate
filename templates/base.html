@@ -50,17 +50,17 @@
 
         <div class="menu-section">
             <span class="menu-title">カードライブラリ</span>
-            <a href="#">・ステップカード</a>
-            <a href="#">・ヘルプ要求カード</a>
+            <a href="{ url_for('share.share_step_card_list') }}">・ステップカード</a>
+            <a href="{ url_for('share.share_help_card_list') }}">・ヘルプ要求カード</a>
         </div>
 
         <div class="menu-section">
             <span class="menu-title">個人分析</span>
-            <a href="#">・エラー発生回数</a>
-            <a href="#">・言語種別比率</a>
-            <a href="#">・エラー種別比率</a>
-            <a href="#">・コメント回数</a>
-            <a href="#">・コメント傾向</a>
+            <a href="{ url_for('personal.data_error_count') }}">・エラー発生回数</a>
+            <a href="{ url_for('personal.data_language_ratio') }}">・言語種別比率</a>
+            <a href="{ url_for('personal.data_error_type_ratio') }}">・エラー種別比率</a>
+            <a href="{ url_for('personal.data_comment_count') }}">・コメント回数</a>
+            <a href="{ url_for('personal.data_comment_trend') }}">・コメント傾向</a>
         </div>
         </nav>
     </header>
