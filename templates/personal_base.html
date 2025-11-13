@@ -50,16 +50,16 @@
     <!-- 左メニュー -->
     <aside class="personal-sidebar">
         <nav>
-            <a href="PersonalDateErrorCount.html" data-key="errors"
-               class="{{ 'active' if active_key=='errors' else '' }}">エラー発生回数</a>
-            <a href="PersonalDateLanguage.html" data-key="lang"
-               class="{{ 'active' if active_key=='lang' else '' }}">言語種別比率</a>
-            <a href="PersonalDateErrorTypes.html" data-key="types"
-               class="{{ 'active' if active_key=='types' else '' }}">エラー種別比率</a>
-            <a href="PersonalDateComment.html" data-key="comments"
-               class="{{ 'active' if active_key=='comments' else '' }}">コメント回数</a>
-            <a href="PersonalDateTrend.html" data-key="trend"
-               class="{{ 'active' if active_key=='trend' else '' }}">コメント傾向</a>
+            <a href="{{ url_for('personal.data_error_count') }}" data-key="errors"
+                class="{{ 'active' if active_key=='errors' else '' }}">エラー発生回数</a>
+            <a href="{{ url_for('personal.data_language_ratio') }}" data-key="lang"
+                class="{{ 'active' if active_key=='lang' else '' }}">言語種別比率</a>
+            <a href="{{ url_for('personal.data_error_type_ratio') }}" data-key="types"
+                class="{{ 'active' if active_key=='types' else '' }}">エラー種別比率</a>
+            <a href="{{ url_for('personal.data_comment_count') }}" data-key="comments"
+                class="{{ 'active' if active_key=='comments' else '' }}">コメント回数</a>
+            <a href="{{ url_for('personal.data_comment_trend') }}" data-key="trend"
+                class="{{ 'active' if active_key=='trend' else '' }}">コメント傾向</a>
         </nav>
     </aside>
         <!-- 各ページ固有コンテンツ -->
