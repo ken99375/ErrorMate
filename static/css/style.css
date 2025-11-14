@@ -228,3 +228,128 @@ body {
 .blue   { background-color: #64b5f6; }
 .gray   { background-color: #e0e0e0; }
 .green  { background-color: #4caf50; }
+
+/* メインフォーム全体 */
+.container_help {
+  width: 500px;
+  background: #ffffff;
+  padding: 30px 35px;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* 各ラベル */
+.container label {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 6px;
+  display: block;
+}
+
+/* 入力欄 */
+.input-field {
+  display: block;
+  width: 100%;
+  background-color: #fffef4;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 18px;
+  font-size: 15px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+}
+
+/* テキストエリア */
+.message {
+  height: 100px;
+  resize: none;
+}
+
+/* タグ入力欄 */
+.tag-section {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 15px;
+}
+
+.tag-label {
+  font-weight: bold;
+  color: #333;
+}
+
+.tag-input {
+  flex: 1;
+  background-color: #fffef4;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 8px;
+  font-size: 14px;
+}
+
+.add-btn {
+  background-color: #fde68a;
+  border: 1px solid #eab308;
+  color: #333;
+  font-weight: bold;
+  border-radius: 6px;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-btn:hover {
+  background-color: #fcd34d;
+}
+
+/* 投稿先選択 */
+.submit-section {
+  font-size: 14px;
+  margin-bottom: 20px;
+  color: #444;
+}
+
+/* ボタン配置 */
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 戻るリンク */
+.back-link {
+  color: #2563eb;
+  font-weight: bold;
+  text-decoration: none;
+  font-size: 15px;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+/* 投稿ボタン */
+.submit-btn {
+  background-color: #60a5fa;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.submit-btn:hover {
+  background-color: #3b82f6;
+  transform: translateY(-2px);
+}
