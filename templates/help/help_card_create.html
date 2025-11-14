@@ -17,17 +17,19 @@
     <h2>エラーメッセージ</h2>
     <textarea class="message-box" placeholder="エラーメッセージを入力"></textarea>
 
-    <div class="tag-section">
-      <input type="text" class="tag-label" value="#タグ" readonly>
+  <div class="tag-row">
+      <label class="tag-label">#タグ</label>
       <input type="text" class="tag-input" placeholder="タグを入力">
-      <button class="add-btn">＋</button>
-    </div>
+      <button class="tag-add-btn">＋</button>
+  </div>
 
+  <div>
     <div class="destination-section">
-      <label class="dest-label">投稿先選択</label>
-      <label><input type="checkbox" name="dest" value="teacher"> 教師</label>
-      <label><input type="checkbox" name="dest" value="student"> 学生</label>
+        <label>投稿先選択</label>
+        <label><input type="checkbox"> 教師</label>
+        <label><input type="checkbox"> 学生</label>
     </div>
+  </div>
 
     <div class="button-section">
       <a href="{{ url_for('main.index') }}" class="back-link">メニューに戻る</a>
