@@ -26,3 +26,28 @@ document.addEventListener("DOMContentLoaded", () => {
     navLinks.forEach(link => link.classList.remove("show"));
   });
 });
+
+
+
+document.getElementById("ai-tag-btn").addEventListener("click", async () => {
+    const title = document.getElementById("code").value;   // ←タイトル
+    const message = document.getElementById("message").value;
+    const statusEl = document.getElementById("tag-status");
+
+    statusEl.textContent = "AIがタグ考え中…";
+
+    const res = await fetch("/api/generate_tags", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, message })
+    });
+
+    const data = await res.json();
+
+    if (data.tags) {
+        document.getElementById("tags").value = data.tags.join(", ");
+        statusEl.textContent = "タグ生成完了！";
+    } else {
+        statusEl.textContent = "タグ生成失敗";
+    }
+});
