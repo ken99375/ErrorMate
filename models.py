@@ -80,3 +80,19 @@ class Tag(db.Model):
     tag_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     tag_name = db.Column(db.String(100), nullable=False, unique=True) # 設計書に合わせて100に変更
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
+
+class HelpCard(db.Model):
+    """ヘルプカードテーブル (設計書: HELPCARD)"""
+    __tablename__ = 'help_cards'
+
+    card_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+
+    title = db.Column(db.String(255), nullable=False)            # エラータイトル
+    error_code = db.Column(db.Text)                              # エラーコード
+    error_message = db.Column(db.Text)                           # エラーメッセージ
+    tags = db.Column(db.String(200))                             # タグ（カンマ区切り）
+    target = db.Column(db.String(50))                            # 投稿先（教師 or 学生）
+
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    status = db.Column(db.String(50), default='help')            # 状態（help固定）

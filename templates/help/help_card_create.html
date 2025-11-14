@@ -8,33 +8,57 @@
 
 {% block content %}
 <div class="container_help">
+
+  <!-- ★重要：POSTで送るフォーム -->
+  <form action="{{ url_for('help.create_help_card') }}" method="POST">
+
     <h2>エラータイトル</h2>
-    <input type="text" class="input-box" placeholder="エラータイトルを入力">
+    <input type="text" class="input-box" name="title"
+          placeholder="エラータイトルを入力"
+          value="{{ form_data.title if form_data else '' }}">
+
+    {% if errors.title %}
+      <p class="error">{{ errors.title }}</p>
+    {% endif %}
 
     <h2>エラーコード</h2>
-    <input type="text" class="input-box" placeholder="エラーコードを入力">
+    <input type="text" class="input-box" name="code"
+          placeholder="エラーコードを入力"
+          value="{{ form_data.code if form_data else '' }}">
+
+    {% if errors.code %}
+      <p class="error">{{ errors.code }}</p>
+    {% endif %}
 
     <h2>エラーメッセージ</h2>
-    <textarea class="message-box" placeholder="エラーメッセージを入力"></textarea>
+    <textarea class="message-box" name="message"
+              placeholder="エラーメッセージを入力">{{ form_data.message if form_data else '' }}</textarea>
 
-  <div class="tag-row">
+    {% if errors.message %}
+      <p class="error">{{ errors.message }}</p>
+    {% endif %}
+
+    <div class="tag-row">
       <label class="tag-label">#タグ</label>
-      <input type="text" class="tag-input" placeholder="タグを入力">
-      <button class="tag-add-btn">＋</button>
-  </div>
+      <input type="text" class="tag-input" name="tags"
+            placeholder="タグを入力"
+            value="{{ form_data.tags if form_data else '' }}">
+      <button type="button" class="tag-add-btn">＋</button>
+    </div>
 
-  <div>
     <div class="destination-section">
         <label>投稿先選択</label>
-        <label><input type="checkbox"> 教師</label>
-        <label><input type="checkbox"> 学生</label>
+        <label><input type="radio" name="target" value="teacher"> 教師</label>
+        <label><input type="radio" name="target" value="student"> 学生</label>
     </div>
-  </div>
 
     <div class="button-section">
       <a href="{{ url_for('main.index') }}" class="back-link">メニューに戻る</a>
-      <!--11/13:フォーム値がない、ヘルプ共有一覧がないため投稿不可 by多田-->
-      <button class="submit-btn">投稿</button>
+
+      <!-- ★このボタンでDBに保存される -->
+      <button type="submit" class="submit-btn">投稿</button>
     </div>
-  </div>
+
+  </form>
+</div>
 {% endblock %}
