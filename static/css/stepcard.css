@@ -87,16 +87,16 @@
     }
 
 .card-item {
-  position: relative;        /* 位置系 */
-  background: #ffeaa7;       /* 背景色 */
-  border: 2px solid #c9a742; /* 枠線 */
-  padding: 12px;
-  border-radius: 4px;
+    position: relative;        /* 位置系 */
+    background: #ffeaa7;       /* 背景色 */
+    border: 2px solid #c9a742; /* 枠線 */
+    padding: 12px;
+    border-radius: 4px;
 
   /* ボタン位置を揃える用（前に話したやつ） */
-  display: flex;
-  flex-direction: column;
-}
+    display: flex;
+    flex-direction: column;
+    }
 
 
     .card-title {

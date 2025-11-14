@@ -5,6 +5,11 @@ from datetime import datetime
 
 db = SQLAlchemy()
 
+STATUS_STEP    = 'step'
+STATUS_HELP    = 'help'
+STATUS_PUBLIC  = 'public'
+STATUS_DELETED = 'delete'
+
 class User(UserMixin, db.Model):
     """ユーザテーブル (設計書: USER)"""
     __tablename__ = 'users'
@@ -35,7 +40,8 @@ class User(UserMixin, db.Model):
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-# 多対多の中間テーブル (設計書: CARD TAG)
+
+
 card_tags = db.Table('card_tags',
     db.Column('card_id', db.Integer, db.ForeignKey('step_cards.card_id'), primary_key=True),
     db.Column('tag_id', db.Integer, db.ForeignKey('tags.tag_id'), primary_key=True)
@@ -55,13 +61,17 @@ class StepCard(db.Model):
     evaluation = db.Column(db.Integer, default=0) # 評価数
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
-    status = db.Column(db.String(50))       # 状態（公開/非公開など）
+    status = db.Column(db.String(50), nullable=False, default=STATUS_STEP, index=True)
+
 
     # タグとのリレーション
     tags = db.relationship('Tag', secondary=card_tags, lazy='subquery',
                         backref=db.backref('step_cards', lazy=True))
     # コメントとのリレーション
     comments = db.relationship('Comment', backref='card', lazy=True)
+
+
+
 
 class Comment(db.Model):
     """コメントテーブル (設計書: COMMENT)"""

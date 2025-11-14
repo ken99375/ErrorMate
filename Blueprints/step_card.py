@@ -1,21 +1,22 @@
 from flask import Blueprint, render_template, request, redirect, url_for,abort,flash
-from models import db, StepCard, User
+from models import db, StepCard, User,STATUS_STEP, STATUS_PUBLIC, STATUS_DELETED
 
 step_card_bp = Blueprint('step_card', __name__)
 
 # 一覧------------------------------------------------------------------------
 @step_card_bp.route('/list')
 def list_cards():
-    # チーム全員共通で見せる想定なら user_id 条件は外す
     cards = (
         StepCard.query
-        .filter(StepCard.status == 'step') 
+        .filter(StepCard.status != STATUS_DELETED)
+        .filter(StepCard.status.in_((STATUS_STEP, STATUS_PUBLIC)))  # tupleでOK
         .order_by(StepCard.created_at.desc())
         .all()
     )
 
     # cards = cards  :   右側cards : python側の変数名　左側card : テンプレート側に渡すときの名前
     # Python変数 cards を、テンプレートの中で cards という名前で使えるようにしてる
+    
     return render_template('step_card_list.html', cards=cards)
 # ---------------------------------------------------------------------------
 
@@ -24,7 +25,7 @@ def list_cards():
 @step_card_bp.route('/<int:card_id>')
 def detail_card(card_id):
     card = StepCard.query.get_or_404(card_id)
-    if card.status == 'deleted':
+    if card.status == STATUS_DELETED:
         abort(404)
     return render_template('step_card_detail.html', card=card)
 # ---------------------------------------------------------------------------
@@ -54,8 +55,8 @@ def create_card():
 
         # 文字数制限調節コード
         MAX_TITLE   = 255
-        MAX_CODE    = 10
-        MAX_MESSAGE = 10
+        MAX_CODE    = 65535
+        MAX_MESSAGE = 65535
         MAX_RESULT  = 65535
 
         # 必須チェック
@@ -199,4 +200,24 @@ def edit_card(card_id):
 
 @step_card_bp.route('/edit/complete')
 def edit_complete():
-    return render_template('step_card_edit_complete.html')
+    return render_template('card/StepCardUpdateComplate.html')
+
+
+# 確認画面（GET専用）
+@step_card_bp.route('/<int:card_id>/delete/confirm', methods=['GET'])
+def confirm_delete(card_id):
+    card = StepCard.query.get_or_404(card_id)
+    if card.status == STATUS_DELETED:
+        # 既に削除済みは見せない
+        abort(404)
+    return render_template('step_card_delete_confirm.html', card=card)
+
+
+# 本削除（POST専用）
+@step_card_bp.route('/<int:card_id>/delete', methods=['POST'])
+def delete_card(card_id):
+    card = StepCard.query.get_or_404(card_id)
+    if card.status != STATUS_DELETED:
+        card.status = STATUS_DELETED
+        db.session.commit()
+    return redirect(url_for('step_card.list_cards'))
