@@ -432,3 +432,84 @@ body {
 .destination-section label {
     margin: 0; 
 }
+
+/* body {
+    font-family: "Segoe UI", sans-serif;
+    background-color: #A7C7E7; 
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+} */
+
+/* 全体スクロール */
+.scroll-area {
+    height: 100vh;
+    overflow-y: scroll;
+    padding: 40px;
+    box-sizing: border-box;
+}
+
+/* コメント＆コード枠 */
+.comment-section {
+    background-color: #f8f8f8;
+    border-radius: 8px;
+    padding: 8px 25px 40px 25px;
+    max-width: 600px;
+    margin: 0 auto;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* セクションタイトル */
+.comment-title,
+.code-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    margin-top: 20px;
+}
+
+/* コメント入力欄 */
+.comment-input {
+    width: 100%;
+    height: 80px;
+    resize: vertical;
+    font-family: sans-serif;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+    outline: none;
+}
+
+/* コード入力欄 */
+.code-input {
+    width: 100%;
+    height: 160px;
+    resize: vertical;
+    font-family: monospace;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+    outline: none;
+}
+
+/* 送信ボタン */
+.send-btn {
+    display: block;
+    margin: 10px auto 0 auto;
+    background-color: #4A90E2;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 18px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    position: relative;
+    left: 270px; 
+}
+
+.send-btn:hover {
+    background-color: #357ABD;
+}
+
