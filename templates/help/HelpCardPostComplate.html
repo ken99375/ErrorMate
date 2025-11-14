@@ -4,13 +4,13 @@
 
 {% block extra_css %}
 <style>
-  html, body { height: 100%; margin: 0; }
-  body {
+  main.container {
+    height: 100vh;
     display: grid;
     place-items: center;
-    background: #fff;
-    color: #000;
+    padding: 0;
   }
+  
   .wrap {
     text-align: center;
     padding: 2rem;
@@ -21,13 +21,15 @@
     flex-direction: column;
     align-items: center;
   }
-  .message[name="message"] {
+  
+  .message {
     font-weight: 700;
     margin: 0 0 1.5rem;
     font-size: clamp(48px, 10vw, 140px);
     line-height: 1;
   }
-  a.link[name="link_list"] {
+  
+  a.link {
     margin-top: 0.6rem;
     margin-left: clamp(120px, 14vw, 360px);
     text-decoration: underline;
@@ -36,15 +38,22 @@
     color: inherit;
     display: inline-block;
   }
+
   a.link:focus {
     outline: 3px solid rgba(0,0,0,0.12);
     outline-offset: 4px;
     border-radius: 4px;
   }
+  
   @media (max-width: 700px) {
-    .message[name="message"] { white-space: normal; font-size: clamp(40px, 12vw, 80px); }
-    a.link[name="link_list"] {
+    main.container {
+      height: auto;
+      min-height: 100vh;
+    }
+    .message { white-space: normal; font-size: clamp(40px, 12vw, 80px); }
+    a.link {
       margin-left: clamp(20px, 6vw, 80px);
+      transform: none;
       align-self: center;
     }
   }
@@ -52,8 +61,6 @@
 {% endblock %}
 
 {% block content %}
-<main class="wrap" role="main" aria-live="polite">
   <div class="message" name="message">投稿完了！</div>
-  <a href="{{ url_for('help.create_complete') }}" class="link" name="link_list" id="link_list">一覧に戻る</a>
-</main>
+  <a href="{{ url_for('share.share_help_card_list') }}" class="link" name="link_list" id="link_list">移動する</a>
 {% endblock %}
