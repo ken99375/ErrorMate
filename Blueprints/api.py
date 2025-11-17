@@ -16,8 +16,6 @@ if not API_KEY:
 # -------------------------------------
 # Gemini 2.0 Flash（正式版）を使用
 # -------------------------------------
-
-# エラー解析用モデル（v1beta → v1 に書き換え）
 GEMINI_API_URL = (
     f"https://generativelanguage.googleapis.com/v1/models/"
     f"gemini-2.0-flash:generateContent?key={API_KEY}"
@@ -63,12 +61,15 @@ def analyze_error():
     }
 
     response = requests.post(GEMINI_API_URL, json=payload)
-    result = response.json()
-
+    
     try:
+        result = response.json()
         ai_text = result["candidates"][0]["content"]["parts"][0]["text"]
-    except:
-        print(result)
+    except Exception as e:
+        print("★Gemini APIエラー (analyze-error)★")
+        print(f"Status Code: {response.status_code}")
+        print(f"Response Body: {response.text}")
+        print(f"Error: {e}")
         return jsonify({"error": "Gemini APIの解析に失敗しました"}), 500
 
     return jsonify({"result": ai_text})
@@ -89,46 +90,61 @@ def generate_tags():
         return jsonify({"error": "タイトルとメッセージが必要です"}), 400
 
     prompt = f"""
-    以下のテキストから内容を要約し、
-    関連するタグを2つだけ生成してください。
+    以下のテキストから内容を要約し、関連するタグを2つだけ生成してください。
+    - 1つ目のタグは、テキスト内容から推測される「プログラミング言語」（例: Python, Java, JavaScript）にしてください。
+    - 2つ目のタグは、テキスト内容から推測される「エラーの種類」（例: NameError, TypeError, 文法エラー）にしてください。
+    
     出力は ["タグ1","タグ2"] のJSON形式のみで返してください。
 
     テキスト:
     {text}
     """
 
-    # 統一して 2.0 Flash を使用
-    gemini_url = (
-        f"https://generativelanguage.googleapis.com/v1/models/"
-        f"gemini-2.0-flash:generateContent?key={API_KEY}"
-    )
+    payload = {
+        "contents": [{
+            "parts": [{"text": prompt}] # 1回で指示とテキストを両方送る
+        }]
+    }
 
     headers = {
         "Content-Type": "application/json"
     }
 
-    payload = {
-        "contents": [{
-            "parts": [{"text": prompt}]
-        }]
-    }
+    response = requests.post(GEMINI_API_URL, headers=headers, json=payload)
 
-    response = requests.post(gemini_url, headers=headers, json=payload)
+    # --- ★★★ ここからが不足している可能性のあるコード ★★★ ---
 
     # APIエラーチェック
     if response.status_code != 200:
-        print("★Gemini APIエラー内容★")
+        print("★Gemini APIエラー内容 (generate_tags)★")
         print(response.text)
         return jsonify({"error": "Gemini APIエラー"}), 500
 
     # テキスト抽出
-    result_text = response.json()["candidates"][0]["content"]["parts"][0]["text"]
+    try:
+        result_text = response.json()["candidates"][0]["content"]["parts"][0]["text"]
+    except KeyError:
+        print("★Gemini APIエラー (KeyError)★")
+        print(response.text)
+        return jsonify({"error": "Gemini APIからの応答形式が不正です"}), 500
+
+    # AIが ```json ... ``` のようなマークダウンを返すことがあるため、それを除去する
+    clean_text = result_text.strip()
+    if clean_text.startswith('```json'):
+        clean_text = clean_text[7:]
+    if clean_text.startswith('```'):
+        clean_text = clean_text[3:]
+    if clean_text.endswith('```'):
+        clean_text = clean_text[:-3]
+    
+    clean_text = clean_text.strip()
 
     # JSONパース（["タグ1", "タグ2"]形式）
     try:
-        tags = json.loads(result_text)
+        tags = json.loads(clean_text)
     except json.JSONDecodeError:
-        print("AI 出力:", result_text)
+        print("AI 出力 (Raw):", result_text)
+        print("AI 出力 (Cleaned):", clean_text)
         return jsonify({"error": "タグ解析に失敗しました"}), 500
 
     return jsonify({"tags": tags})

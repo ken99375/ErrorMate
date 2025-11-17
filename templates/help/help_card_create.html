@@ -37,13 +37,16 @@
       <p class="error">{{ errors.message }}</p>
     {% endif %}
 
-    <div class="tag-row">
-      <label class="tag-label">#タグ</label>
-      <input type="text" class="tag-input" name="tags" id="tags"
-            placeholder="タグを入力"
-            value="{{ form_data.tags if form_data else '' }}">
-      <button type="button" class="tag-add-btn">＋</button>
+    <div class="tag-section">
+        <label class="tag-label">#タグ</label>
+
+        <div id="tag-container">
+            <input type="text" class="tag-input" name="tags[]" placeholder="タグを入力">
+        </div>
+
+        <button type="button" class="tag-add-btn" id="add-tag-btn">＋</button>
     </div>
+
 
     <!-- AI自動タグ生成ボタン -->
     <button type="button" id="ai-tag-btn" class="btn btn-secondary">
@@ -64,5 +67,30 @@
 
   </form>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const addBtn = document.getElementById("add-tag-btn");
+    const container = document.getElementById("tag-container");
+
+    addBtn.addEventListener("click", function () {
+        const currentTags = container.querySelectorAll("input[name='tags[]']").length;
+
+        if (currentTags >= 5) {
+            alert("タグは最大5個までです。");
+            return;
+        }
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.name = "tags[]";
+        input.classList.add("tag-input");
+        input.placeholder = "タグを入力";
+
+        container.appendChild(input);
+    });
+});
+</script>
+
 
 {% endblock %}
