@@ -9,31 +9,51 @@
 {% block content %}
 <!-- タグ検索欄 -->
 <div class="d-flex align-items-center mb-4" style="justify-content: flex-start;">
-    <input 
-    type="text" 
-    id="tagInput" 
-    class="form-control me-2" 
-    placeholder="タグ検索欄" 
-    style="max-width: 400px; font-size: 1.3rem;"
-    >
-    <button id="searchBtn" class="btn btn-outline-primary" style="font-size: 1.2rem;">🔍</button>
+    <form class="d-flex" method="get" action="{{ url_for('share.share_step_card_list') }}">
+        <input 
+            type="text" 
+            id="tagInput" 
+            name="tag"
+            class="form-control me-2" 
+            placeholder="タグ検索欄" 
+            style="max-width: 400px; font-size: 1.3rem;"
+            value="{{ keyword|e }}"
+        >
+        <button id="searchBtn" type="submit" class="btn btn-outline-primary" style="font-size: 1.2rem;">🔍</button>
+    </form>
 </div>
+
+<!-- 検索結果表示 -->
+{% if keyword %}
+    <div class="mb-4">
+        <h5>検索キーワード: 「{{ keyword|e }}」</h5>
+        {% if matches %}
+            <div class="row">
+                {% for card in matches %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ card.title }}</h5>
+                                <p class="card-text">
+                                    タグ:
+                                    {% for t in card.tags %}
+                                        <span class="badge bg-secondary me-1">{{ t }}</span>
+                                    {% endfor %}
+                                </p>
+                                <!-- ここにカード詳細リンクなどを追加 -->
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-warning" role="alert">
+                タグが存在しません
+            </div>
+        {% endif %}
+    </div>
+{% endif %}
 
 <!-- あとでDBでカードを追加する場所 -->
 
-{% endblock %}
-
-{% block extra_js %}
-<!-- タグ検索ボタンの動作（仮） -->
-<script>
-document.getElementById("searchBtn").addEventListener("click", function () {
-    const keyword = document.getElementById("tagInput").value.trim();
-    if (keyword) {
-        alert("検索キーワード: " + keyword);
-      // 🔹 今後ここでDB検索処理を追加予定
-    } else {
-        alert("タグを入力してください。");
-    }
-});
-</script>
 {% endblock %}

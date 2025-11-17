@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}ステップカード編集完了 - ErrorMate{% endblock %}
+{% block title %}ステップカード削除画面(連続クリックエラー) - ErrorMate{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -25,7 +25,7 @@
   .message {
     font-weight: 700;
     margin: 0 0 1.5rem;
-    font-size: clamp(48px, 10vw, 140px);
+    font-size: clamp(32px, 7vw, 70px); 
     line-height: 1;
   }
   
@@ -50,10 +50,12 @@
       height: auto;
       min-height: 100vh;
     }
-    .message { white-space: normal; font-size: clamp(40px, 12vw, 80px); }
+    .message {
+      white-space: normal;
+      font-size: clamp(28px, 10vw, 50px); /* スマホ用も小さめに調整 */
+    }
     a.link {
       margin-left: clamp(20px, 6vw, 80px);
-      transform: none;
       align-self: center;
     }
   }
@@ -62,7 +64,7 @@
 
 {% block content %}
 <div class="wrap" role="main" aria-live="polite">
-  <div class="message">編集完了！</div>
+  <div class="message">カードは既に削除されています</div>
   <a href="{{ url_for('step_card.list_cards') }}" class="link" id="link_list">一覧に戻る</a>
 </div>
 {% endblock %}
