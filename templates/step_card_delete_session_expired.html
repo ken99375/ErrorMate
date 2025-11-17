@@ -1,0 +1,15 @@
+    {% extends "base.html" %}
+    {% block title %}セッション切れ | ErrorMate{% endblock %}
+    {% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/stepcard.css') }}">{% endblock %}
+
+    {% block content %}
+    <section class="screen active detail-screen">
+    <div class="detail-box">
+        <h2 class="detail-title text-danger">セッションの有効期限が過ぎました。</h2>
+        <p class="mb-4">もう一度削除されたい場合は、再度アクセスしてください。</p>
+        <div class="detail-footer">
+        <a href="{{ url_for('step_card.list_cards') }}" class="link-back">一覧画面へ戻る</a>
+        </div>
+    </div>
+    </section>
+    {% endblock %}

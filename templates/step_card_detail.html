@@ -37,27 +37,28 @@
         </div>
 
         <div class="detail-footer">
-        <a href="{{ url_for('step_card.list_cards') }}"
-            class="link-back"
-            name="link_list">
-            一覧に戻る
-        </a>
+            <a href="{{ url_for('step_card.list_cards') }}"
+                class="link-back"
+                name="link_list">
+                一覧に戻る
+            </a>
 
-        <!-- 編集・削除はルート作るまでダミーでもOK -->
-        <form method="get"
-                action="#"
-                class="detail-actions">
-            <button type="submit"
-                    class="btn-edit"
-                    name="btn_edit">
-            編集
-            </button>
-            <button type="button"
-                    class="btn-delete"
-                    name="btn_delete">
-            削除
-            </button>
-        </form>
+
+            <form class="detail-actions">
+                <button type="submit"
+                        class="btn-edit"
+                        formmethod="get"
+                        formaction="{{ url_for('step_card.edit_card', card_id=card.card_id) }}">
+                    編集
+                </button>
+
+                <button type="submit"
+                        class="btn btn-danger"
+                        formmethod="get"
+                        formaction="{{ url_for('step_card.confirm_delete', card_id=card.card_id) }}">
+                    削除
+                </button>
+            </form>
         </div>
     </div>
     </section>

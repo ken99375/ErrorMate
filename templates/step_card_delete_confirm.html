@@ -1,0 +1,52 @@
+    {% extends "base.html" %}
+    {% block title %}削除確認 | ErrorMate{% endblock %}
+
+    {% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/stepcard.css') }}">
+    <style>
+    .confirm-title { color:#b71c1c; text-align:center; font-weight:700; letter-spacing:.06em; margin:24px 0 12px; }
+    .detail-box { max-width: 920px; margin: 0 auto; }
+    .detail-value { white-space: pre-wrap; }
+    </style>
+    {% endblock %}
+
+    {% block content %}
+    <section class="screen active detail-screen">
+    <h1 class="confirm-title">本当に削除しますか？</h1>
+
+    <div class="detail-box">
+        <!-- タイトル -->
+        <h2 class="detail-title">{{ card.title | e }}</h2>
+
+        <div class="detail-grid">
+        <div class="detail-cell">
+            <h3>エラーコード</h3>
+            <pre class="detail-value">{{ card.error_code | default('', true) | e }}</pre>
+        </div>
+        <div class="detail-cell">
+            <h3>修正コード</h3>
+            <pre class="detail-value">{{ card.modifying_code | default('', true) | e }}</pre>
+        </div>
+        <div class="detail-cell">
+            <h3>エラーメッセージ</h3>
+            <pre class="detail-value">{{ card.error_message | default('', true) | e }}</pre>
+        </div>
+        <div class="detail-cell">
+            <h3>実装結果</h3>
+            <pre class="detail-value">{{ card.execution_result | default('', true) | e }}</pre>
+        </div>
+        </div>
+
+        <div class="detail-footer">
+        <a href="{{ url_for('step_card.detail_card', card_id=card.card_id) }}"
+            class="link-back">詳細に戻る</a>
+
+        <form method="post" action="{{ url_for('step_card.delete_card', card_id=card.card_id) }}">
+            <!-- value="{{ token }}" -->
+            <input type="hidden" name="delete_token" value="{{ token }}">
+            <button type="submit" class="btn btn-danger">削除</button>
+        </form>
+        </div>
+    </div>
+    </section>
+    {% endblock %}

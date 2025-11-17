@@ -11,22 +11,12 @@ header {
   align-items: center;
   padding: 8px 16px;
   border-bottom: 2px solid #d0c2a3;
-
-
-
-
-
-
-
-
-
-  
   background: #fff6d9;
 }
 
 .app-title {
   font-size: 28px;
-  color: #4a7cb1; /* 青系アクセント */
+  color: #4a7cb1; 
   font-weight: bold;
 }
 

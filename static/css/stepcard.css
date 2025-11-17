@@ -87,16 +87,16 @@
     }
 
 .card-item {
-  position: relative;        /* 位置系 */
-  background: #ffeaa7;       /* 背景色 */
-  border: 2px solid #c9a742; /* 枠線 */
-  padding: 12px;
-  border-radius: 4px;
+    position: relative;        /* 位置系 */
+    background: #ffeaa7;       /* 背景色 */
+    border: 2px solid #c9a742; /* 枠線 */
+    padding: 12px;
+    border-radius: 4px;
 
   /* ボタン位置を揃える用（前に話したやつ） */
-  display: flex;
-  flex-direction: column;
-}
+    display: flex;
+    flex-direction: column;
+    }
 
 
     .card-title {
@@ -297,3 +297,75 @@
     .btn-detail:hover {
     opacity: 0.9;
     }
+
+
+    .complete-box {
+    max-width: 600px;
+    margin: 80px auto;
+    text-align: center;
+    padding: 60px 20px;
+    background: #ffeb88;
+    border-radius: 8px;
+    }
+
+    .complete-message {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    }
+
+    .modal-mask{
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.35);
+    display: none;
+    z-index: 900;
+    }
+    .modal{
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 901;
+    }
+    .modal.open,
+    .modal-mask.open{ display: flex; }
+
+    .modal-card{
+    background: #fff;
+    border-radius: 14px;
+    min-width: 420px;
+    max-width: 680px;
+    padding: 28px 32px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+
+    .modal-title{
+    font-weight: 700;
+    font-size: 20px;
+    color: #b00020;
+    margin: 0 0 12px;
+    }
+    .modal-body{ line-height: 1.8; margin-bottom: 20px; }
+    .modal-actions{ display: flex; gap: 12px; justify-content: center; }
+
+    .btn-ghost{
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    background: #f6f6f6;
+    cursor: pointer;
+    text-decoration: none;
+    }
+
+    /* 見出し（確認画面） */
+    .confirm-head{
+    color: #b00020;
+    text-align: center;
+    font-size: 36px;
+    margin-bottom: 14px;
+    }
+
+    /* モーダル表示中のスクロール固定（必要なら） */
+    html.modal-open, body.modal-open { overflow: hidden; }

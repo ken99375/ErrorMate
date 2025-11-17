@@ -1,0 +1,96 @@
+    {% extends "base.html" %}
+
+    {% block title %}ステップカード編集 | ErrorMate{% endblock %}
+
+    {% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/stepcard.css') }}">
+    {% endblock %}
+
+    {% block content %}
+    <section id="screen-editor" class="screen active">
+    <div class="form-box">
+        <h2>エラータイトル</h2>
+        <!-- card_id=card.card_id の card.card_id は いま一覧でループしてる 1件のカードオブジェクトの主キー -->
+        <form id="step_form"
+            method="post"
+            action="{{ url_for('step_card.edit_card', card_id=card.card_id) }}"
+            novalidate>
+
+        <!-- タイトル -->
+        <div class="form-row">
+            <label for="text_title">エラータイトル</label>
+            <input type="text"
+                id="text_title"
+                name="text_title"
+                maxlength="255"
+                required
+                value="{{ (form.text_title if (form is defined and 'text_title' in form) else card.title) | e }}">
+            {% if errors.text_title %}
+                <p class="form-error">{{ errors.text_title }}</p>
+            {% endif %}
+
+        </div>
+
+        <!-- エラーコード -->
+        <div class="form-row">
+        <label for="text_error">エラーコード</label>
+        <textarea id="text_error"
+                    name="text_error"
+                    rows="3"
+                    maxlength="65535">{{ (form.text_error if (form is defined and 'text_error' in form) else card.error_code) | e }}</textarea>
+        {% if errors.text_error %}
+            <p class="form-error">{{ errors.text_error }}</p>
+        {% endif %}
+        </div>
+
+
+        <!-- 修正コード -->
+        <div class="form-row">
+            <label for="text_fixcode">修正コード</label>
+            <textarea id="text_fixcode"
+                    name="text_fixcode"
+                    rows="3"
+                    maxlength="65535">{{ (form.text_fixcode if (form is defined and 'text_fixcode' in form) else card.modifying_code) | e }}</textarea>
+            {% if errors.text_fixcode %}
+            <p class="form-error">{{ errors.text_fixcode }}</p>
+            {% endif %}
+        </div>
+
+        <!-- エラーメッセージ -->
+        <div class="form-row">
+            <label for="text_message">エラーメッセージ</label>
+            <textarea id="text_message"
+                    name="text_message"
+                    rows="3"
+                    maxlength="65535">{{ (form.text_message if (form is defined and 'text_message' in form) else card.error_message) | e }}</textarea>
+            {% if errors.text_message %}
+            <p class="form-error">{{ errors.text_message }}</p>
+            {% endif %}
+        </div>
+
+        <!-- 実装結果 -->
+        <div class="form-row">
+            <label for="text_result">実装結果</label>
+            <textarea id="text_result"
+                    name="text_result"
+                    rows="3"
+                    maxlength="65535">{{ (form.text_result if (form is defined and 'text_result' in form) else card.execution_result) | e }}</textarea>
+            {% if errors.text_result %}
+            <p class="form-error">{{ errors.text_result }}</p>
+            {% endif %}
+        </div>
+
+        <div class="form-footer">
+            <!-- 詳細に戻る -->
+            <a href="{{ url_for('step_card.detail_card', card_id=card.card_id) }}"
+            class="back-link">
+            詳細に戻る
+            </a>
+
+            <!-- 保存 -->
+            <button type="submit" class="btn-primary">保存</button>
+        </div>
+        </form>
+    </div>
+    </section>
+    {% endblock %}
