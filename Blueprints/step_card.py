@@ -1,7 +1,16 @@
-from flask import Blueprint, render_template, request, redirect, url_for,abort,flash
+from flask import Blueprint, render_template, request, redirect, url_for,abort,session
 from models import db, StepCard, User,STATUS_STEP, STATUS_PUBLIC, STATUS_DELETED
+from sqlalchemy.exc import SQLAlchemyError
+from uuid import uuid4
+from datetime import datetime, timedelta
+
 
 step_card_bp = Blueprint('step_card', __name__)
+
+
+SESSION_TTL_MIN = 1
+STATUS_DELETED = 'deleted'
+
 
 # 一覧------------------------------------------------------------------------
 @step_card_bp.route('/list')
@@ -203,21 +212,57 @@ def edit_complete():
     return render_template('card/StepCardUpdateComplate.html')
 
 
-# 確認画面（GET専用）
+
+def _del_token_key(card_id: int) -> str:
+    return f'delete_token:{card_id}'
+
+
+
+# 確認画面 GET
 @step_card_bp.route('/<int:card_id>/delete/confirm', methods=['GET'])
 def confirm_delete(card_id):
     card = StepCard.query.get_or_404(card_id)
+
+    # すでに削除済みなら専用画面
     if card.status == STATUS_DELETED:
-        # 既に削除済みは見せない
-        abort(404)
-    return render_template('step_card_delete_confirm.html', card=card)
+        return render_template('step_card_delete_already.html', card=card)
 
+    token = str(uuid4())
+    session[_del_token_key(card_id)] = {
+        'token': token,
+        'exp': (datetime.utcnow() + timedelta(minutes=SESSION_TTL_MIN)).timestamp()
+    }
+    return render_template('step_card_delete_confirm.html', card=card, token=token)
 
-# 本削除（POST専用）
+# 論理削除 POST
 @step_card_bp.route('/<int:card_id>/delete', methods=['POST'])
 def delete_card(card_id):
     card = StepCard.query.get_or_404(card_id)
-    if card.status != STATUS_DELETED:
+
+    # すでに削除済み
+    if card.status == STATUS_DELETED:
+        return render_template('step_card_delete_already.html', card=card)
+
+    # トークン検証（セッション切れ／二重送信）
+    form_token = request.form.get('delete_token', '')
+    sess = session.get(_del_token_key(card_id))
+    session.pop(_del_token_key(card_id), None)  # ワンタイムなので必ず破棄
+
+    if not sess or form_token != sess.get('token'):
+        # セッション切れ・無効トークン
+        return render_template('step_card_delete_session_expired.html', card=card)
+
+    if datetime.utcnow().timestamp() > sess.get('exp', 0):
+        # 有効期限切れ
+        return render_template('step_card_delete_session_expired.html', card=card)
+
+    # 論理削除トライ
+    try:
         card.status = STATUS_DELETED
         db.session.commit()
+    except SQLAlchemyError:
+        db.session.rollback()
+        # タイムアウト・DBエラー等をひとまとめに「失敗」画面
+        return render_template('step_card_delete_failed.html', card=card)
+
     return redirect(url_for('step_card.list_cards'))

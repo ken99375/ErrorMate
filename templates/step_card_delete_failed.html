@@ -1,0 +1,18 @@
+    {% extends "base.html" %}
+    {% block title %}削除に失敗 | ErrorMate{% endblock %}
+    {% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/stepcard.css') }}">{% endblock %}
+
+    {% block content %}
+    <section class="screen active detail-screen">
+    <div class="detail-box">
+        <h2 class="detail-title text-danger">削除に失敗しました。再試行してください</h2>
+        <p class="mb-4">
+        一時的なネットワーク／サーバの負荷などが原因の可能性があります。
+        </p>
+        <div class="detail-footer">
+        <a href="{{ url_for('step_card.detail_card', card_id=card.card_id) }}" class="link-back">詳細に戻る</a>
+        <a href="{{ url_for('step_card.confirm_delete', card_id=card.card_id) }}" class="btn-primary">再試行ボタン</a>
+        </div>
+    </div>
+    </section>
+    {% endblock %}

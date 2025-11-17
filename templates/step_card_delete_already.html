@@ -1,0 +1,14 @@
+    {% extends "base.html" %}
+    {% block title %}削除済み | ErrorMate{% endblock %}
+    {% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/stepcard.css') }}">{% endblock %}
+
+    {% block content %}
+    <section class="screen active detail-screen">
+    <div class="detail-box">
+        <h2 class="detail-title text-danger">カードは既に削除されています</h2>
+        <div class="detail-footer">
+        <a href="{{ url_for('step_card.list_cards') }}" class="link-back">一覧に戻る</a>
+        </div>
+    </div>
+    </section>
+    {% endblock %}

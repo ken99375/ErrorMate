@@ -42,6 +42,8 @@
             class="link-back">詳細に戻る</a>
 
         <form method="post" action="{{ url_for('step_card.delete_card', card_id=card.card_id) }}">
+            <!-- value="{{ token }}" -->
+            <input type="hidden" name="delete_token" value="{{ token }}">
             <button type="submit" class="btn btn-danger">削除</button>
         </form>
         </div>
