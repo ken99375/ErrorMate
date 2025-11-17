@@ -281,22 +281,30 @@ body {
     display: flex;
     align-items: center;
     pointer-events: none;
+    margin-bottom: 5px;
+    display: block;
 
 }
 
+#tag-container {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
 
 .input-box,
 .message-box,
 .tag-input {
+  flex: 1;
   width: 100%;
   height: 40px;
   font-size: 16px;
   background-color: #fffef4;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  padding: 5px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 6px 10px;
   margin-bottom: 18px;
-  font-size: 16px;
+  font-size: 14px;
   box-sizing: border-box; 
   position:relative;
   top: 10px;
@@ -316,18 +324,10 @@ body {
 /* タグ入力欄 */
 .tag-section {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 10px;
-  margin-bottom: 18px;
-}
-
-.tag-input {
-  flex: 1;
-  background-color: #fffef4;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  padding: 8px;
-  font-size: 14px;
+  margin-bottom: 15px;
+  position: relative;
 }
 
 .add-btn {
@@ -368,9 +368,19 @@ body {
     height: 40px;
     width: 40px;
     font-size: 20px;
+    background-color: #fde68a;
+    border: 1px solid #eab308;
+    border-radius: 4px;
     display: flex;
     justify-content: center;
     align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+
+.tag-add-btn:hover {
+    background-color: #fcd34d;
 }
 
 /* 戻るリンク */
@@ -432,14 +442,6 @@ body {
 .destination-section label {
     margin: 0; 
 }
-
-/* body {
-    font-family: "Segoe UI", sans-serif;
-    background-color: #A7C7E7; 
-    margin: 0;
-    height: 100vh;
-    overflow: hidden;
-} */
 
 /* 全体スクロール */
 .scroll-area {

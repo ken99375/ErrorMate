@@ -51,3 +51,30 @@ document.getElementById("ai-tag-btn").addEventListener("click", async () => {
         statusEl.textContent = "タグ生成失敗";
     }
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+    const container = document.getElementById("tag-container");
+    const addBtn = document.getElementById("add-tag-btn");
+
+    // まず既存の click イベントを解除（重複防止）
+    const newAddBtn = addBtn.cloneNode(true);
+    addBtn.parentNode.replaceChild(newAddBtn, addBtn);
+
+    newAddBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+
+        const currentTags = container.querySelectorAll("input[name='tags[]']").length;
+        if (currentTags >= 5) {
+            alert("タグは最大5個までです。");
+            return;
+        }
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.name = "tags[]";
+        input.classList.add("tag-input");
+        input.placeholder = "タグを入力";
+
+        container.appendChild(input);
+    });
+});
