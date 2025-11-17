@@ -10,6 +10,7 @@ from Blueprints.step_card import step_card_bp
 from Blueprints.help import help_bp
 from Blueprints.personal import personal_bp
 from Blueprints.share import share_bp
+from Blueprints.api import api_bp
 
 
 app = Flask(__name__)
@@ -41,6 +42,8 @@ app.register_blueprint(help_bp, url_prefix='/help')
 app.register_blueprint(personal_bp, url_prefix='/personal')
 
 app.register_blueprint(share_bp, url_prefix='/share')
+
+app.register_blueprint(api_bp, url_prefix="/api")
 
 # アプリ起動時にテーブルを作成
 with app.app_context():
