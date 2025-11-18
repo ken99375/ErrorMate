@@ -1,4 +1,9 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, jsonify
+from flask_login import login_required
+from models import db, StepCard # 1. モデルをインポート
+from sqlalchemy import func                # 2. SQL関数をインポート
+from datetime import datetime, timedelta   # 3. 日付操作をインポート
+import json                                # 4. JSONをインポート
 
 personal_bp = Blueprint('personal', __name__)
 
@@ -6,7 +11,73 @@ personal_bp = Blueprint('personal', __name__)
 # エラー発生回数------------------------------------------------------------------------
 @personal_bp.route('/ErrorCount', methods=['GET', 'POST'])
 def data_error_count():
-    return render_template('personal/PersonalDataErrorCount.html')
+
+    # --- 1. 過去7日間の日付ラベルを生成 ---
+    today = datetime.utcnow().date()
+    # X軸のラベル 
+    date_labels = [(today - timedelta(days=i)).strftime('%m/%d') for i in range(6, -1, -1)]
+    # DB検索用の日付
+    date_keys = [(today - timedelta(days=i)).strftime('%Y-%m-%d') for i in range(6, -1, -1)]
+
+    start_date = date_keys[0] # 7日前の日付
+
+    # --- 2. データベースからデータを集計 ---
+    step_card_results = db.session.query(
+    func.strftime('%Y-%m-%d', StepCard.created_at).label('date'),
+    func.count(StepCard.card_id)
+    ).filter(
+        StepCard.created_at >= start_date,
+        StepCard.status == 'public'
+    ).group_by('date').all()
+    # 高速で検索できるように辞書に変換 (例: {'2025-11-18': 5})
+    step_counts = {date: count for date, count in step_card_results}
+
+    # (B) HelpCard の日別カウントを取得
+    help_card_results = db.session.query(
+    func.strftime('%Y-%m-%d', StepCard.created_at).label('date'),
+    func.count(StepCard.card_id)
+    ).filter(
+        StepCard.created_at >= start_date,
+        StepCard.status == 'help'
+    ).group_by('date').all()
+    help_counts = {date: count for date, count in help_card_results}
+
+        # --- 3. Chart.js用のデータ形式に整形 ---
+    step_data_list = []
+    help_data_list = []
+
+    for date_key in date_keys: # 7日間の日付をループ
+        step_data_list.append(step_counts.get(date_key, 0)) # その日付の件数、なければ0
+        help_data_list.append(help_counts.get(date_key, 0)) # その日付の件数、なければ0
+
+    # Chart.jsに渡す最終的なPython辞書
+    chart_data_py = {
+        "labels": date_labels, # X軸のラベル
+        "datasets": [
+            {
+                "label": 'ステップカード作成数',
+                "data": step_data_list,
+                "borderColor": 'rgb(54, 162, 235)',
+                "backgroundColor": 'rgba(54, 162, 235, 0.2)',
+                "fill": True,
+                "tension": 0.1
+            },
+            {
+                "label": 'ヘルプカード作成数',
+                "data": help_data_list,
+                "borderColor": 'rgb(255, 99, 132)',
+                "backgroundColor": 'rgba(255, 99, 132, 0.2)',
+                "fill": True,
+                "tension": 0.1
+            }
+        ]
+    }
+    
+    # Python辞書をJSON文字列に変換してテンプレートに渡す
+    # (JavaScriptで安全に読み込むため)
+    chart_data_json = json.dumps(chart_data_py)
+
+    return render_template('personal/PersonalDataErrorCount.html', chart_data=chart_data_json)
 
 
 # 言語種別比率------------------------------------------------------------------------
