@@ -1,68 +1,58 @@
     {% extends "base.html" %}
+
     {% block title %}ステップカード共有一覧 - ErrorMate{% endblock %}
 
     {% block extra_css %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/stepcardshare.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/share/stepcardshare.css') }}">
     {% endblock %}
 
     {% block content %}
 
-    <div class="library">
-
-    <!-- 検索バー -->
-    <form class="searchbar" method="get" action="{{ url_for('share.share_step_card_list') }}">
+    <div class="d-flex align-items-center mb-4" style="justify-content:flex-start;">
+    <form class="d-flex" method="get" action="{{ url_for('share.share_step_card_list') }}">
         <input
         type="text"
+        id="tagInput"
         name="tag"
-        value="{{ keyword|default('', true)|e }}"
-        placeholder="タグ検索欄"
-        aria-label="タグ検索欄"
-        />
-        <button type="submit" class="searchbtn" aria-label="検索">
-        <span class="icon">🔍</span>
-        </button>
+        class="form-control me-2"
+        placeholder="タグ検索欄（複数はカンマ or スペース区切り）"
+        style="max-width:400px;font-size:1.2rem;"
+        value="{{ keyword|e }}"
+        >
+        <button id="searchBtn" type="submit" class="btn btn-outline-primary" style="font-size:1.1rem;">🔍</button>
     </form>
+    </div>
 
-    <!-- 結果リスト -->
+    {% if keyword %}
+    <div class="mb-3">
+        <h5>検索キーワード: 「{{ keyword|e }}」</h5>
+    </div>
+    {% endif %}
+
     {% if matches %}
-    <div class="board">
+    <div class="row row-cols-1 row-cols-md-3 g-4">
         {% for card in matches %}
-        <article class="share-card">
-        <div class="panel">
-            <!-- タイトル札 -->
-            <div class="title-plaque">{{ card.title or 'タイトル' }}</div>
-
-            <!-- 情報スラット -->
-            <div class="slat">エラーコード</div>
-            <div class="slat">修正コード</div>
-            <div class="slat">エラーメッセージ</div>
-
-            <!-- フッター行（ユーザ名・タグ） -->
-            <div class="rowline">
-            <span class="user">{{ card.author.user_name if card.author else 'ユーザ名' }}</span>
-            <span class="tags">
-                {% if card.tags %}
-                {% for t in card.tags %}#{{ t.tag_name }}{% if not loop.last %} {% endif %}{% endfor %}
-                {% else %}#タグ{% endif %}
-            </span>
+        <div class="col">
+            <div class="card h-100 share-card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ card.title }}</h5>
+                    <p class="card-text text-muted" style="white-space:pre-line;">
+                    {{ (card.error_message or '')[:120] }}
+                    </p>
+                    <div class="mb-2">
+                    {% for t in card.tags %}
+                        <span class="badge bg-secondary me-1">#{{ t.tag_name }}</span>
+                    {% endfor %}
+                    </div>
+                    <a class="btn btn-sm btn-outline-primary" href="{{ url_for('step_card.detail_card', card_id=card.card_id) }}">詳細</a>
+                </div>
             </div>
         </div>
-
-        <!-- アクション行（ハート・詳細） -->
-        <div class="actions">
-            <span class="heart" aria-hidden="true">♡</span>
-            <a class="detail-link" href="{{ url_for('step_card.detail_card', card_id=card.card_id) }}">詳細</a>
-        </div>
-
-        <!-- サムネ領域 -->
-        <div class="thumb" aria-hidden="true"></div>
-        </article>
         {% endfor %}
     </div>
     {% else %}
-        <div class="alert alert-warning">該当するカードがありません。</div>
-    {% endif %}
 
-    </div>
+    <div class="alert alert-warning">該当するカードがありません。</div>
+    {% endif %}
 
     {% endblock %}

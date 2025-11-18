@@ -207,9 +207,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 120%; /* 親に合わせる */
   height: 170px; /* 高さ固定（調整可） */
-  aspect-ratio: 4 / 3;
   border-radius: 10px;
   text-decoration: none;
   font-weight: bold;
@@ -218,6 +216,8 @@ body {
   transition: transform 0.2s;
 
 }
+
+
 
 .card:hover {
   transform: scale(1.05);
