@@ -224,8 +224,8 @@ body {
 
 /* カラー設定（必要ならそのまま維持） */
 .yellow { 
-    background: linear-gradient(135deg, #ffdb4c, #f7d037 #FFB100);
-    color: #333;
+    background: linear-gradient(135deg, #ffdb4c, #f7d037 ,#FFB100);
+    color: #fff;
 }
 .blue   { 
     background: linear-gradient(135deg, #5cadfa, #3c7ffc, #007BFF);
