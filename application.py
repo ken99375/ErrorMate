@@ -13,17 +13,17 @@ from Blueprints.share import share_bp
 from Blueprints.api import api_bp
 
 
-app = Flask(__name__)
+application = Flask(__name__)
 
 # 設定の読み込み
-app.config.from_object(config['default'])
+application.config.from_object(config['default'])
 
 # データベースの初期化
-db.init_app(app)
+db.init_app(application)
 
 # ログインマネージャーの初期化
 login_manager = LoginManager()
-login_manager.init_app(app)
+login_manager.init_app(application)
 login_manager.login_view = 'auth.login'
 
 @login_manager.user_loader
@@ -31,23 +31,23 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 # Blueprintの登録
-app.register_blueprint(main_bp)
+application.register_blueprint(main_bp)
 
-app.register_blueprint(step_card_bp, url_prefix='/card')
+application.register_blueprint(step_card_bp, url_prefix='/card')
 
-app.register_blueprint(auth_bp, url_prefix='/auth')
+application.register_blueprint(auth_bp, url_prefix='/auth')
 
-app.register_blueprint(help_bp, url_prefix='/help')
+application.register_blueprint(help_bp, url_prefix='/help')
 
-app.register_blueprint(personal_bp, url_prefix='/personal')
+application.register_blueprint(personal_bp, url_prefix='/personal')
 
-app.register_blueprint(share_bp, url_prefix='/share')
+application.register_blueprint(share_bp, url_prefix='/share')
 
-app.register_blueprint(api_bp, url_prefix="/api")
+application.register_blueprint(api_bp, url_prefix="/api")
 
 # アプリ起動時にテーブルを作成
-with app.app_context():
+with application.app_context():
     db.create_all()
 
 if __name__ == '__main__':
-    app.run()
+    application.run()
