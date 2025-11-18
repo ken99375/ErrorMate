@@ -18,7 +18,7 @@ def list_cards():
     cards = (
         StepCard.query
         .filter(StepCard.status != STATUS_DELETED)
-        .filter(StepCard.status.in_((STATUS_STEP, STATUS_PUBLIC)))  # tupleでOK
+        .filter(StepCard.status.in_((STATUS_STEP, STATUS_PUBLIC)))  
         .order_by(StepCard.created_at.desc())
         .all()
     )
@@ -291,6 +291,15 @@ def do_share(card_id):
     # 入力されたタグ（CSV）
     csv_tags = (request.form.get('tags') or '').strip()
     tag_names = [t for t in [x.strip() for x in csv_tags.split(',')] if t]
+
+    if not tag_names:
+        return render_template(
+            'step_card_share_confirm.html',
+            card=card,
+            preset_tags=csv_tags,
+            form_error={'tags': 'タグを1件以上入力してください'}
+        )
+
 
     # タグ作成（存在しなければ新規）＋関連付け
     attached = set()
