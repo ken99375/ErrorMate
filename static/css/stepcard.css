@@ -369,3 +369,25 @@
 
     /* モーダル表示中のスクロール固定（必要なら） */
     html.modal-open, body.modal-open { overflow: hidden; }
+
+
+
+
+.btn-share {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 4px;
+    background-color: #8dcfc9;
+    color: #000;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: bold;
+    }
+
+.confirm-title {
+    color:#1c45b7; 
+    text-align:center; 
+    font-weight:700; 
+    letter-spacing:.06em; 
+    margin:24px 0 12px; 
+    }

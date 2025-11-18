@@ -1,0 +1,13 @@
+    {% extends "base.html" %}
+    {% block title %}共有失敗 | ErrorMate{% endblock %}
+    {% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/stepcard.css') }}">{% endblock %}
+    {% block content %}
+    <section class="screen active detail-screen">
+    <div class="detail-box">
+        <h2 class="detail-title text-danger">共有に失敗しました。時間を置いて再試行してください。</h2>
+        <div class="detail-footer">
+        <a class="link-back" href="{{ url_for('step_card.list_cards') }}">一覧に戻る</a>
+        </div>
+    </div>
+    </section>
+    {% endblock %}

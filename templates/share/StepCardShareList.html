@@ -1,59 +1,57 @@
-{% extends "base.html" %}
+    {% extends "base.html" %}
 
-{% block title %}ステップカード共有一覧 - ErrorMate{% endblock %}
+    {% block title %}ステップカード共有一覧 - ErrorMate{% endblock %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/stepcardshare.css') }}">
-{% endblock %}
+    {% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/stepcardshare.css') }}">
+    {% endblock %}
 
-{% block content %}
-<!-- タグ検索欄 -->
-<div class="d-flex align-items-center mb-4" style="justify-content: flex-start;">
+    {% block content %}
+
+    <div class="d-flex align-items-center mb-4" style="justify-content:flex-start;">
     <form class="d-flex" method="get" action="{{ url_for('share.share_step_card_list') }}">
-        <input 
-            type="text" 
-            id="tagInput" 
-            name="tag"
-            class="form-control me-2" 
-            placeholder="タグ検索欄" 
-            style="max-width: 400px; font-size: 1.3rem;"
-            value="{{ keyword|e }}"
+        <input
+        type="text"
+        id="tagInput"
+        name="tag"
+        class="form-control me-2"
+        placeholder="タグ検索欄（複数はカンマ or スペース区切り）"
+        style="max-width:400px;font-size:1.2rem;"
+        value="{{ keyword|e }}"
         >
-        <button id="searchBtn" type="submit" class="btn btn-outline-primary" style="font-size: 1.2rem;">🔍</button>
+        <button id="searchBtn" type="submit" class="btn btn-outline-primary" style="font-size:1.1rem;">🔍</button>
     </form>
-</div>
-
-<!-- 検索結果表示 -->
-{% if keyword %}
-    <div class="mb-4">
-        <h5>検索キーワード: 「{{ keyword|e }}」</h5>
-        {% if matches %}
-            <div class="row">
-                {% for card in matches %}
-                    <div class="col-md-4 mb-3">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ card.title }}</h5>
-                                <p class="card-text">
-                                    タグ:
-                                    {% for t in card.tags %}
-                                        <span class="badge bg-secondary me-1">{{ t }}</span>
-                                    {% endfor %}
-                                </p>
-                                <!-- ここにカード詳細リンクなどを追加 -->
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="alert alert-warning" role="alert">
-                タグが存在しません
-            </div>
-        {% endif %}
     </div>
-{% endif %}
 
-<!-- あとでDBでカードを追加する場所 -->
+    {% if keyword %}
+    <div class="mb-3">
+        <h5>検索キーワード: 「{{ keyword|e }}」</h5>
+    </div>
+    {% endif %}
 
-{% endblock %}
+    {% if matches %}
+    <div class="row">
+        {% for card in matches %}
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">{{ card.title }}</h5>
+                <p class="card-text text-muted" style="white-space:pre-line;">
+                {{ (card.error_message or '')[:120] }}
+                </p>
+                <div class="mb-2">
+                {% for t in card.tags %}
+                    <span class="badge bg-secondary me-1">#{{ t.tag_name }}</span>
+                {% endfor %}
+                </div>
+                <a class="btn btn-sm btn-outline-primary" href="{{ url_for('step_card.detail_card', card_id=card.card_id) }}">詳細</a>
+            </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-warning">該当するカードがありません。</div>
+    {% endif %}
+
+    {% endblock %}
