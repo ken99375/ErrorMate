@@ -43,10 +43,16 @@
 
         <!-- タグ入力行 -->
         <div class="tag-input-row" style="display:flex;align-items:center;gap:.5rem;margin-top:.5rem;">
-            <label for="tagText" class="tag-label" style="font-weight:600;">#タグ</label>
-            <input id="tagText" type="text" placeholder="例: python, NameError" />
-            <button type="button" id="tagAdd" class="btn-plus">＋</button>
+        <label for="tagText" class="tag-label" style="font-weight:600;">#タグ</label>
+        <input id="tagText" type="text" placeholder="例: python, NameError" />
+        <button type="button" id="tagAdd" class="btn-plus">＋</button>
         </div>
+
+        <!-- エラー表示 -->
+        {% if form_error and form_error.tags %}
+        <div class="text-danger small mt-1">{{ form_error.tags }}</div>
+        {% endif %}
+
 
         <!-- サーバ送信用（CSV） -->
         <input
