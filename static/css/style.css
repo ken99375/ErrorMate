@@ -224,11 +224,11 @@ body {
 
 /* カラー設定（必要ならそのまま維持） */
 .yellow { 
-    background: linear-gradient(135deg, #FFD93D, #FFB100);
-    color: #1f2937;
+    background: linear-gradient(135deg, #ffdb4c, #f7d037 #FFB100);
+    color: #fff;
 }
 .blue   { 
-    background: linear-gradient(135deg, #4BA3F5, #2F73F2, #007BFF);
+    background: linear-gradient(135deg, #5cadfa, #3c7ffc, #007BFF);
     color: #fff;
 }
 .gray   { 
@@ -238,7 +238,7 @@ body {
 }
 .green  { 
     /* 個人分析用：オレンジ系でブランド（ErrorMateロゴ）と統一 */
-    background: linear-gradient(135deg, #FF8C42, #FF7A00, #FF9E3D);
+    background: linear-gradient(135deg, #fd7d55, #f76235, #fd3d03);
     color: #fff;
 }
 
