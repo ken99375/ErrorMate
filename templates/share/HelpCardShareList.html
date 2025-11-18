@@ -7,33 +7,74 @@
 {% endblock %}
 
 {% block content %}
-<!-- タグ検索欄 -->
-<div class="d-flex align-items-center mb-4" style="justify-content: flex-start;">
-    <input 
-    type="text" 
-    id="tagInput" 
-    class="form-control me-2" 
-    placeholder="タグ検索欄" 
-    style="max-width: 400px; font-size: 1.3rem;"
-    >
-    <button id="searchBtn" class="btn btn-outline-primary" style="font-size: 1.2rem;">🔍</button>
+
+<!-- 🔍 タグ検索フォーム -->
+<div class="d-flex align-items-center mb-4" style="justify-content:flex-start;">
+    <form class="d-flex" method="get" action="{{ url_for('share.share_step_card_list') }}">
+        <input
+            type="text"
+            id="tagInput"
+            name="tag"
+            class="form-control me-2"
+            placeholder="タグ検索欄（複数はカンマ or スペース区切り）"
+            style="max-width:400px;font-size:1.2rem;"
+            value="{{ keyword|e }}"
+        >
+        <button id="searchBtn" type="submit" class="btn btn-outline-primary" style="font-size:1.1rem;">🔍</button>
+    </form>
 </div>
 
-<!-- あとでDBでカードを追加する場所 -->
+<!-- 検索キーワード表示 -->
+{% if keyword %}
+<div class="mb-3">
+    <h5>検索キーワード: 「{{ keyword|e }}」</h5>
+</div>
+{% endif %}
 
-{% endblock %}
+<!-- カード一覧 -->
+{% if matches %}
+<div class="row">
 
-{% block extra_js %}
-<!-- タグ検索ボタンの動作（仮） -->
-<script>
-document.getElementById("searchBtn").addEventListener("click", function () {
-    const keyword = document.getElementById("tagInput").value.trim();
-    if (keyword) {
-        alert("検索キーワード: " + keyword);
-      // 🔹 今後ここでDB検索処理を追加予定
-    } else {
-        alert("タグを入力してください。");
-    }
-});
-</script>
+    {% for card in matches %}
+    <div class="col-md-4 mb-4">
+        <div class="help-card p-3">
+
+            <!-- タイトル -->
+            <h5 class="text-center">{{ card.title }}</h5>
+
+            <!-- エラーコード/メッセージ -->
+            <div class="mt-3 mb-2">
+                <div class="info-box">エラーコード: {{ card.error_code }}</div>
+                <div class="info-box">エラーメッセージ:</div>
+                <div class="info-box">{{ card.error_message }}</div>
+            </div>
+
+            <!-- ユーザ名 + タグ -->
+            <div class="text-center mt-2">
+                {{ card.author.user_name }}　
+                {% for t in card.tags %}
+                    #{{ t.tag_name }}　
+                {% endfor %}
+            </div>
+
+            <!-- ❤️いいね + 回答リンク -->
+            <div class="d-flex justify-content-center align-items-center mt-3">
+                <button class="like-btn me-3">♡</button>
+
+                <a href="{{ url_for('step_card.detail_card', card_id=card.card_id) }}"
+                   class="answer-link">
+                   回答する
+                </a>
+            </div>
+
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+
+{% else %}
+<div class="alert alert-warning">該当するカードがありません。</div>
+{% endif %}
+
 {% endblock %}

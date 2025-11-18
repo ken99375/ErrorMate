@@ -57,18 +57,18 @@ def data_error_count():
             {
                 "label": 'ステップカード作成数',
                 "data": step_data_list,
-                "borderColor": 'rgb(54, 162, 235)',
-                "backgroundColor": 'rgba(54, 162, 235, 0.2)',
+                "borderColor": 'rgb(255, 205, 86)',
+                "backgroundColor": 'rgba(255, 205, 86, 0.2)',
                 "fill": True,
-                "tension": 0.1
+                "tension": 0.01
             },
             {
                 "label": 'ヘルプカード作成数',
                 "data": help_data_list,
-                "borderColor": 'rgb(255, 99, 132)',
-                "backgroundColor": 'rgba(255, 99, 132, 0.2)',
+                "borderColor": 'rgb(54, 162, 235)',
+                "backgroundColor": 'rgba(54, 162, 235, 0.2)',
                 "fill": True,
-                "tension": 0.1
+                "tension": 0.01
             }
         ]
     }

@@ -87,3 +87,58 @@ def create_help_card():
 @help_bp.route('/create/complete')
 def create_complete():
     return render_template('help/HelpCardPostComplate.html')
+
+# ------------------------------------------------------------
+# ヘルプカード共有一覧
+# ------------------------------------------------------------
+@help_bp.route('/share', methods=['GET'])
+def help_card_share_list():
+
+    # 🔍 検索キーワード（任意）
+    keyword = request.args.get('tag', '').strip()
+
+    # ベースのクエリ（status='help' のカードのみ）
+    query = StepCard.query.filter(StepCard.status == 'help')
+
+    # 🔍 タグ検索がある場合
+    matches = []
+    if keyword:
+        search_tags = [t.strip() for t in keyword.replace('　', ' ').replace(',', ' ').split() if t.strip()]
+        if search_tags:
+            for tag_word in search_tags:
+                # タグ名 LIKE で検索
+                tag = Tag.query.filter(Tag.tag_name.like(f"%{tag_word}%")).first()
+                if tag:
+                    matches.extend(tag.step_cards)
+
+            # 重複排除
+            matches = list(set(matches))
+        else:
+            matches = query.all()
+    else:
+        matches = query.all()
+
+    return render_template(
+        'help/HelpCardShareList.html',
+        matches=matches,
+        keyword=keyword
+    )
+
+# ------------------------------------------------------------
+# ヘルプカード一覧画面
+# ------------------------------------------------------------
+@help_bp.route('/list')
+def help_card_list():
+
+    # status='help' のカードを取得
+    cards = (
+        StepCard.query
+        .filter(StepCard.status == 'help')
+        .order_by(StepCard.created_at.desc())
+        .all()
+    )
+
+    return render_template(
+        'help/help_card_list.html',
+        cards=cards
+    )
