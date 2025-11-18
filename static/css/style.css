@@ -231,12 +231,12 @@ body {
     background: linear-gradient(135deg, #5cadfa, #3c7ffc, #007BFF);
     color: #fff;
 }
-.gray   { 
+.green   { 
     /* ヘルプ要求カード用：落ち着き＋前向きグリーン */
     background: linear-gradient(135deg, #3DDC97, #00B37E);
     color: #fff;
 }
-.green  { 
+.orange  { 
     /* 個人分析用：オレンジ系でブランド（ErrorMateロゴ）と統一 */
     background: linear-gradient(135deg, #fd7d55, #f76235, #fd3d03);
     color: #fff;
