@@ -43,6 +43,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     title: {
                         display: true,
                         text: 'エラー件数'
+                    },
+                    ticks: {
+                        // 目盛りの間隔を1に強制する
+                        stepSize: 1,
+                        
+                        // 目盛りの値が整数でない場合はラベルを表示しない
+                        callback: function(value, index, values) {
+                            if (Math.floor(value) === value) {
+                                return value; // 整数のみ返す
+                            }
+                        }
                     }
                 }
             }
