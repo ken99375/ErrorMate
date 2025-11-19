@@ -529,3 +529,19 @@ body {
     background-color: #357ABD;
 }
 
+/* ===== ヘッダーカラー用テーマ ===== */
+.header-default {
+    background-color: #afb1b3; /* デフォルト */
+}
+
+.header-main {                  /* トップメニュー用とか */
+    background-color: #fff3e0;
+}
+
+.header-personal {              /* 個人データ画面 */
+    background-color: #e0f2f1;
+}
+
+.header-total {                 /* 全体データ画面 */
+    background-color: #e3f2fd;
+}
