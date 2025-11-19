@@ -1,6 +1,6 @@
 # help.py
 from flask import Blueprint, render_template, request, redirect, url_for
-from models import db, HelpCard, User
+from models import db, StepCard, User
 
 help_bp = Blueprint('help', __name__)
 
@@ -43,9 +43,9 @@ def create_help_card():
             return render_template('help/help_card_create.html', errors=errors, form_data=form_data)
 
         # ----------------------------------------
-        # 🔥 HelpCard に保存（StepCard ではない）
+        # 🔥 StepCard に保存（StepCard ではない）
         # ----------------------------------------
-        card = HelpCard(
+        card = Card(
             title=title,
             error_code=code,
             error_message=message,
@@ -66,5 +66,5 @@ def create_help_card():
 # ------------------------------------------------------------
 @help_bp.route('/list')
 def list_help_cards():
-    cards = HelpCard.query.order_by(HelpCard.created_at.desc()).all()
+    cards = StepCard.query.order_by(StepCard.created_at.desc()).all()
     return render_template('help_card_list.html', cards=cards)
