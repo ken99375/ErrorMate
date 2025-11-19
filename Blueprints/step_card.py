@@ -209,6 +209,7 @@ def edit_card(card_id):
 
 @step_card_bp.route('/edit/complete')
 def edit_complete():
+    ## Compl"a"te ではなく、Compl"e"te！
     return render_template('card/StepCardUpdateComplete.html')
 
 
