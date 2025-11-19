@@ -3,14 +3,14 @@
 {% block title %}ヘルプカード共有一覧 - ErrorMate{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/helpcardshare.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/share/helpcardshare.css') }}">
 {% endblock %}
 
 {% block content %}
 
 <!-- 🔍 タグ検索フォーム -->
 <div class="d-flex align-items-center mb-4" style="justify-content:flex-start;">
-    <form class="d-flex" method="get" action="{{ url_for('share.share_step_card_list') }}">
+    <form class="d-flex" method="get" action="{{ url_for('share.share_help_card_list') }}">
         <input
             type="text"
             id="tagInput"
@@ -50,12 +50,12 @@
             </div>
 
             <!-- ユーザ名 + タグ -->
-            <div class="text-center mt-2">
-                {{ card.author.user_name }}　
+            {% if card.tags %}
                 {% for t in card.tags %}
                     #{{ t.tag_name }}　
                 {% endfor %}
-            </div>
+            {% endif %}
+
 
             <!-- ❤️いいね + 回答リンク -->
             <div class="d-flex justify-content-center align-items-center mt-3">
