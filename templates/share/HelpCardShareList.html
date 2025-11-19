@@ -50,12 +50,14 @@
             </div>
 
             <!-- ユーザ名 + タグ -->
-            {% if card.tags %}
-                {% for t in card.tags %}
-                    #{{ t.tag_name }}　
-                {% endfor %}
-            {% endif %}
-
+            <div class="text-center mt-2">
+                {{ card.author.user_name }}　
+                {% if card.tags %}
+                    {% for t in card.tags %}
+                        #{{ t.tag_name }}
+                    {% endfor %}
+                {% endif %}
+            </div>
 
             <!-- ❤️いいね + 回答リンク -->
             <div class="d-flex justify-content-center align-items-center mt-3">

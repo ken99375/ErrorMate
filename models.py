@@ -24,7 +24,6 @@ class User(UserMixin, db.Model):
 
     # リレーションシップ
     cards = db.relationship('StepCard', backref='author', lazy=True)
-    help_cards = db.relationship('HelpCard', backref='author', lazy=True)
     comments = db.relationship('Comment', backref='author', lazy=True)
 
     def get_id(self):

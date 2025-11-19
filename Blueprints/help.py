@@ -1,6 +1,5 @@
-# help.py
 from flask import Blueprint, render_template, request, redirect, url_for
-from models import db, HelpCard, User
+from models import db, StepCard, Tag, User
 
 help_bp = Blueprint('help', __name__)
 
@@ -19,52 +18,62 @@ def create_help_card():
     }
 
     if request.method == 'POST':
-        title = request.form.get('title', '')
-        code = request.form.get('code', '')
-        message = request.form.get('message', '')
+        title = request.form.get('title')
+        code = request.form.get('code')
+        message = request.form.get('message')
 
-        # 🔹 タグ一覧（配列）
+        # タグ（複数）をすべて受け取る
         tags = request.form.getlist('tags[]')
-
-        # 必須チェック
-        if not title:
-            errors['title'] = 'タイトルは必須です。'
-        if not code:
-            errors['code'] = 'コードは必須です。'
-        if not message:
-            errors['message'] = 'メッセージは必須です。'
 
         form_data['title'] = title
         form_data['code'] = code
         form_data['message'] = message
         form_data['tags'] = tags
 
-        if errors:
-            return render_template('help/help_card_create.html', errors=errors, form_data=form_data)
+        # バリデーション
+        if not title:
+            errors['title'] = 'タイトルは必須です'
+        if not message:
+            errors['message'] = 'メッセージは必須です'
 
-        # ----------------------------------------
-        # 🔥 HelpCard に保存（StepCard ではない）
-        # ----------------------------------------
-        card = HelpCard(
+        if errors:
+            return render_template('help/help_card_create.html',
+                                   form_data=form_data, errors=errors)
+
+        # StepCard（ヘルプカード）を作成
+        new_card = StepCard(
             title=title,
-            error_code=code,
-            error_message=message,
-            user_id=1,
-            tags=",".join(tags)  # ← カンマ区切りで保存
+            code=code,
+            message=message,
+            status="help"  # ステータスを help として保存
         )
 
-        db.session.add(card)
+        # タグの処理
+        for tag_name in tags:
+            if not tag_name.strip():
+                continue
+
+            # 既存タグを検索
+            tag = Tag.query.filter_by(tag_name=tag_name).first()
+            if not tag:
+                tag = Tag(tag_name=tag_name)
+                db.session.add(tag)
+
+            new_card.tags.append(tag)
+
+        db.session.add(new_card)
         db.session.commit()
 
-        return redirect(url_for('help.list_help_cards'))
+        return redirect(url_for('help.help_card_list'))
 
-    return render_template('help/help_card_create.html', errors=errors, form_data=form_data)
+    return render_template('help/help_card_create.html',
+                           form_data=form_data, errors=errors)
 
 
 # ------------------------------------------------------------
 # 一覧表示
 # ------------------------------------------------------------
 @help_bp.route('/list')
-def list_help_cards():
-    cards = HelpCard.query.order_by(HelpCard.created_at.desc()).all()
-    return render_template('help_card_list.html', cards=cards)
+def help_card_list():
+    cards = StepCard.query.filter_by(status="help").all()
+    return render_template('help/help_card_list.html', cards=cards)
