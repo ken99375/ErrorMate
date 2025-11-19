@@ -75,7 +75,7 @@ def create_help_card():
 
         return redirect(url_for('help.list_help_cards'))
 
-    return render_template('help_card_create.html', errors=errors, form_data=form_data)
+    return render_template('help/help_card_create.html', errors=errors, form_data=form_data)
 
 
 # ------------------------------------------------------------
