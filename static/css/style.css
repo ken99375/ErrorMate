@@ -531,17 +531,21 @@ body {
 
 /* ===== ヘッダーカラー用テーマ ===== */
 .header-default {
-    background-color: #e7e8e9; /* デフォルト */
+    background-color: #f2f2f3; /* デフォルト */
 }
 
-.header-main {                  /* トップメニュー用とか */
-    background-color: #fff3e0;
+.header-step {                  /* ステップカード一覧 */
+    background-color: #f7d037;
 }
 
-.header-personal {              /* 個人データ画面 */
-    background-color: #e0f2f1;
+.header-card {              /* カードライブラリ */
+    background-color: #3c7ffc;
 }
 
-.header-total {                 /* 全体データ画面 */
-    background-color: #e3f2fd;
+.header-help {                 /* ヘルプ要求カード */
+    background-color: #00B37E;
+}
+
+.header-analysis {                 /* 個人分析 */
+    background-color: #f76235;
 }
