@@ -17,7 +17,8 @@
     <body>
     {% block header %}
     <!-- 共通ヘッダー -->
-    <header class="navbar navbar-light bg-light shadow-sm px-3 position-relative">
+    {# header_theme が渡されなければ 'header-default' を使う #}
+    <header class="navbar navbar-light shadow-sm px-3 position-relative {{ header_theme|default('header-default') }}">
         <!-- トップへ：main_bp 側の関数名に合わせて変更して -->
         <a href="{{ url_for('main.index') }}"
         class="navbar-brand mb-0 h1"
