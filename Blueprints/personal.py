@@ -86,6 +86,8 @@ def data_language_ratio():
     return render_template('personal/PersonalDataLanguage.html')
 
 
+
+
 # エラー種別比率------------------------------------------------------------------------
 @personal_bp.route('/ErrorTypes', methods=['GET', 'POST'])
 def data_error_type_ratio():

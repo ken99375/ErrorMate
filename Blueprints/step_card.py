@@ -209,7 +209,7 @@ def edit_card(card_id):
 
 @step_card_bp.route('/edit/complete')
 def edit_complete():
-    return render_template('card/StepCardUpdateComplate.html')
+    return render_template('card/StepCardUpdateComplete.html')
 
 
 
