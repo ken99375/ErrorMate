@@ -84,22 +84,17 @@ def data_error_count():
 
 # 言語種別比率------------------------------------------------------------------------
 @personal_bp.route('/LanguageRatio', methods=['GET', 'POST'])
-def data_language_ratio():
-    # ログイン中のユーザ
+def language_ratio_data():
     user_id = current_user.user_id
-    # ユーザのカードを全部取得
     user_cards = StepCard.query.filter_by(user_id=user_id).all()
-    # ユーザのタグをすべてリストに取得する
-    tag_names = []
-    for card in user_cards:
-        for tag in card.tags:
-            tag_names.append(tag.tag_name)
 
-    # ③Counterで集計
+    tag_names = [tag.tag_name for card in user_cards for tag in card.tags]
     tag_count = Counter(tag_names)
 
-    return render_template('personal/PersonalDataLanguage.html')
-
+    return jsonify({
+        "labels": list(tag_count.keys()),
+        "values": list(tag_count.values())
+    })
 
 
 
