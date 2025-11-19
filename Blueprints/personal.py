@@ -4,6 +4,8 @@ from models import db, StepCard # 1. モデルをインポート
 from sqlalchemy import func                # 2. SQL関数をインポート
 from datetime import datetime, timedelta   # 3. 日付操作をインポート
 import json                                # 4. JSONをインポート
+from flask_login import current_user
+from collections import Counter
 
 personal_bp = Blueprint('personal', __name__)
 
@@ -83,6 +85,19 @@ def data_error_count():
 # 言語種別比率------------------------------------------------------------------------
 @personal_bp.route('/LanguageRatio', methods=['GET', 'POST'])
 def data_language_ratio():
+    # ログイン中のユーザ
+    user_id = current_user.user_id
+    # ユーザのカードを全部取得
+    user_cards = StepCard.query.filter_by(user_id=user_id).all()
+    # ユーザのタグをすべてリストに取得する
+    tag_names = []
+    for card in user_cards:
+        for tag in card.tags:
+            tag_names.append(tag.tag_name)
+
+    # ③Counterで集計
+    tag_count = Counter(tag_names)
+
     return render_template('personal/PersonalDataLanguage.html')
 
 
