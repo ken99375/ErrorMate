@@ -52,7 +52,7 @@
         <nav>
             <a href="{{ url_for('personal.data_error_count') }}" data-key="errors"
                 class="{{ 'active' if active_key=='errors' else '' }}">エラー発生回数</a>
-            <a href="{{ url_for('personal.data_language_ratio') }}" data-key="lang"
+            <a href="{{ url_for('personal.language_ratio_data') }}" data-key="lang"
                 class="{{ 'active' if active_key=='lang' else '' }}">言語種別比率</a>
             <a href="{{ url_for('personal.data_error_type_ratio') }}" data-key="types"
                 class="{{ 'active' if active_key=='types' else '' }}">エラー種別比率</a>

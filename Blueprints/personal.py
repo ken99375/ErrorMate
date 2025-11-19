@@ -6,8 +6,14 @@ from datetime import datetime, timedelta   # 3. 日付操作をインポート
 import json                                # 4. JSONをインポート
 from flask_login import current_user
 from collections import Counter
+from flask import g
 
 personal_bp = Blueprint('personal', __name__)
+
+## ヘッダーの色指定
+@personal_bp.before_request
+def set_header_color():
+    g.header_class = "header-analysis"
 
 
 # エラー発生回数------------------------------------------------------------------------
@@ -113,3 +119,13 @@ def data_comment_count():
 @personal_bp.route('/Trend', methods=['GET', 'POST'])
 def data_comment_trend():
     return render_template('personal/PersonalDataTrend.html')
+
+
+# ヘッダー------------------------------------------------------------------------
+@personal_bp.route("/personal/comments")
+def comments():
+    return render_template(
+        "personal/comments.html",
+        header_theme="header-personal",
+        active_key="comments"
+    )

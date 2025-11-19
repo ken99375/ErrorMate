@@ -5,9 +5,15 @@ from sqlalchemy.exc import SQLAlchemyError
 from uuid import uuid4
 from datetime import datetime, timedelta
 from sqlalchemy import func
+from flask import g
 
 
 step_card_bp = Blueprint('step_card', __name__)
+
+## ヘッダーの色指定
+@step_card_bp.before_request
+def set_header_color():
+    g.header_class = "header-step"
 
 
 SESSION_TTL_MIN = 1

@@ -17,8 +17,7 @@
     <body>
     {% block header %}
     <!-- 共通ヘッダー -->
-    {# header_theme が渡されなければ 'header-default' を使う #}
-    <header class="navbar navbar-light shadow-sm px-3 position-relative {{ header_theme|default('header-default') }}">
+    <header class="navbar navbar-light shadow-sm px-3 position-relative {{ g.header_class or header_theme or 'header-default' }}">
         <!-- トップへ：main_bp 側の関数名に合わせて変更して -->
         <a href="{{ url_for('main.index') }}"
         class="navbar-brand mb-0 h1"
@@ -58,7 +57,7 @@
         <div class="menu-section">
             <span class="menu-title">個人分析</span>
             <a href="{{ url_for('personal.data_error_count') }}">・エラー発生回数</a>
-            <a href="{{ url_for('personal.data_language_ratio') }}">・言語種別比率</a>
+            <a href="{{ url_for('personal.language_ratio_data') }}">・言語種別比率</a>
             <a href="{{ url_for('personal.data_error_type_ratio') }}">・エラー種別比率</a>
             <a href="{{ url_for('personal.data_comment_count') }}">・コメント回数</a>
             <a href="{{ url_for('personal.data_comment_trend') }}">・コメント傾向</a>
