@@ -535,15 +535,15 @@ body {
 }
 
 .header-step {                  /* ステップカード一覧 */
-    background-color: #f7d037;
+    background-color: #fae076;
 }
 
 .header-card {              /* カードライブラリ */
-    background-color: #3c7ffc;
+    background-color: #75a4fc;
 }
 
 .header-help {                 /* ヘルプ要求カード */
-    background-color: #00B37E;
+    background-color: #6db19c;
 }
 
 .header-analysis {                 /* 個人分析 */
