@@ -24,8 +24,16 @@
                     <p>作成日: {{ card.created_at.strftime('%Y-%m-%d %H:%M') if card.created_at }}</p>
                     <p>エラーコード: {{ card.error_code | default('') }}</p>
                     <div class="card-actions">
-                        <a href="{{ url_for('step_card.detail_card', card_id=card.card_id) }}" class="btn-detail"> 詳細 </a>
-                        <a href="{{ url_for('step_card.confirm_share', card_id=card.card_id) }}" class="btn-share">共有</a>
+                        <a href="{{ url_for('step_card.detail_card', card_id=card.card_id) }}" class="btn-detail">詳細</a>
+                        {% if card.status == STATUS_PUBLIC %}
+                            <form method="post"
+                                action="{{ url_for('step_card.do_unshare', card_id=card.card_id) }}"
+                                style="display:inline;">
+                            <button type="submit" class="btn-share btn-danger">共有解除</button>
+                            </form>
+                        {% else %}
+                            <a href="{{ url_for('step_card.confirm_share', card_id=card.card_id) }}" class="btn-share">共有</a>
+                        {% endif %}
                     </div>
                 </div>
             {% endfor %}

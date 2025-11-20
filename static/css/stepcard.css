@@ -1,7 +1,7 @@
     body {
     margin: 0;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: #d6d5d1;
+    background: #efd465;
     }
 
     header {
@@ -9,7 +9,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 8px 8%;
-    border-bottom: 2px solid #fdfafa;
+    border-bottom: 2px solid #e6cd79;
     background: #ffd24d;
     }
 
@@ -384,10 +384,93 @@
     font-weight: bold;
     }
 
+.btn-share.btn-danger {
+  background-color: #f5b7b1;  /* 薄い赤系 */
+    border: 1px solid #d98880;
+}
+.btn-share.btn-danger:hover {
+    opacity: 0.9;
+}
+
 .confirm-title {
     color:#1c45b7; 
     text-align:center; 
     font-weight:700; 
     letter-spacing:.06em; 
     margin:24px 0 12px; 
+    }
+
+
+    /* 文字あふれ対策（一覧のカードだけ） */
+    .card-item{
+    height: 260px;                 /* 必要なら 240–300 で微調整 */
+    box-shadow: 0 2px 6px rgba(0,0,0,.06);
+    transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    /* タイトルは1行省略 */
+    .card-item .card-title{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 6px;
+    }
+
+    /* 本文 <p> を複数行で省略（行数は調整可） */
+    .card-item p{
+    margin: 0 0 8px;
+    font-size: 14px;
+    color: #444;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;         /* 3行で切る。もっと詰めたければ 2 に */
+    word-break: break-word;        /* 英単語やコードも折る */
+    overflow-wrap: anywhere;
+    }
+
+    /* ボタンを下に固定（既にあるが念押し） */
+    .card-item .card-actions{
+    margin-top: auto;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    }
+
+    /* マウス環境だけ少し拡大（モバイル誤爆防止） */
+    @media (hover:hover){
+    .card-item:hover{
+        transform: scale(1.03);
+        box-shadow: 0 10px 24px rgba(0,0,0,.14);
+    }
+    }
+
+
+/* 共有確認（confirm）用のテキストはみ出し対策 */
+/* anywhereを使用すると、単語間での改行だけではコンテナに収まらない場合に、単語内のどの文字と文字の間でも改行が可能になる */
+    .detail-title{
+    overflow-wrap:anywhere;   /* 長い単語も折る */
+    word-break: break-word;
+    }
+
+    .detail-cell p{
+    margin: 0;
+    background: #fff9e6;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 8px;
+
+    /* ここが肝 */
+    white-space: pre-wrap;    /* 改行維持して折り返す */
+    word-break: break-word;
+    overflow-wrap: anywhere;
+
+    max-height: 220px;        /* 好みで 160–280 に調整 */
+    overflow: auto;           /* 超えた分はスクロール */
+    box-sizing: border-box;
+    }
+
+    /* 小さめ画面では少し低くするなら */
+    @media (max-width: 992px){
+    .detail-cell p{ max-height: 180px; }
     }

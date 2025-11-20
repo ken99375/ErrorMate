@@ -32,7 +32,7 @@ def list_cards():
     # cards = cards  :   右側cards : python側の変数名　左側card : テンプレート側に渡すときの名前
     # Python変数 cards を、テンプレートの中で cards という名前で使えるようにしてる
     
-    return render_template('step_card_list.html', cards=cards)
+    return render_template('step_card_list.html', cards=cards,  STATUS_PUBLIC=STATUS_PUBLIC)
 # ---------------------------------------------------------------------------
 
 
@@ -344,3 +344,23 @@ def do_share(card_id):
 @step_card_bp.route('/share/complete', methods=['GET'])
 def share_post_complete():
     return render_template('share/StepCardSharePostComplate.html')
+
+
+# --- 共有解除 POST（公開→下書きへ） ---
+@step_card_bp.route('/<int:card_id>/unshare', methods=['POST'])
+def do_unshare(card_id):
+    card = StepCard.query.get_or_404(card_id)
+
+    # すでに非公開なら何もしないで一覧に戻す
+    if card.status != STATUS_PUBLIC:
+        return redirect(url_for('step_card.list_cards'))
+
+    try:
+        card.status = STATUS_STEP   # 公開→下書きへ戻す。タグは残す（要件どおり表示側だけ非公開）
+        db.session.commit()
+    except SQLAlchemyError:
+        db.session.rollback()
+        # 簡易対応：一覧へ戻す（必要なら専用テンプレを後で作成）
+        return redirect(url_for('step_card.list_cards'))
+
+    return redirect(url_for('step_card.list_cards'))

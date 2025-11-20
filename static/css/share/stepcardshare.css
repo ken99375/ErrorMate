@@ -250,7 +250,7 @@ body {
   }
 }
 
-/* 中の情報ボックスはそのまま */
+/* 値ボックス：これ1つに統一（重複してた定義は削除） */
 .info-box{
   background:#fff;
   border:1px solid #aaa;
@@ -258,19 +258,22 @@ body {
   border-radius:5px;
   margin-bottom:6px;
   font-size:.9rem;
-  white-space:pre-line;
+  white-space:pre-line;         /* 改行はそのまま、通常は折り返し */
 }
 
-
-.info-box {
-    background: white;
-    border: 1px solid #aaa;
-    padding: 6px;
-    border-radius: 5px;
-    margin-bottom: 6px;
-    font-size: 0.9rem;
-    white-space: pre-line;
+/* ラベルはボックス化しない＝折り返さず1行で終わる */
+.info-label{
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0 0 4px;
+  font-weight: 600;
+  white-space: nowrap;          /* 折り返さない */
+  overflow: hidden;             /* はみ出し対策 */
+  text-overflow: ellipsis;      /* 幅が足りなければ… */
+  line-height: 1.2;
 }
+
 
 .like-btn {
     background: none;
@@ -279,3 +282,90 @@ body {
     cursor: pointer;
     color: #e65a5a;
 }
+
+/* タイトルを2行で省略し、高さを揃える */
+.help-card .card-title{
+  margin: 0 0 8px;
+  font-weight: 700;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+/* カード自体を固定高＋縦レイアウトにして統一 */
+.help-card{
+  display: flex;
+  flex-direction: column;
+  height: 380px;                 /* 統一高さ（必要なら 360〜420 で調整） */
+}
+
+/* 本文領域は余白を使って伸縮、内部は一定の行数に抑える */
+.help-card .card-body{
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1 1 auto;                /* ここが伸縮して中身を収める */
+  min-height: 0;                 /* overflowが効くように */
+}
+
+/* ラベルは1行固定 */
+.info-label{
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 2px 0;
+}
+
+/* コードは等幅フォント＋プリフォーマット＋スクロール */
+.code-box{
+  background: #fff;
+  border: 1px solid #aaa;
+  border-radius: 5px;
+  padding: 6px;
+  font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  white-space: pre;              /* 折り返さない（その代わり横スクロール） */
+  overflow: auto;                /* はみ出したらスクロール */
+  max-height: 100px;             /* 高さ上限で統一 */
+}
+
+/* テキストは通常折り返し＋上限を設けてスクロール */
+.text-box{
+  background: #fff;
+  border: 1px solid #aaa;
+  border-radius: 5px;
+  padding: 6px;
+  font-size: 0.9rem;
+  overflow: auto;
+  max-height: 68px;
+  white-space: normal;           /* 文章は折り返す */
+  overflow-wrap: anywhere;       /* 長い単語も折る */
+}
+
+/* フッタ（ユーザ/タグ/ボタン）を下部に固定 */
+.help-card .card-footer{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.help-card .meta{
+  font-size: .9rem;
+  color: #444;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 70%;
+}
+
+.help-card .actions{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 既存のホバー効果はそのまま */

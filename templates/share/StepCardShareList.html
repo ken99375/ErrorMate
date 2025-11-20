@@ -8,7 +8,7 @@
     
     {% block content %}
     
-    <!-- 🔍 タグ検索フォーム -->
+    <!-- タグ検索フォーム -->
     <div class="d-flex align-items-center mb-4" style="justify-content:flex-start;">
         <form class="d-flex" method="get" action="{{ url_for('share.share_step_card_list') }}">
             <input
@@ -38,39 +38,35 @@
         {% for card in matches %}
         <div class="col-md-4 mb-4">
             <div class="help-card p-3">
-    
-                <!-- タイトル -->
-                <h5 class="text-center">{{ card.title }}</h5>
-    
-                <!-- エラーコード/メッセージ -->
-                <div class="mt-3 mb-2">
-                    <div class="info-box">エラーコード: {{ card.error_code }}</div>
-                    <div class="info-box">エラーメッセージ:</div>
-                    <div class="info-box">{{ card.error_message }}</div>
+                <!-- タイトル（2行までで省略） -->
+                <h5 class="card-title text-center">{{ card.title }}</h5>
+
+                <!-- 本文エリア -->
+                <div class="card-body">
+                <div class="info-label">エラーコード:</div>
+                <pre class="code-box">{{ card.error_code }}</pre>
+
+                <div class="info-label">エラーメッセージ:</div>
+                <div class="text-box">{{ card.error_message }}</div>
                 </div>
-    
-                <!-- ユーザ名 + タグ -->
-                <div class="text-center mt-2">
-                    {{ card.author.user_name }}　
+
+                <!-- フッタ（ユーザ・タグ・ボタン） -->
+                <div class="card-footer">
+                <div class="meta">
+                    {{ card.author.user_name }}
                     {% if card.tags %}
-                        {% for t in card.tags %}
-                            #{{ t.tag_name }}
-                        {% endfor %}
+                    {% for t in card.tags %} #{{ t.tag_name }}{% endfor %}
                     {% endif %}
                 </div>
-    
-                <!-- ❤️いいね + 回答リンク -->
-                <div class="d-flex justify-content-center align-items-center mt-3">
-                    <button class="like-btn me-3">♡</button>
-    
-                    <a href="{{ url_for('step_card.detail_card', card_id=card.card_id) }}"
-                    class="answer-link">
-                    詳細
-                    </a>
+
+                <div class="actions">
+                    <button class="like-btn">♡</button>
+                    <a href="{{ url_for('step_card.detail_card', card_id=card.card_id) }}" class="answer-link">詳細</a>
                 </div>
-    
+                </div>
             </div>
-        </div>
+            </div>
+
         {% endfor %}
     
     </div>
