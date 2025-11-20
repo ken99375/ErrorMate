@@ -25,6 +25,18 @@
         ErrorMate
         </a>
 
+        {# ここを追加（ユーザー名表示 / ログイン状態で切替） #}
+        {% if current_user.is_authenticated %}
+        <div class="header-user d-flex align-items-center ms-auto">
+            <span class="me-2">ようこそ、{{ current_user.user_name }}</span>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-sm btn-outline-secondary">ログアウト</a>
+        </div>
+        {% else %}
+        <div class="header-auth ms-auto">
+            <a href="{{ url_for('auth.login') }}" class="btn btn-sm btn-outline-primary me-2">ログイン</a>
+        </div>
+        {% endif %}
+
         <!-- ハンバーガーメニュー -->
         <div class="hamburger-menu" id="customMenu">
         <div class="line"></div>
