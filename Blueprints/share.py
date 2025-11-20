@@ -4,6 +4,7 @@ from flask import Blueprint, render_template, request
 from sqlalchemy import func
 from sqlalchemy.orm import joinedload, load_only
 from models import db, StepCard, Tag, STATUS_PUBLIC,User
+from flask import g
 
 share_bp = Blueprint('share', __name__)
 
@@ -11,6 +12,11 @@ share_bp = Blueprint('share', __name__)
 @share_bp.route('/share', methods=['GET'])
 def share_card_library():
     return render_template('share/CardLibrary.html')
+
+## ヘッダーの色指定
+@share_bp.before_request
+def set_header_color():
+    g.header_class = "header-card"
 
 
 @share_bp.route('/share/step_cards', methods=['GET'])
