@@ -25,6 +25,7 @@
                     <p>エラーコード: {{ card.error_code | default('') }}</p>
                     <div class="card-actions">
                         <a href="{{ url_for('step_card.detail_card', card_id=card.card_id) }}" class="btn-detail"> 詳細 </a>
+                        <a href="{{ url_for('step_card.confirm_share', card_id=card.card_id) }}" class="btn-share">共有</a>
                     </div>
                 </div>
             {% endfor %}

@@ -1,7 +1,13 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 from models import db, StepCard, Tag, User
+from flask import g
 
 help_bp = Blueprint('help', __name__)
+
+## ヘッダーの色指定
+@help_bp.before_request
+def set_header_color():
+    g.header_class = "header-help"
 
 # ------------------------------------------------------------
 # 新規作成
@@ -14,76 +20,74 @@ def create_help_card():
         'title': '',
         'code': '',
         'message': '',
-        'tags': ''
+        'tags': []
     }
 
     if request.method == 'POST':
+        title = request.form.get('title', '')
+        code = request.form.get('code', '')
+        message = request.form.get('message', '')
 
-        form_data['title']   = title   = request.form.get('title', '').strip()
-        form_data['code']    = code    = request.form.get('code', '').strip()
-        form_data['message'] = message = request.form.get('message', '').strip()
-        
-        # AI で自動タグ生成した場合は ["python","Indent"] 形式で来る想定
-        raw_tags = request.form.get('tags', '')
-        tags_list = [t.strip() for t in raw_tags.split(',') if t.strip()]
-
-        target = request.form.get('target', '')
+        # 🔹 タグ一覧（複数）を取得
+        tags = request.form.getlist('tags[]')
 
         # 必須チェック
         if not title:
-            errors['title'] = 'タイトルを入力してください。'
+            errors['title'] = 'タイトルは必須です。'
         if not code:
-            errors['code'] = 'コードを入力してください。'
+            errors['code'] = 'コードは必須です。'
         if not message:
-            errors['message'] = '内容を入力してください。'
+            errors['message'] = 'メッセージは必須です。'
+
+        # フォームの内容を保持
+        form_data['title'] = title
+        form_data['code'] = code
+        form_data['message'] = message
+        form_data['tags'] = tags
 
         if errors:
-            return render_template(
-                'help/help_card_create.html',
-                errors=errors,
-                form_data=form_data
-            )
+            return render_template('help_card_create.html', errors=errors, form_data=form_data)
 
-        # 仮ユーザー（ログイン未実装）
-        user = User.query.first()
-
-        # ===============================
-        # StepCard の作成
-        # ===============================
+        # -------------------------------------------------------
+        # 🔥 StepCard 保存
+        # -------------------------------------------------------
         card = StepCard(
-            user_id=user.user_id if user else None,
             title=title,
-            error_code=code,
-            error_message=message,
-            status='help'
+            code=code,
+            message=message,
+            user_id=1   # ←本来はログイン中のユーザーIDを入れる
         )
+        db.session.add(card)
+        db.session.commit()  # card.id を取得するためにいったんコミット
 
-        # ===============================
-        # タグの紐付け
-        # ===============================
-        for tag_name in tags_list:
+        # タグ保存処理
+        for tag_name in tags:
+            if not tag_name.strip():
+                continue
+
+            # 既存タグがあるか検索（tag_name が正しいフィールド）
             tag = Tag.query.filter_by(tag_name=tag_name).first()
+
+            # 無ければ新規作成
             if not tag:
                 tag = Tag(tag_name=tag_name)
                 db.session.add(tag)
+                db.session.commit()
+
+            # StepCard と Tag を紐付け
             card.tags.append(tag)
 
-        db.session.add(card)
         db.session.commit()
 
-        return redirect(url_for('help.create_complete'))
+        return redirect(url_for('help.list_help_cards'))
 
-    # GET のときはテンプレ表示
-    return render_template(
-        'help/help_card_create.html',
-        errors=errors,
-        form_data=form_data
-    )
+    return render_template('help/help_card_create.html', errors=errors, form_data=form_data)
 
 
 # ------------------------------------------------------------
-# 新規作成 完了画面
+# 一覧表示
 # ------------------------------------------------------------
-@help_bp.route('/create/complete')
-def create_complete():
-    return render_template('help/HelpCardPostComplate.html')
+@help_bp.route('/list')
+def list_help_cards():
+    cards = StepCard.query.order_by(StepCard.created_at.desc()).all()
+    return render_template('help_card_list.html', cards=cards)

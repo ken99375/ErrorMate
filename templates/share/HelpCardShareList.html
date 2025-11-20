@@ -3,10 +3,11 @@
 {% block title %}ヘルプカード共有一覧 - ErrorMate{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/helpcardshare.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/share/helpcardshare.css') }}">
 {% endblock %}
 
 {% block content %}
+<<<<<<< HEAD
 <!-- タグ検索欄 -->
 <div class="d-flex align-items-center mb-4" style="justify-content: flex-start;">
     <form class="d-flex" method="get" action="{{ url_for('share.share_help_card_list') }}">
@@ -57,3 +58,76 @@
 <!-- あとでDBでカードを追加する場所 -->
 
 {% endblock %}
+=======
+
+<!-- 🔍 タグ検索フォーム -->
+<div class="d-flex align-items-center mb-4" style="justify-content:flex-start;">
+    <form class="d-flex" method="get" action="{{ url_for('share.share_help_card_list') }}">
+        <input
+            type="text"
+            id="tagInput"
+            name="tag"
+            class="form-control me-2"
+            placeholder="タグ検索欄（複数はカンマ or スペース区切り）"
+            style="max-width:400px;font-size:1.2rem;"
+            value="{{ keyword|e }}"
+        >
+        <button id="searchBtn" type="submit" class="btn btn-outline-primary" style="font-size:1.1rem;">🔍</button>
+    </form>
+</div>
+
+<!-- 検索キーワード表示 -->
+{% if keyword %}
+<div class="mb-3">
+    <h5>検索キーワード: 「{{ keyword|e }}」</h5>
+</div>
+{% endif %}
+
+<!-- カード一覧 -->
+{% if matches %}
+<div class="row">
+
+    {% for card in matches %}
+    <div class="col-md-4 mb-4">
+        <div class="help-card p-3">
+
+            <!-- タイトル -->
+            <h5 class="text-center">{{ card.title }}</h5>
+
+            <!-- エラーコード/メッセージ -->
+            <div class="mt-3 mb-2">
+                <div class="info-box">エラーコード: {{ card.error_code }}</div>
+                <div class="info-box">エラーメッセージ:</div>
+                <div class="info-box">{{ card.error_message }}</div>
+            </div>
+
+            <!-- ユーザ名 + タグ -->
+            {% if card.tags %}
+                {% for t in card.tags %}
+                    #{{ t.tag_name }}　
+                {% endfor %}
+            {% endif %}
+
+
+            <!-- ❤️いいね + 回答リンク -->
+            <div class="d-flex justify-content-center align-items-center mt-3">
+                <button class="like-btn me-3">♡</button>
+
+                <a href="{{ url_for('step_card.detail_card', card_id=card.card_id) }}"
+                   class="answer-link">
+                   回答する
+                </a>
+            </div>
+
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+
+{% else %}
+<div class="alert alert-warning">該当するカードがありません。</div>
+{% endif %}
+
+{% endblock %}
+>>>>>>> 0bd337f08c98f681d2034c753e5851b47c4bbeff

@@ -24,7 +24,6 @@ class User(UserMixin, db.Model):
 
     # リレーションシップ
     cards = db.relationship('StepCard', backref='author', lazy=True)
-    help_cards = db.relationship('HelpCard', backref='author', lazy=True)
     comments = db.relationship('Comment', backref='author', lazy=True)
 
     def get_id(self):
@@ -67,23 +66,6 @@ class StepCard(db.Model):
     tags = db.relationship('Tag', secondary=card_tags, lazy='subquery',
                         backref=db.backref('step_cards', lazy=True))
     comments = db.relationship('Comment', backref='card', lazy=True)
-
-
-class HelpCard(db.Model):
-    """ヘルプカードテーブル (設計書: HELPCARD)"""
-    __tablename__ = 'help_cards'
-
-    card_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-
-    title = db.Column(db.String(255), nullable=False)
-    error_code = db.Column(db.Text)
-    error_message = db.Column(db.Text)
-    tags = db.Column(db.String(200))  # カンマ区切り
-    target = db.Column(db.String(50)) # 投稿先（教師 or 学生）
-
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
-    status = db.Column(db.String(50), default=STATUS_HELP)
 
 
 class Comment(db.Model):

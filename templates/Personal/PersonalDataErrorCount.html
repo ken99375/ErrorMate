@@ -1,8 +1,65 @@
 {% extends "personal_base.html" %}
 {% set active_key = "errors" %}
 
-{% block title %}ErrorMate｜エラー種別発生回数{% endblock %}
+{% block title %}ErrorMate｜エラー発生回数{% endblock %}
 
 {% block personal_content %}
-<h2>ここにデータ置く</h2>
+    <div class="chart-container">
+        <h3>エラー発生回数（過去7日間）</h3>
+        <canvas id="errorTrendChart"></canvas>
+    </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // ★★★ ここが動的データ ★★★
+    // Python(admin.py)から渡されたJSON文字列をパースし、JavaScriptオブジェクトに変換
+    // '{{ chart_data | safe }}' を使ってJSONデータを安全に埋め込む
+    const chartData = JSON.parse('{{ chart_data | safe }}');
+    // ★★★ ここまで ★★★
+
+    // グラフを描画するCanvas要素を取得
+    const ctx = document.getElementById('errorTrendChart').getContext('2d');
+
+    // Chart.jsで折れ線グラフ（line）を新規作成
+    const errorTrendChart = new Chart(ctx, {
+        type: 'line', // グラフの種類（折れ線グラフ）
+        data: chartData, // ★ Pythonから渡された動的データを使用
+        options: {
+            responsive: true, // レスポンシブ対応
+            plugins: {
+                legend: {
+                    position: 'top', // 凡例を上に表示
+                },
+                title: {
+                    display: false, // グラフタイトル（HTML側で表示しているので不要）
+                    text: 'エラー発生傾向'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true, // Y軸を0から開始
+                    title: {
+                        display: true,
+                        text: 'エラー件数'
+                    },
+                    ticks: {
+                        // 目盛りの間隔を1に強制する
+                        stepSize: 1,
+                        
+                        // 目盛りの値が整数でない場合はラベルを表示しない
+                        callback: function(value, index, values) {
+                            if (Math.floor(value) === value) {
+                                return value; // 整数のみ返す
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
 {% endblock %}

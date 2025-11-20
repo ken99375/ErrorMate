@@ -1,0 +1,75 @@
+    {% extends "base.html" %}
+    {% block title %}共有確認 | ErrorMate{% endblock %}
+
+    {% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/stepcard.css') }}">
+    {% endblock %}
+
+    {% block content %}
+    <section class="screen active detail-screen">
+    <div class="detail-box">
+        <h1 class="confirm-title">共有しますか？</h1>
+
+        <h2 class="detail-title" name="text_errortitle">
+            {{ card.title | e }}
+        </h2>
+
+        <div class="detail-grid">
+        <div class="detail-cell">
+            <h3>エラーコード</h3>
+            <p>{{ card.error_code or '' }}</p>
+        </div>
+
+        <div class="detail-cell">
+            <h3>修正コード</h3>
+            <p>{{ card.modifying_code or '' }}</p>
+        </div>
+
+        <div class="detail-cell">
+            <h3>エラーメッセージ</h3>
+            <p>{{ card.error_message or '' }}</p>
+        </div>
+
+        <div class="detail-cell">
+            <h3>実装結果</h3>
+            <p>{{ card.execution_result or '' }}</p>
+        </div>
+        </div>
+
+        <form method="post" action="{{ url_for('step_card.do_share', card_id=card.card_id) }}">
+
+        <!-- タグ一覧（チップ表示） -->
+        <div id="tagList" class="tag-list"></div>
+
+        <!-- タグ入力行 -->
+        <div class="tag-input-row" style="display:flex;align-items:center;gap:.5rem;margin-top:.5rem;">
+        <label for="tagText" class="tag-label" style="font-weight:600;">#タグ</label>
+        <input id="tagText" type="text" placeholder="例: python, NameError" />
+        <button type="button" id="tagAdd" class="btn-plus">＋</button>
+        </div>
+
+        <!-- エラー表示 -->
+        {% if form_error and form_error.tags %}
+        <div class="text-danger small mt-1">{{ form_error.tags }}</div>
+        {% endif %}
+
+
+        <!-- サーバ送信用（CSV） -->
+        <input
+            type="hidden"
+            id="tagsHidden"
+            name="tags"
+            value="{{ preset_tags|default('') }}"
+        >
+
+        <div class="detail-footer">
+            <a href="{{ url_for('step_card.list_cards') }}" class="link-back">一覧に戻る</a>
+            <button type="submit" class="btn-primary">投稿</button>
+        </div>
+        </form>
+    </div>
+    </section>
+
+    <!-- タグUI用スクリプト -->
+    <script src="{{ url_for('static', filename='js/share_tags.js') }}"></script>
+    {% endblock %}

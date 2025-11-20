@@ -14,12 +14,11 @@ body {
 .hamburger-menu {
   width: 25px;
   height: 18px;
-  position: absolute;
-  top: 20px;
-  right: 20px;
+  position: relative; 
   cursor: pointer;
   user-select: none;
   z-index: 1001;
+  margin-left: 20px; 
 }
 
 .line {
@@ -126,6 +125,12 @@ body {
     background: #f5f5f5;
 }
 
+/* ログイン・サインアップボタンを囲む要素 */
+.auth-buttons { 
+    display: flex;
+    gap: 10px; /* ボタン間の隙間 */
+}
+
 /* ハンバーガーメニュー内 */
 .menu-section {
   display: flex;
@@ -223,10 +228,24 @@ body {
 }
 
 /* カラー設定（必要ならそのまま維持） */
-.yellow { background-color: #ffeb3b; }
-.blue   { background-color: #64b5f6; }
-.gray   { background-color: #e0e0e0; }
-.green  { background-color: #4caf50; }
+.yellow { 
+    background: linear-gradient(135deg, #ffdb4c, #f7d037 ,#FFB100);
+    color: #fff;
+}
+.blue   { 
+    background: linear-gradient(135deg, #5cadfa, #3c7ffc, #007BFF);
+    color: #fff;
+}
+.green   { 
+    /* ヘルプ要求カード用：落ち着き＋前向きグリーン */
+    background: linear-gradient(135deg, #3DDC97, #00B37E);
+    color: #fff;
+}
+.orange  { 
+    /* 個人分析用：オレンジ系でブランド（ErrorMateロゴ）と統一 */
+    background: linear-gradient(135deg, #fd7d55, #f76235, #fd3d03);
+    color: #fff;
+}
 
 /* メインフォーム全体 */
 .container_help {
@@ -515,3 +534,23 @@ body {
     background-color: #357ABD;
 }
 
+/* ===== ヘッダーカラー用テーマ ===== */
+.header-default {
+    background-color: #f2f2f3; /* デフォルト */
+}
+
+.header-step {                  /* ステップカード一覧 */
+    background-color: #fdeeaf;
+}
+
+.header-card {              /* カードライブラリ */
+    background-color: #c4d7fc;
+}
+
+.header-help {                 /* ヘルプ要求カード */
+    background-color: #8ab3a6;
+}
+
+.header-analysis {                 /* 個人分析 */
+    background-color: #f7af9a88;
+}

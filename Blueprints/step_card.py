@@ -1,16 +1,22 @@
+import re
 from flask import Blueprint, render_template, request, redirect, url_for,abort,session
-from models import db, StepCard, User,STATUS_STEP, STATUS_PUBLIC, STATUS_DELETED
+from models import db, StepCard, User,Tag,STATUS_STEP, STATUS_PUBLIC, STATUS_DELETED
 from sqlalchemy.exc import SQLAlchemyError
 from uuid import uuid4
 from datetime import datetime, timedelta
+from sqlalchemy import func
+from flask import g
 
 
 step_card_bp = Blueprint('step_card', __name__)
 
+## ヘッダーの色指定
+@step_card_bp.before_request
+def set_header_color():
+    g.header_class = "header-step"
+
 
 SESSION_TTL_MIN = 1
-STATUS_DELETED = 'deleted'
-
 
 # 一覧------------------------------------------------------------------------
 @step_card_bp.route('/list')
@@ -18,7 +24,7 @@ def list_cards():
     cards = (
         StepCard.query
         .filter(StepCard.status != STATUS_DELETED)
-        .filter(StepCard.status.in_((STATUS_STEP, STATUS_PUBLIC)))  # tupleでOK
+        .filter(StepCard.status.in_((STATUS_STEP, STATUS_PUBLIC)))  
         .order_by(StepCard.created_at.desc())
         .all()
     )
@@ -121,7 +127,7 @@ def create_card():
 # 完了画面
 @step_card_bp.route('/create/complete')
 def create_complete():
-    return render_template('card/StepCardCreateComplate.html')
+    return render_template('card/StepCardCreateComplete.html')
 
 
 
@@ -209,7 +215,8 @@ def edit_card(card_id):
 
 @step_card_bp.route('/edit/complete')
 def edit_complete():
-    return render_template('card/StepCardUpdateComplate.html')
+    ## Compl"a"te ではなく、Compl"e"te！
+    return render_template('card/StepCardUpdateComplete.html')
 
 
 
@@ -266,3 +273,74 @@ def delete_card(card_id):
         return render_template('step_card_delete_failed.html', card=card)
 
     return redirect(url_for('step_card.list_cards'))
+
+
+
+# 確認画面 
+@step_card_bp.route('/<int:card_id>/share/confirm', methods=['GET'])
+def confirm_share(card_id):
+    card = StepCard.query.get_or_404(card_id)
+    # 既に公開ならその旨を表示
+    if card.status == STATUS_PUBLIC:
+        return render_template('step_card_share_already.html', card=card)
+    return render_template('step_card_share_confirm.html', card=card)
+
+
+
+# 共有実行 POST（公開＋タグ保存→完了画面）
+@step_card_bp.route('/<int:card_id>/share', methods=['POST'])
+def do_share(card_id):
+    card = StepCard.query.get_or_404(card_id)
+    if card.status == STATUS_PUBLIC:
+        # すでに公開なら既存の「すでに公開」画面
+        return render_template('step_card_share_already.html', card=card)
+
+    # 入力されたタグ（CSV）
+    csv_tags = (request.form.get('tags') or '').strip()
+    tag_names = [t for t in [x.strip() for x in csv_tags.split(',')] if t]
+
+    if not tag_names:
+        return render_template(
+            'step_card_share_confirm.html',
+            card=card,
+            preset_tags=csv_tags,
+            form_error={'tags': 'タグを1件以上入力してください'}
+        )
+
+
+    # タグ作成（存在しなければ新規）＋関連付け
+    attached = set()
+    for raw in tag_names:
+        # タグ名は1つの正規化ポリシーに合わせる（小文字化＋空白を_に）
+        norm = raw.replace(' ', '_')
+        if norm in attached:
+            continue
+        attached.add(norm)
+
+        # 既存検索（case-insensitive）
+        tag = Tag.query.filter(func.lower(Tag.tag_name) == norm.lower()).first()
+        if not tag:
+            tag = Tag(tag_name=norm)
+            db.session.add(tag)
+            db.session.flush()  # id採番
+
+        if tag not in card.tags:
+            card.tags.append(tag)
+
+    # 公開フラグに変更
+    card.status = STATUS_PUBLIC
+
+    try:
+        db.session.commit()
+    except SQLAlchemyError:
+        db.session.rollback()
+        return render_template('step_card_share_failed.html', card=card)
+
+    # 投稿完了画面へ
+    return redirect(url_for('step_card.share_post_complete'))
+
+
+# 投稿完了画面
+@step_card_bp.route('/share/complete', methods=['GET'])
+def share_post_complete():
+    return render_template('share/StepCardSharePostComplate.html')

@@ -1,5 +1,3 @@
-# config.py
-
 class Config:
     SECRET_KEY = 'dev'      # 適当でいいけど本番は変える
     DEBUG = False
@@ -19,7 +17,6 @@ class DevelopmentConfig(Config):
         basedir, 'instance', 'errormate.db'
     ).replace('\\', '/')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-
 
 
 class ProductionConfig(Config):
