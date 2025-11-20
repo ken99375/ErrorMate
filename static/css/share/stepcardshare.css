@@ -215,6 +215,7 @@ body {
   font-size: 1.2rem;
   color: #000;
   transition: transform 0.2s;
+  
 
 }
 
@@ -230,4 +231,51 @@ body {
 .gray   { background-color: #e0e0e0; }
 .green  { background-color: #4caf50; }
 
+/* 共有一覧カード（StepCardの見た目＋ホバー拡大） */
+.help-card{
+  background-color:#fff6c8;
+  border:2px solid #e6d48a;
+  border-radius:12px;
+  min-height:300px;
+  transition: transform .18s ease, box-shadow .18s ease; 
+  transform-origin:center; 
+  box-shadow: 0 2px 6px rgba(0,0,0,.06);
+}
 
+/* マウスある環境だけ拡大（モバイル暴発防止） */
+@media (hover:hover){
+  .help-card:hover{
+    transform: scale(1.03);
+    box-shadow: 0 10px 24px rgba(0,0,0,.14);
+  }
+}
+
+/* 中の情報ボックスはそのまま */
+.info-box{
+  background:#fff;
+  border:1px solid #aaa;
+  padding:6px;
+  border-radius:5px;
+  margin-bottom:6px;
+  font-size:.9rem;
+  white-space:pre-line;
+}
+
+
+.info-box {
+    background: white;
+    border: 1px solid #aaa;
+    padding: 6px;
+    border-radius: 5px;
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+    white-space: pre-line;
+}
+
+.like-btn {
+    background: none;
+    border: none;
+    font-size: 1.6rem;
+    cursor: pointer;
+    color: #e65a5a;
+}

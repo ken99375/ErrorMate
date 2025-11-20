@@ -3,7 +3,7 @@ import re
 from flask import Blueprint, render_template, request
 from sqlalchemy import func
 from sqlalchemy.orm import joinedload, load_only
-from models import db, StepCard, Tag, STATUS_PUBLIC
+from models import db, StepCard, Tag, STATUS_PUBLIC,User
 
 share_bp = Blueprint('share', __name__)
 
@@ -12,41 +12,46 @@ share_bp = Blueprint('share', __name__)
 def share_card_library():
     return render_template('share/CardLibrary.html')
 
-# ステップカード共有一覧（タグ検索）
+
 @share_bp.route('/share/step_cards', methods=['GET'])
 def share_step_card_list():
     raw = (request.args.get('tag') or '').strip()
-    # カンマ/空白を区切りとして小文字化（空要素は除外）
     keywords = [s for s in [x.strip().lower() for x in re.split(r'[,\s]+', raw)] if s]
 
     base_q = (
         StepCard.query
         .filter(StepCard.status == STATUS_PUBLIC)
         .options(
-            joinedload(StepCard.tags),  # N+1回避
+            # タグと作者を先読み
+            joinedload(StepCard.tags).load_only(Tag.tag_id, Tag.tag_name),
+            joinedload(StepCard.author).load_only(User.user_name),
+            # カード側は必要な列だけ
             load_only(
-                StepCard.card_id, StepCard.title,
-                StepCard.error_message, StepCard.created_at
+                StepCard.card_id,
+                StepCard.title,
+                StepCard.error_message,
+                StepCard.created_at,
             ),
         )
+        .order_by(StepCard.created_at.desc())
     )
 
     if keywords:
-        q = (
+        cards = (
             base_q.join(StepCard.tags)
-            .filter(func.lower(Tag.tag_name).in_(keywords))  # 完全一致（小文字化）
-            .distinct()
-            .order_by(StepCard.created_at.desc())
+                .filter(func.lower(Tag.tag_name).in_(keywords))
+                .distinct()
+                .all()
         )
-        cards = q.all()
     else:
-        cards = base_q.order_by(StepCard.created_at.desc()).all()
+        cards = base_q.all()
 
     return render_template(
         'share/StepCardShareList.html',
         keyword=raw,
-        matches=cards,   # ← StepCardモデルのリストをそのまま渡す
+        matches=cards,
     )
+
 
 # ヘルプカード共有一覧 -----------------------------------------------
 @share_bp.route('/share/help_cards', methods=['GET'])
