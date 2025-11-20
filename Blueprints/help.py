@@ -53,9 +53,10 @@ def create_help_card():
         # -------------------------------------------------------
         card = StepCard(
             title=title,
-            code=code,
-            message=message,
-            user_id=1   # ←本来はログイン中のユーザーIDを入れる
+            error_code=code,
+            error_message=message,
+            user_id=1,   # ←本来はログイン中のユーザーIDを入れる
+            status='help'
         )
         db.session.add(card)
         db.session.commit()  # card.id を取得するためにいったんコミット
@@ -79,15 +80,23 @@ def create_help_card():
 
         db.session.commit()
 
-        return redirect(url_for('help.list_help_cards'))
+        return redirect(url_for('help.complete'))
 
     return render_template('help/help_card_create.html', errors=errors, form_data=form_data)
 
+# ------------------------------------------------------------
+# 投稿完了画面
+# ------------------------------------------------------------
+@help_bp.route('/complete')
+def complete():
+    return render_template('help/HelpCardPostComplete.html')
 
 # ------------------------------------------------------------
 # 一覧表示
 # ------------------------------------------------------------
 @help_bp.route('/list')
 def list_help_cards():
-    cards = StepCard.query.order_by(StepCard.created_at.desc()).all()
-    return render_template('help_card_list.html', cards=cards)
+    cards = StepCard.query.filter_by(status='help') \
+    .order_by(StepCard.created_at.desc()) \
+    .all()
+    return render_template('share/HelpCardShareList.html', cards=cards)

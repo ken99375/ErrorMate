@@ -40,13 +40,14 @@
         <div class="help-card p-3">
 
             <!-- タイトル -->
-            <h5 class="text-center">{{ card.title }}</h5>
-
-            <!-- エラーコード/メッセージ -->
-            <div class="mt-3 mb-2">
-                <div class="info-box">エラーコード: {{ card.error_code }}</div>
-                <div class="info-box">エラーメッセージ:</div>
-                <div class="info-box">{{ card.error_message }}</div>
+            <h5 class="card-title text-center">{{ card.title }}</h5>
+            
+            <!-- 本文エリア -->
+            <div class="card-body">
+            <div class="info-label">エラーコード:</div>
+            <pre class="code-box">{{ card.error_code }}</pre>
+            <div class="info-label">エラーメッセージ:</div>
+            <div class="text-box">{{ card.error_message }}</div>
             </div>
 
             <!-- ユーザ名 + タグ -->
@@ -62,8 +63,8 @@
                 <button class="like-btn me-3">♡</button>
 
                 <a href="{{ url_for('step_card.detail_card', card_id=card.card_id) }}"
-                   class="answer-link">
-                   回答する
+                    class="answer-link">
+                    回答する
                 </a>
             </div>
 
