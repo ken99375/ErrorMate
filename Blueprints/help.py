@@ -1,7 +1,13 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 from models import db, StepCard, Tag, User
+from flask import g
 
 help_bp = Blueprint('help', __name__)
+
+## ヘッダーの色指定
+@help_bp.before_request
+def set_header_color():
+    g.header_class = "header-help"
 
 # ------------------------------------------------------------
 # 新規作成

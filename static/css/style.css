@@ -14,12 +14,11 @@ body {
 .hamburger-menu {
   width: 25px;
   height: 18px;
-  position: absolute;
-  top: 20px;
-  right: 20px;
+  position: relative; 
   cursor: pointer;
   user-select: none;
   z-index: 1001;
+  margin-left: 20px; 
 }
 
 .line {
@@ -124,6 +123,12 @@ body {
 
 .nav-menu a:hover {
     background: #f5f5f5;
+}
+
+/* ログイン・サインアップボタンを囲む要素 */
+.auth-buttons { 
+    display: flex;
+    gap: 10px; /* ボタン間の隙間 */
 }
 
 /* ハンバーガーメニュー内 */
@@ -535,15 +540,15 @@ body {
 }
 
 .header-step {                  /* ステップカード一覧 */
-    background-color: #f7d037;
+    background-color: #fdeeaf;
 }
 
 .header-card {              /* カードライブラリ */
-    background-color: #3c7ffc;
+    background-color: #c4d7fc;
 }
 
 .header-help {                 /* ヘルプ要求カード */
-    background-color: #00B37E;
+    background-color: #8ab3a6;
 }
 
 .header-analysis {                 /* 個人分析 */
