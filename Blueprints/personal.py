@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, jsonify
+from flask import Blueprint, render_template, jsonify, redirect, url_for
 from flask_login import login_required
 from models import db, StepCard # 1. モデルをインポート
 from sqlalchemy import func                # 2. SQL関数をインポート
@@ -89,12 +89,21 @@ def data_error_count():
 
 
 # 言語種別比率------------------------------------------------------------------------
-@personal_bp.route('/LanguageRatio', methods=['GET', 'POST'])
+@personal_bp.route('/LanguageRatio/data', methods=['GET', 'POST']) # URLを /data 付きに変更推奨
 def language_ratio_data():
     user_id = current_user.user_id
     user_cards = StepCard.query.filter_by(user_id=user_id).all()
 
+    # カード自体がない場合
+    if not user_cards:
+        return jsonify({"labels": [], "values": []})
+
     tag_names = [tag.tag_name for card in user_cards for tag in card.tags]
+    
+    # タグが一つもない場合
+    if not tag_names:
+        return jsonify({"labels": [], "values": []})
+
     tag_count = Counter(tag_names)
 
     return jsonify({
@@ -102,6 +111,10 @@ def language_ratio_data():
         "values": list(tag_count.values())
     })
 
+@personal_bp.route('/LanguageRatio', methods=['GET'])
+def language_ratio_view():
+    return render_template('personal/PersonalDataLanguage.html')
+    
 
 
 # エラー種別比率------------------------------------------------------------------------
@@ -121,11 +134,7 @@ def data_comment_trend():
     return render_template('personal/PersonalDataTrend.html')
 
 
-# ヘッダー------------------------------------------------------------------------
-@personal_bp.route("/personal/comments")
-def comments():
-    return render_template(
-        "personal/comments.html",
-        header_theme="header-personal",
-        active_key="comments"
-    )
+# データ取得エラー------------------------------------------------------------------------
+@personal_bp.route('/DataError', methods=['GET'])
+def data_error():
+    return render_template('personal/PersonalDataError.html')

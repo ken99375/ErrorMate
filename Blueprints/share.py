@@ -8,8 +8,9 @@ from flask import g
 
 share_bp = Blueprint('share', __name__)
 
-# カードライブラリ
-@share_bp.route('/share', methods=['GET'])
+
+# カードライブラリ------------------------------------------------------------
+@share_bp.route('/share', methods=['GET', 'POST'])
 def share_card_library():
     return render_template('share/CardLibrary.html')
 

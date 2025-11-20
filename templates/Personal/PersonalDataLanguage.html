@@ -4,5 +4,10 @@
 {% block title %}ErrorMate｜言語種別比率{% endblock %}
 
 {% block personal_content %}
-<h2>ここにデータ置く</h2>
+<div style="width: 500px; margin: 0 auto; text-align: center;">
+    <h3>言語種別比率</h3>
+    <canvas id="languageChart"></canvas>
+</div>
+
+<script src="{{ url_for('static', filename='js/Personal.data.js') }}"></script>
 {% endblock %}

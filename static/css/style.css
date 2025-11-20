@@ -1,6 +1,7 @@
 body {
   font-family: "Segoe UI", sans-serif;
-  background-color: #fff;
+  background: linear-gradient(135deg, #ffffff, #c4f5e5);
+  background-attachment: fixed;
   margin: 0;
 }
 
