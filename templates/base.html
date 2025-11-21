@@ -20,12 +20,14 @@
     {% block header %}
     <!-- 共通ヘッダー -->
     <header class="navbar navbar-light shadow-sm px-3 position-relative {{ g.header_class or header_theme or 'header-default' }}">
-        <!-- トップへ：main_bp 側の関数名に合わせて変更して -->
-        <a href="{{ url_for('main.index') }}"
-        class="navbar-brand mb-0 h1"
-        style="color:#f57c00;font-size:2rem;">
-        ErrorMate
-        </a>
+    <a href="{{ url_for('main.index') }}"
+    class="navbar-brand">
+    <img src="{{ url_for('static', filename='images/ErrorMateLogo.png') }}"
+        alt="ErrorMate ロゴ"
+        width="150"
+        height="40"
+        margin-left: 20px;>
+    </a>
 
         {# ここを追加（ユーザー名表示 / ログイン状態で切替） #}
         {% if current_user.is_authenticated %}
