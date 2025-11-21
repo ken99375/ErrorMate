@@ -1,4 +1,4 @@
-from application import app
+from application import application as app
 from models import db, User, Tag, StepCard, Comment
 from datetime import datetime
 
