@@ -1,8 +1,36 @@
 {% extends "personal_base.html" %}
-{% set active_key = "trend" %}
+{% set active_key = "errors" %}
 
-{% block title %}ErrorMate｜コメント傾向{% endblock %}
+{% block title %}コメント傾向 - ErrorMate{% endblock %}
 
 {% block personal_content %}
-<h2>ここにデータ置く</h2>
+<div class="analysis-container">
+    <h2>コメント傾向</h2>
+    <div style="max-width: 500px; margin: 0 auto;">
+        <canvas id="trendChart"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const chartData = {{ chart_data | safe }};
+
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    const trendChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: chartData,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                title: {
+                    display: true,
+                    text: 'コメント傾向（送受信数の比較）'
+                }
+            }
+        }
+    });
+</script>
 {% endblock %}
