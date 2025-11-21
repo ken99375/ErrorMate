@@ -3,25 +3,7 @@ body {
   background-color: #a7c7e7;
   margin: 0;
 }
- 
-/* ハンバーガーメニュー */
-.container {
-  position: relative;
-  width: 100%;
-  height: 300px;
-}
- 
-.hamburger-menu {
-  width: 25px;
-  height: 18px;
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  cursor: pointer;
-  user-select: none;
-  z-index: 1001;
-}
- 
+
 .line {
   background-color: #666;
   height: 1px;
@@ -321,7 +303,22 @@ body {
   font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
   white-space: pre;              /* 折り返さない（その代わり横スクロール） */
   overflow: auto;                /* はみ出したらスクロール */
-  max-height: 100px;             /* 高さ上限で統一 */
+  max-height: 90px;             /* 高さ上限で統一 */
+  
+  /* * 1. テキストを折り返す設定（これが重要）
+   * pre-wrap: HTMLの改行（\n）は保持しつつ、幅に合わせてテキストを折り返す
+   */
+  white-space: pre-wrap; 
+  
+  /* * 2. 垂直方向にはみ出た場合にのみスクロールバーを表示
+   */
+  overflow-y: auto;
+  
+  /* 横スクロールは不要なので非表示 */
+  overflow-x: hidden;
+
+  /* その他は変更なし */
+  overflow-wrap: break-word; /* 長い単語が行からはみ出ないように */
 }
  
 /* テキストは通常折り返し＋上限を設けてスクロール */

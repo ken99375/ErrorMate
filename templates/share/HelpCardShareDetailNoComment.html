@@ -1,13 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %}ステップカード共有詳細（コメントなし）- ErrorMate{% endblock %}
+{% block title %}ヘルプカード共有詳細（コメントなし）- ErrorMate{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/helpcarddetail_nocomment.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='c../css/helpcarddetail_nocomment.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="detail-container">
+<body>
+  <div class="detail-container">
     <div class="scroll-area">
       
       <!-- コメント・コード入力枠 -->
@@ -23,7 +24,7 @@
       <p class="no-comment">コメントはありません</p>
 
       <!-- 一覧に戻るリンク -->
-      <a href="{{ url_for('share.list_help_cards') }}" class="back-link">一覧に戻る</a>
+      <a href=".html" class="back-link"> 一覧に戻る</a>
 
     </div>
   </div>

@@ -100,3 +100,14 @@ def list_help_cards():
     .order_by(StepCard.created_at.desc()) \
     .all()
     return render_template('share/HelpCardShareList.html', cards=cards)
+
+# ------------------------------------------------------------
+# 詳細表示（コメントなし）
+# ------------------------------------------------------------
+@help_bp.route('/detail/no_comment/<int:card_id>')
+def detail_no_comment(card_id):
+    # 🔹 card_id に対応する StepCard のデータを取得
+    card = StepCard.query.get_or_404(card_id) 
+    
+    # 🔹 取得したデータをテンプレートに渡してレンダリング
+    return render_template('share/HelpCardShareDetailNoComment.html', card=card)
