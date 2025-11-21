@@ -11,6 +11,7 @@ from Blueprints.help import help_bp
 from Blueprints.personal import personal_bp
 from Blueprints.share import share_bp
 from Blueprints.api import api_bp
+from Blueprints.admin import admin_bp
 
 
 application = Flask(__name__)
@@ -45,9 +46,11 @@ application.register_blueprint(share_bp, url_prefix='/share')
 
 application.register_blueprint(api_bp, url_prefix="/api")
 
+application.register_blueprint(admin_bp, url_prefix='/admin')
+
 # アプリ起動時にテーブルを作成
 with application.app_context():
     db.create_all()
 
 if __name__ == '__main__':
-    application.run()
+    application.run(debug=True)
