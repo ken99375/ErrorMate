@@ -3,12 +3,22 @@
 {% block title %}カードライブラリ - ErrorMate{% endblock %}
 
 {% block content %}
-<div class="row g-4 justify-content-center">
-  <div class="col-10 col-md-5 col-lg-4">
-    <a href="{{ url_for('share.share_step_card_list') }}" class="card yellow d-flex align-items-center justify-content-center">ステップカード</a>
-  </div>
-  <div class="col-10 col-md-5 col-lg-4">
-    <a href="{{ url_for('share.share_help_card_list') }}" class="card blue d-flex align-items-center justify-content-center">ヘルプカード要求</a>
-  </div>
+<div class="container mt-5" style="max-width: 1000px;">
+  
+    <div class="row g-4">
+      <div class="col-12 col-md-6">
+        <a href="{{ url_for('share.share_step_card_list') }}" class="menu-card yellow">
+          <span class="btn-text mb-2 fw-bold fs-5">ステップカード</span>
+          <i class="fa-solid fa-pen-to-square fa-4x"></i>
+        </a>
+      </div>
+      <div class="col-12 col-md-6">
+        <a href="{{ url_for('share.share_help_card_list') }}" class="menu-card blue">
+          <span class="btn-text mb-2 fw-bold fs-5">ヘルプカード</span>
+          <i class="fa-solid fa-users fa-4x"></i>
+        </a>
+      </div>
+      
+    </div>
 </div>
 {% endblock %}

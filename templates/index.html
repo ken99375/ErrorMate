@@ -42,10 +42,11 @@
           <i class="fa-solid fa-users fa-4x"></i>
         </a>
       </div>
-      <!--ここに個人データ分析のエラー発生回数のグラフを乗せたい-->
-      <div class="chart-container" style="width: 80%; margin: 50px auto;">
-        <h2 style="text-align:center;">エラー発生回数（過去7日間）</h2>
-        <canvas id="errorChart"></canvas>
+      <div class="col-12 col-md-6">
+        <a href="{{ url_for('personal.data_error_count') }}" class="menu-card pink">
+          <span class="btn-text mb-2 fw-bold fs-5">自分のデータを見る</span>
+          <i class="fa-solid fa-database fa-4x"></i>
+        </a>
       </div>
       
     </div>
