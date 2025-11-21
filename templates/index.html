@@ -4,21 +4,40 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<!-- FontAwesome (アイコン用) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 {% endblock %}
 
 {% block content %}
-<div class="row g-4 justify-content-center">
-  <div class="col-10 col-md-5 col-lg-4">
-    <a href="{{ url_for('step_card.list_cards') }}" class="card yellow d-flex align-items-center justify-content-center">ステップカード一覧</a>
-  </div>
-  <div class="col-10 col-md-5 col-lg-4">
-    <a href="{{ url_for('share.share_card_library') }}" class="card blue d-flex align-items-center justify-content-center">カードライブラリ</a>
-  </div>
-  <div class="col-10 col-md-5 col-lg-4">
-    <a href="{{ url_for('help.create_help_card') }}" class="card green d-flex align-items-center justify-content-center">ヘルプ要求カード</a>
-  </div>
-  <div class="col-10 col-md-5 col-lg-4">
-    <a href="{{ url_for('personal.data_error_count') }}" class="card orange d-flex align-items-center justify-content-center">個人分析</a>
-  </div>
+<div class="container mt-5" style="max-width: 1000px;"> <!-- 幅を少し広げる -->
+  
+    <div class="row g-4"> <div class="col-12 col-md-6">
+      <a href="{{ url_for('step_card.create_card') }}" class="menu-card yellow">
+        <span class="btn-text mb-2 fw-bold fs-5">ステップカードを作成する</span>
+        <i class="fa-solid fa-pen-to-square fa-4x"></i>
+      </a>
+    </div>
+
+    <div class="col-12 col-md-6">
+        <a href="{{ url_for('help.create_help_card') }}" class="menu-card green">
+        <span class="btn-text mb-2 fw-bold fs-5">ヘルプカードを作成する</span>
+        <i class="fa-regular fa-bell fa-4x"></i>
+      </a>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <a href="{{ url_for('step_card.list_cards') }}" class="menu-card light-yellow">
+        <span class="btn-text mb-2 fw-bold fs-5">作成したステップカードを見る</span>
+        <i class="fa-regular fa-folder-open fa-4x"></i>
+      </a>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <a href="{{ url_for('share.share_card_library') }}" class="menu-card blue">
+        <span class="btn-text mb-2 fw-bold fs-5">みんなのカードを見る</span>
+        <i class="fa-solid fa-users fa-4x"></i>
+      </a>
+    </div>
+
 </div>
 {% endblock %}

@@ -126,6 +126,76 @@ body {
     background: #f5f5f5;
 }
 
+/* メニューカード共通デザイン */
+.menu-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 180px; /* ボタンの高さ */
+    text-decoration: none; /* 下線を消す */
+    color: #000; /* 文字色を黒に */ 
+    border-radius: 10px; /* 角を丸くする */
+    transition: transform 0.2s, opacity 0.2s;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* ホバー時のアニメーション */
+.menu-card:hover {
+    transform: translateY(-3px); /* 少し浮き上がる */
+    opacity: 0.9;
+    color: #000; /* ホバーしても文字色を変えない */
+}
+
+/* テキストのデザイン */
+.btn-text {
+    font-size: 1.4rem;
+    font-weight: bold;
+    margin-bottom: 15px; /* アイコンとの隙間 */
+}
+
+/* FontAwesomeアイコンのサイズ */
+.btn-icon {
+    font-size: 3rem; /* アイコンの大きさ */
+}
+
+/* (画像ファイルを使う場合のサイズ指定) */
+.btn-icon-img {
+    width: 1000px;
+    height: auto;
+}
+
+/* --- 色ごとの設定 --- */
+
+/* ステップカード作成 (濃い黄色) */
+.btn-yellow {
+    background-color: #FFD700; 
+}
+
+/* ヘルプカード (薄い緑) */
+.btn-green {
+    background-color: #98FB98;
+}
+
+/* 作成したカード (クリーム色) */
+.btn-cream {
+    background-color: #FFFACD;
+}
+
+/* みんなのカード (青色) */
+.btn-blue {
+    background-color: #6495ED;
+    color: white !important; /* 青背景なら文字は白が見やすいかも（お好みで） */
+}
+/* もし青背景で黒文字がいいなら上の color: white !important; を消してください */
+
+/* 個人分析 (オレンジ) */
+.btn-orange {
+    background-color: #FFA500;
+}
+
 /* ログイン・サインアップボタンを囲む要素 */
 .auth-buttons { 
     display: flex;
@@ -152,6 +222,19 @@ body {
   color: #007bff;
 }
 
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+}
+
+footer {
+    margin-top: auto;
+}
 
 
 @keyframes fadeIn {
@@ -223,7 +306,7 @@ body {
   transition: transform 0.2s;
 
 }
-
+/* マウスに合わせて時に少しだけ浮く設定 */
 .card:hover {
   transform: scale(1.05);
 }
@@ -242,9 +325,10 @@ body {
     background: linear-gradient(135deg, #3DDC97, #00B37E);
     color: #fff;
 }
-.orange  { 
-    /* 個人分析用：オレンジ系でブランド（ErrorMateロゴ）と統一 */
-    background: linear-gradient(135deg, #fd7d55, #f76235, #fd3d03);
+
+.light-yellow  { 
+    /* カードライブラリ用：さわやかライトイエロー色*/
+    background: linear-gradient(135deg, #fff3b0, #ffec99, #ffe066);
     color: #fff;
 }
 
