@@ -9,37 +9,74 @@
 {% endblock %}
 
 {% block content %}
-<div class="container mt-5" style="max-width: 1000px;"> <!-- 幅を少し広げる -->
+
+<!-- Student メニュー画面 -->
+{% if current_user.role == 'student' %}
+<div class="container mt-5" style="max-width: 1000px;">
   
-    <div class="row g-4"> <div class="col-12 col-md-6">
-      <a href="{{ url_for('step_card.create_card') }}" class="menu-card yellow">
-        <span class="btn-text mb-2 fw-bold fs-5">ステップカードを作成する</span>
-        <i class="fa-solid fa-pen-to-square fa-4x"></i>
-      </a>
-    </div>
+    <div class="row g-4">
+      <div class="col-12 col-md-6">
+        <a href="{{ url_for('step_card.create_card') }}" class="menu-card yellow">
+          <span class="btn-text mb-2 fw-bold fs-5">ステップカードを作成する</span>
+          <i class="fa-solid fa-pen-to-square fa-4x"></i>
+        </a>
+      </div>
 
-    <div class="col-12 col-md-6">
+      <div class="col-12 col-md-6">
         <a href="{{ url_for('help.create_help_card') }}" class="menu-card green">
-        <span class="btn-text mb-2 fw-bold fs-5">ヘルプカードを作成する</span>
-        <i class="fa-regular fa-bell fa-4x"></i>
-      </a>
-    </div>
+          <span class="btn-text mb-2 fw-bold fs-5">ヘルプカードを作成する</span>
+          <i class="fa-regular fa-bell fa-4x"></i>
+        </a>
+      </div>
 
-    <div class="col-12 col-md-6">
-      <a href="{{ url_for('step_card.list_cards') }}" class="menu-card light-yellow">
-        <span class="btn-text mb-2 fw-bold fs-5">作成したステップカードを見る</span>
-        <i class="fa-regular fa-folder-open fa-4x"></i>
-      </a>
-    </div>
+      <div class="col-12 col-md-6">
+        <a href="{{ url_for('step_card.list_cards') }}" class="menu-card light-yellow">
+          <span class="btn-text mb-2 fw-bold fs-5">作成したステップカードを見る</span>
+          <i class="fa-regular fa-folder-open fa-4x"></i>
+        </a>
+      </div>
 
-    <div class="col-12 col-md-6">
-      <a href="{{ url_for('share.share_card_library') }}" class="menu-card blue">
-        <span class="btn-text mb-2 fw-bold fs-5">みんなのカードを見る</span>
-        <i class="fa-solid fa-users fa-4x"></i>
-      </a>
-    </div>
+      <div class="col-12 col-md-6">
+        <a href="{{ url_for('share.share_card_library') }}" class="menu-card blue">
+          <span class="btn-text mb-2 fw-bold fs-5">みんなのカードを見る</span>
+          <i class="fa-solid fa-users fa-4x"></i>
+        </a>
+      </div>
 
-    <p>この下にデータ分析グラフが入ります。</p>
+      <p>この下に個人データ分析表示する</p>
+    </div>
 
 </div>
+
+<!-- Teacher 管理ダッシュボード -->
+{% elif current_user.role == 'teacher' %}
+<div class="container mt-5" style="max-width: 1200px;">
+
+  <div class="row g-4">
+
+    <div class="col-12 col-md-6">
+      <a href="{{ url_for('admin.view_all_cards') }}" class="menu-card yellow">
+        <span class="btn-text mb-2 fw-bold fs-5">全カード管理</span>
+        <i class="fa-solid fa-file-lines fa-4x"></i>
+      </a>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <a href="{{ url_for('admin.view_all_help_requests') }}" class="menu-card green">
+        <span class="btn-text mb-2 fw-bold fs-5">ヘルプ要求管理</span>
+        <i class="fa-solid fa-circle-exclamation fa-4x"></i>
+      </a>
+    </div>
+
+    <p>この下に全体デー分析を表示する</p>
+  </div>
+</div>
+
+{% else %}
+<!-- ロール不明の場合 -->
+<div class="container mt-5">
+  <p class="alert alert-warning">ご利用いただけません。管理者にお問い合わせください。</p>
+</div>
+{% endif %}
+
 {% endblock %}

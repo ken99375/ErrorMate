@@ -1,8 +1,36 @@
 {% extends "personal_base.html" %}
-{% set active_key = "types" %}
+{% set active_key = "errors" %}
 
-{% block title %}ErrorMate｜エラー種別比率{% endblock %}
+{% block title %}エラー種別比率 - ErrorMate{% endblock %}
 
 {% block personal_content %}
-<h2>ここにデータ置く</h2>
+<div class="analysis-container">
+    <h2>エラー種別比率</h2>
+    <div style="max-width: 500px; margin: 0 auto;">
+        <canvas id="errorTypeChart"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const chartData = {{ chart_data | safe }};
+
+    const ctx = document.getElementById('errorTypeChart').getContext('2d');
+    const errorTypeChart = new Chart(ctx, {
+        type: 'pie',
+        data: chartData,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                title: {
+                    display: true,
+                    text: 'エラー種別の割合'
+                }
+            }
+        }
+    });
+</script>
 {% endblock %}

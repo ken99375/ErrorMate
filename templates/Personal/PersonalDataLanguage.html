@@ -1,13 +1,65 @@
 {% extends "personal_base.html" %}
-{% set active_key = "lang" %}
+{% set active_key = "errors" %}
 
-{% block title %}ErrorMate｜言語種別比率{% endblock %}
+{% block title %}言語種別比率 - ErrorMate{% endblock %}
 
 {% block personal_content %}
-<div style="width: 500px; margin: 0 auto; text-align: center;">
-    <h3>言語種別比率</h3>
-    <canvas id="languageChart"></canvas>
+<div class="analysis-container">
+    <h2>言語種別比率</h2>
+    <div style="max-width: 500px; margin: 0 auto;">
+        <canvas id="languageChart"></canvas>
+    </div>
 </div>
 
-<script src="{{ url_for('static', filename='js/Personal.data.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // API エンドポイントからデータを取得
+    fetch("{{ url_for('personal.language_ratio_data') }}")
+        .then(response => response.json())
+        .then(data => {
+            console.log('API Response:', data);  // デバッグ用
+            
+            if (!data.labels || data.labels.length === 0) {
+                document.getElementById('languageChart').parentElement.innerHTML = '<p>データがありません</p>';
+                return;
+            }
+
+            const colors = [
+                'rgba(255, 99, 132, 0.8)',
+                'rgba(54, 162, 235, 0.8)',
+                'rgba(255, 206, 86, 0.8)',
+                'rgba(75, 192, 192, 0.8)',
+                'rgba(153, 102, 255, 0.8)',
+                'rgba(255, 159, 64, 0.8)',
+            ];
+
+            const ctx = document.getElementById('languageChart').getContext('2d');
+            const languageChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        data: data.values,
+                        backgroundColor: colors.slice(0, data.labels.length),
+                        borderColor: 'rgba(255, 255, 255, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        title: {
+                            display: true,
+                            text: 'タグ（言語種別）の割合'
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+            document.getElementById('languageChart').parentElement.innerHTML = '<p>データ取得に失敗しました</p>';
+        });
+</script>
 {% endblock %}

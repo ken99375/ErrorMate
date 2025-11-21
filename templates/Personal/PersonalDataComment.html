@@ -1,8 +1,44 @@
 {% extends "personal_base.html" %}
-{% set active_key = "comments" %}
+{% set active_key = "errors" %}
 
-{% block title %}ErrorMate｜コメント回数{% endblock %}
+{% block title %}コメント回数 - ErrorMate{% endblock %}
 
 {% block personal_content %}
-<h2>ここにデータ置く</h2>
+<div class="analysis-container">
+    <h2>コメント回数</h2>
+    <div style="max-width: 800px; margin: 0 auto;">
+        <canvas id="commentChart"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const chartData = {{ chart_data | safe }};
+
+    const ctx = document.getElementById('commentChart').getContext('2d');
+    const commentChart = new Chart(ctx, {
+        type: 'line',
+        data: chartData,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top'
+                },
+                title: {
+                    display: true,
+                    text: '過去7日間のコメント数'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+</script>
 {% endblock %}
