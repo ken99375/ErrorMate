@@ -332,6 +332,12 @@ footer {
     color: #fff;
 }
 
+.pink  { 
+    /* カードライブラリ用：ピンク色*/
+    background: linear-gradient(135deg, #fa6824, #ffa068, #ffcba9);
+    color: #fff;
+}
+
 /* メインフォーム全体 */
 .container_help {
   width: 90%;
