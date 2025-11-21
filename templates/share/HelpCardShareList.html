@@ -7,58 +7,6 @@
 {% endblock %}
 
 {% block content %}
-<<<<<<< HEAD
-<!-- タグ検索欄 -->
-<div class="d-flex align-items-center mb-4" style="justify-content: flex-start;">
-    <form class="d-flex" method="get" action="{{ url_for('share.share_help_card_list') }}">
-        <input 
-            type="text" 
-            id="tagInput" 
-            name="tag"
-            class="form-control me-2" 
-            placeholder="タグ検索欄" 
-            style="max-width: 400px; font-size: 1.3rem;"
-            value="{{ keyword|e }}"
-        >
-        <button id="searchBtn" type="submit" class="btn btn-outline-primary" style="font-size: 1.2rem;">🔍</button>
-    </form>
-</div>
-
-<!-- 検索結果表示 -->
-{% if keyword %}
-    <div class="mb-4">
-        <h5>検索キーワード: 「{{ keyword|e }}」</h5>
-        {% if matches %}
-            <div class="row">
-                {% for card in matches %}
-                    <div class="col-md-4 mb-3">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ card.title }}</h5>
-                                <p class="card-text">
-                                    タグ:
-                                    {% for t in card.tags %}
-                                        <span class="badge bg-secondary me-1">{{ t }}</span>
-                                    {% endfor %}
-                                </p>
-                                <!-- ここにカード詳細リンクなどを追加 -->
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="alert alert-warning" role="alert">
-                タグが存在しません
-            </div>
-        {% endif %}
-    </div>
-{% endif %}
-
-<!-- あとでDBでカードを追加する場所 -->
-
-{% endblock %}
-=======
 
 <!-- 🔍 タグ検索フォーム -->
 <div class="d-flex align-items-center mb-4" style="justify-content:flex-start;">
@@ -131,4 +79,3 @@
 {% endif %}
 
 {% endblock %}
->>>>>>> 0bd337f08c98f681d2034c753e5851b47c4bbeff
