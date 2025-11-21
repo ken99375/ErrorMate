@@ -5,11 +5,10 @@
 {% block extra_css %}
 <style>
   main.container {
-    min-height: calc(100vh - 70px); /* ヘッダーの高さぶん調整 */
+    height: 100vh;
     display: grid;
     place-items: center;
-    padding-top: 2rem;   /* 上の余白を少し入れるとさらに安定 */
-    padding-bottom: 2rem;
+    padding: 0;
   }
   
   .wrap {
@@ -62,17 +61,17 @@
 {% endblock %}
 
 {% block content %}
-<main class="container">
+<main class="container-fluid py-5"> 
     {# base.htmlでcontainer-fluidに変更済みと仮定 #}
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
             
-            <div class="text-center mt-5 mb-5">
+            <div class="text-batole mt-5 mb-5">
                 <h1 class="display-5 fw-bold mb-2">投稿が完了しました</h1>
                 <p class="lead text-muted">投稿が正常に送信されました。<br>ご利用ありがとうございます。</p>
             </div>
             
-            <div class="card shadow-sm p-4 mt-5">
+            <div class="card-next shadow-sm p-4 mt-5">
                 <h2 class="h5 card-title mb-4">次のステップ</h2>
                 
                 <div class="d-grid gap-3">

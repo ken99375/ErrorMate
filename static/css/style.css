@@ -646,3 +646,12 @@ footer {
     margin-top: 5px;
     margin-bottom: 5px;
 }
+
+.text-batole{
+    text-align: center;
+}
+
+.card-next{
+    text-align: center;
+    background: #ffffff;
+}
