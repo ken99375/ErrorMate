@@ -42,10 +42,13 @@
           <i class="fa-solid fa-users fa-4x"></i>
         </a>
       </div>
-
-      <p>この下に個人データ分析表示する</p>
+      <!--ここに個人データ分析のエラー発生回数のグラフを乗せたい-->
+      <div class="chart-container" style="width: 80%; margin: 50px auto;">
+        <h2 style="text-align:center;">エラー発生回数（過去7日間）</h2>
+        <canvas id="errorChart"></canvas>
+      </div>
+      
     </div>
-
 </div>
 
 <!-- Teacher 管理ダッシュボード -->
@@ -68,7 +71,6 @@
       </a>
     </div>
 
-    <p>この下に全体デー分析を表示する</p>
   </div>
 </div>
 

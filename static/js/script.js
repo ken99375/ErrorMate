@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    
+
     // ====================================================
     // 1. ハンバーガーメニューの処理
     // ====================================================
@@ -70,6 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const addBtn = document.getElementById("add-tag-btn");
 
     if (container && addBtn) {
+        // 既存の click イベントを解除（重複防止）
         const newAddBtn = addBtn.cloneNode(true);
         addBtn.parentNode.replaceChild(newAddBtn, addBtn);
 
@@ -91,14 +92,15 @@ document.addEventListener("DOMContentLoaded", () => {
             container.appendChild(input);
         });
     }
-    
+
     // ====================================================
-    // 4. いいねボタンの処理 ✨ これがメイン ✨
+    // 4. いいねボタンの処理 
     // ====================================================
     const likeButtons = document.querySelectorAll('.like-btn');
 
     likeButtons.forEach(button => {
         button.addEventListener('click', function() {
+            // CSSクラス '.liked' をトグル
             this.classList.toggle('liked');
         });
     });
