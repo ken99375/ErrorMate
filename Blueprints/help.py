@@ -24,29 +24,39 @@ def create_help_card():
     }
 
     if request.method == 'POST':
-        title = request.form.get('title', '')
-        code = request.form.get('code', '')
-        message = request.form.get('message', '')
+        # 入力値を取得（エラー時に再表示するために form_data にも入れる）
+        form_data['title'] = title = request.form.get('title', '').strip()
+        form_data['code'] = code = request.form.get('code', '').strip()
+        form_data['message'] = message = request.form.get('message', '').strip()
 
         # 🔹 タグ一覧（複数）を取得
         tags = request.form.getlist('tags[]')
+        form_data['tags'] = tags # form_data にも保存
+
+        # 文字数制限を定義
+        MAX_TITLE = 255
+        MAX_CODE = 65535
+        MAX_MESSAGE = 65535
 
         # 必須チェック
         if not title:
-            errors['title'] = 'タイトルは必須です。'
+            errors['title'] = 'タイトルを入力してください。'
         if not code:
-            errors['code'] = 'コードは必須です。'
+            errors['code'] = 'コードを入力してください。'
         if not message:
-            errors['message'] = 'メッセージは必須です。'
+            errors['message'] = 'メッセージを入力してください。'
 
-        # フォームの内容を保持
-        form_data['title'] = title
-        form_data['code'] = code
-        form_data['message'] = message
-        form_data['tags'] = tags
+        # 文字数チェック
+        if title and len(title) > MAX_TITLE:
+            errors['title'] = f'タイトルは{MAX_TITLE}文字以内で入力してください。'
+        if code and len(code) > MAX_CODE:
+            errors['code'] = f'コードは{MAX_CODE}文字以内で入力してください。'
+        if message and len(message) > MAX_MESSAGE:
+            errors['message'] = f'メッセージは{MAX_MESSAGE}文字以内で入力してください。'
 
         if errors:
-            return render_template('help_card_create.html', errors=errors, form_data=form_data)
+            # エラーがある場合は、エラーメッセージとフォームの内容を保持してテンプレートを再表示
+            return render_template('help/help_card_create.html', errors=errors, form_data=form_data)
 
         # -------------------------------------------------------
         # 🔥 StepCard 保存
