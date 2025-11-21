@@ -37,15 +37,21 @@
       <p class="error">{{ errors.message }}</p>
     {% endif %}
 
-    <div class="tag-section">
-        <label class="tag-label">#タグ</label>
+  <div class="tag-section">
+      <label class="tag-label">#タグ</label>
 
-        <div id="tag-container">
-            <input type="text" class="tag-input" name="tags[]" placeholder="タグを入力">
-        </div>
+      <div id="tag-container">
+          {% if form_data and form_data.tags %}
+              {% for tag in form_data.tags %}
+                  <input type="text" class="tag-input" name="tags[]" placeholder="タグを入力" value="{{ tag }}">
+              {% endfor %}
+          {% else %}
+              <input type="text" class="tag-input" name="tags[]" placeholder="タグを入力">
+          {% endif %}
+      </div>
 
-        <button type="button" class="tag-add-btn" id="add-tag-btn">＋</button>
-    </div>
+      <button type="button" class="tag-add-btn" id="add-tag-btn">＋</button>
+  </div>
 
 
     <!-- AI自動タグ生成ボタン -->

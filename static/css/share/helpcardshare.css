@@ -248,8 +248,7 @@ body {
   text-overflow: ellipsis;      /* 幅が足りなければ… */
   line-height: 1.2;
 }
- 
- 
+
 .like-btn {
     background: none;
     border: none;
@@ -257,7 +256,22 @@ body {
     cursor: pointer;
     color: #e65a5a;
 }
- 
+
+/* 初期状態のアイコンを空のハートにしておく */
+.like-btn i.fas.fa-heart {
+    display: none; /* 塗りつぶされたアイコンを初期状態で非表示 */
+}
+
+/* .liked クラスが付いたとき（いいね済みの状態） */
+.like-btn.liked i.far.fa-heart {
+    display: none; /* 空のアイコンを非表示 */
+}
+
+.like-btn.liked i.fas.fa-heart {
+    display: inline; /* 塗りつぶされたアイコンを表示 */
+    color: #e65a5a; /* 赤色を適用 */
+}
+
 /* タイトルを2行で省略し、高さを揃える */
 .help-card .card-title{
   margin: 0 0 8px;

@@ -639,3 +639,10 @@ footer {
 .header-analysis {                 /* 個人分析 */
     background-color: #f7af9a88;
 }
+
+.error {
+    color: #e53935; 
+    font-size: 0.9em;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
