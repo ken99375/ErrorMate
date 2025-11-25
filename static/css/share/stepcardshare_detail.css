@@ -96,3 +96,88 @@
 }
 
 @media (max-width:768px){.grid-2{grid-template-columns:1fr}}
+
+.comment-form {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    align-items: flex-start;
+}
+
+.comment-form textarea {
+    flex: 1 1 auto;
+    min-height: 96px;        /* ← 高さアップ */
+    font-size: 16px;         /* ← 文字大きめ */
+    padding: 10px;           /* ← 余白広め */
+    border: 1px solid #bbb;
+    border-radius: 8px;
+    resize: vertical;        /* ← ユーザーが縦に伸ばせる */
+    line-height: 1.5;
+}
+.comment-form button {
+    padding: 10px 14px;
+  height: 42px;            /* ボタン高さを入力欄に寄せる */
+}
+
+.comment-block {
+  margin-top: 28px;
+  background: #ffffffaa;
+  padding: 20px;        /* ← 24でもOK。外側余白アップ */
+  border-radius: 10px;
+}
+
+/* 一覧の上下余白と最大高さを緩める or 解除 */
+.comments {
+  display: grid;
+  gap: 14px;            /* カード間のスペース */
+  max-height: none;     /* 以前に上限を付けていたなら解除 */
+  overflow: visible;    /* スクロールでなく伸ばすなら */
+}
+
+.comment-item,
+.reply-item {
+  background: #fff;
+  border: 1px solid #e1e1e1;
+  border-radius: 8px;
+  padding: 12px 14px;    /* ← 内側を広げる */
+}
+
+.comment-meta {
+  display: flex;
+  gap: 10px;
+  font-size: 13px;       /* 14pxでもOK */
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.comment-body {
+  font-size: 15px;       /* ← 本文を少し大きく */
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+/* 返信は少しだけインデント */
+.replies {
+  margin-top: 8px;
+  padding-left: 14px;     /* ← インデント幅 */
+  display: grid;
+  gap: 10px;
+}
+
+/* 返信入力フォームも広めに */
+.reply-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  align-items: flex-start;
+}
+.reply-form input[type="text"],
+.reply-form textarea {
+  flex: 1 1 auto;
+  min-height: 64px;
+  font-size: 15px;
+  padding: 8px 10px;
+  border: 1px solid #bbb;
+  border-radius: 8px;
+  resize: vertical;
+}

@@ -37,9 +37,9 @@
             <h3>コメント</h3>
 
             <form method="post" action="{{ url_for('share.post_comment', card_id=card.card_id) }}" class="comment-form">
-                <input type="text" name="body" placeholder="コメントを入力" required>
-                <button type="submit">送信</button>
+                <textarea name="body" placeholder="コメントを入力" required></textarea>
             </form>
+            <button type="submit">送信</button>
 
             <div class="comments">
                 {% if roots and roots|length > 0 %}
