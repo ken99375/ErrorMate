@@ -147,3 +147,21 @@ def share_help_card_list():
         keyword=raw,
         matches=cards
     )
+
+# ヘルプカード共有詳細 ---------------------------------------------
+@share_bp.route('/share/help_card/<int:card_id>', methods=['GET'])
+def share_help_card_detail(card_id):
+    card = (
+        StepCard.query
+        .options(joinedload(StepCard.author), joinedload(StepCard.tags))
+        .filter(StepCard.card_id == card_id, StepCard.status == 'help')
+        .first_or_404()
+    )
+    comments = (
+        Comment.query
+        .filter_by(card_id=card_id)
+        .order_by(Comment.created_at.asc())
+        .all()
+    )
+    return render_template('share/help_card_share_detail.html', card=card, comments=comments)
+

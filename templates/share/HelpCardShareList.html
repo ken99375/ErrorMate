@@ -45,7 +45,7 @@
             <!-- 本文エリア -->
             <div class="card-body">
             <div class="info-label">エラーコード:</div>
-            <pre class="code-box">{{ card.error_code }}</pre>
+            <pre class="code-box">{{ card.error_message }}</pre>
             <div class="info-label">エラーメッセージ:</div>
             <div class="text-box">{{ card.error_message }}</div>
             </div>
@@ -65,10 +65,10 @@
                         data-liked="false">
                     <i class="far fa-heart"></i> <i class="fas fa-heart"></i> </button>
 
-                <a href="{{ url_for('help.detail_no_comment', card_id=card.card_id) }}" 
-                    class="answer-link">
+                <a href="{{ url_for('share.share_help_card_detail', card_id=card.card_id) }}">
                     回答する
                 </a>
+
             </div>
 
         </div>

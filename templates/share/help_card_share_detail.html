@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}ヘルプカード詳細 - ErrorMate{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/share/helpcardshare_detail.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="share-detail">
+
+    <h1 class="detail-title">{{ card.title }}</h1>
+
+    <div class="grid-2">
+        <div class="pane">
+            <h3>エラーコード</h3>
+            <pre class="code-box">{{ card.error_code or '' }}</pre>
+        </div>
+
+        <div class="pane">
+            <h3>エラーメッセージ</h3>
+            <div class="text-box">{{ card.error_message or '' }}</div>
+        </div>
+    </div>
+
+    <div class="meta">
+        <span>{{ card.author.user_name }}</span>
+        {% for t in card.tags %}
+            <span class="tag">#{{ t.tag_name }}</span>
+        {% endfor %}
+    </div>
+
+    <div class="comment-block">
+        <h3>コメント</h3>
+
+        <div class="comments">
+            {% if comments and comments|length > 0 %}
+                {% for c in comments %}
+                    <div class="comment-item">
+                        <div class="comment-meta">
+                            <span>ユーザID: {{ c.user_id }}</span>
+                            <span>{{ c.created_at }}</span>
+                        </div>
+                        <div class="comment-body">{{ c.body }}</div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="comment-empty">まだコメントはありません。</div>
+            {% endif %}
+        </div>
+
+        <form method="post" action="{{ url_for('share.post_share_comment', card_id=card.card_id) }}" class="comment-form">
+            <input type="text" name="content" placeholder="コメントを入力" required>
+            <button type="submit">送信</button>
+        </form>
+    </div>
+
+    <div class="footer-links">
+        <a href="{{ url_for('share.share_help_card_list') }}">一覧に戻る</a>
+    </div>
+
+</section>
+{% endblock %}
