@@ -1,9 +1,10 @@
 # share.py
 import re
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from sqlalchemy import func
+from flask_login import current_user
 from sqlalchemy.orm import joinedload, load_only
-from models import db, StepCard, Tag, STATUS_PUBLIC,User
+from models import db, StepCard, Tag, STATUS_PUBLIC,User, Comment
 from flask import g
 
 share_bp = Blueprint('share', __name__)
@@ -18,7 +19,6 @@ def share_card_library():
 @share_bp.before_request
 def set_header_color():
     g.header_class = "header-card"
-
 
 @share_bp.route('/share/step_cards', methods=['GET'])
 def share_step_card_list():
@@ -58,6 +58,55 @@ def share_step_card_list():
         keyword=raw,
         matches=cards,
     )
+
+
+# ステップカード共有詳細 ---------------------------------------------
+@share_bp.route('/share/card/<int:card_id>', methods=['GET'])
+def share_card_detail(card_id):
+    card = (
+        StepCard.query
+        .options(joinedload(StepCard.author), joinedload(StepCard.tags))
+        .filter(StepCard.card_id == card_id, StepCard.status == STATUS_PUBLIC)
+        .first_or_404()
+    )
+    comments = (
+        Comment.query
+        .filter_by(card_id=card_id)
+        .order_by(Comment.created_at.asc())
+        .all()
+    )
+    return render_template('share/step_card_share_detail.html', card=card, comments=comments)
+
+# コメント ----------------------------------------------------------
+@share_bp.route('/share/card/<int:card_id>/comment', methods=['POST'])
+def post_share_comment(card_id):
+    StepCard.query.filter_by(card_id=card_id, status=STATUS_PUBLIC).first_or_404()
+
+    content = (request.form.get('content') or '').strip()
+    if not content:
+        flash('コメントを入力してください。', 'warning')
+        return redirect(url_for('share.share_card_detail', card_id=card_id))
+
+    if not current_user.is_authenticated:
+        flash('コメントにはログインが必要です。', 'warning')
+        return redirect(url_for('share.share_card_detail', card_id=card_id))
+
+    c = Comment(card_id=card_id, user_id=current_user.user_id, body=content)
+    db.session.add(c)
+    db.session.commit()
+    return redirect(url_for('share.share_card_detail', card_id=card_id))
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # ヘルプカード共有一覧 -----------------------------------------------

@@ -1,0 +1,98 @@
+.share-detail{
+    max-width:1000px;
+    margin:24px auto;
+    background:#5fa5ff33;
+    padding:24px;
+    border-radius:12px
+}
+
+.detail-title{
+    background:#ffef9a;
+    padding:12px 16px;
+    border-radius:8px;
+    text-align:center
+}
+
+.grid-2{
+    display:grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap:16px;
+    margin-top:16px;
+    align-items:start;
+}
+
+.pane{
+    background:#ffef9a;
+    padding:12px;
+    border-radius:8px;
+    min-width:0;
+}
+
+/* .codeとtextの共通部分をまとめている */
+.code-box,
+.text-box{
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    overflow: auto;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 8px;
+}
+
+/* code は折り返さず横スクロール */
+/* white-spaceをpreにすることでソースコードをそのまま表示できる */
+.code-box{
+    white-space: pre;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    max-height: 220px;  /* 好みで */
+}
+
+/* text は折り返し */
+.text-box{
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    max-height: 160px;
+}
+
+.meta{
+    margin:12px 0;
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap
+}
+
+.tag{
+    background:#fff;
+    border:1px solid #ddd;
+    border-radius:
+    999px;padding:
+    2px 8px
+}
+
+.comment-block{
+    margin-top:24px;
+    background:#ffffffaa;
+    padding:16px;
+    border-radius:8px
+}
+
+.comment-form{
+    display:flex;
+    gap:8px;
+    margin-top:8px
+}
+
+.comment-form input{
+    flex:1
+}
+
+.footer-links{
+    text-align:right;
+    margin-top:16px
+}
+
+@media (max-width:768px){.grid-2{grid-template-columns:1fr}}

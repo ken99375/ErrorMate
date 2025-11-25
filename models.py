@@ -77,7 +77,11 @@ class Comment(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
     body = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    # 追加: 親コメント（NULL ならルート）
+    parent_id  = db.Column(db.Integer, db.ForeignKey('comments.comment_id'), nullable=True)
 
+    # 便利リレーション（必要なら）
+    parent  = db.relationship('Comment', remote_side=[comment_id], backref='replies', lazy='select')
 
 class Tag(db.Model):
     """タグテーブル (設計書: TAG)"""
