@@ -60,8 +60,7 @@ def share_step_card_list():
     )
 
 
-# ステップカード共有詳細 ---------------------------------------------
-@share_bp.route('/share/card/<int:card_id>', methods=['GET'])
+@share_bp.route('/card/<int:card_id>', methods=['GET'])
 def share_card_detail(card_id):
     card = (
         StepCard.query
@@ -69,45 +68,47 @@ def share_card_detail(card_id):
         .filter(StepCard.card_id == card_id, StepCard.status == STATUS_PUBLIC)
         .first_or_404()
     )
+
     comments = (
         Comment.query
+        .options(joinedload(Comment.author))
         .filter_by(card_id=card_id)
         .order_by(Comment.created_at.asc())
         .all()
     )
-    return render_template('share/step_card_share_detail.html', card=card, comments=comments)
 
-# コメント ----------------------------------------------------------
-@share_bp.route('/share/card/<int:card_id>/comment', methods=['POST'])
-def post_share_comment(card_id):
-    StepCard.query.filter_by(card_id=card_id, status=STATUS_PUBLIC).first_or_404()
+    roots = [c for c in comments if c.parent_id is None]
+    replies_map = {}
+    for c in comments:
+        if c.parent_id:
+            replies_map.setdefault(c.parent_id, []).append(c)
+    # 返信を時刻昇順に
+    for lst in replies_map.values():
+        lst.sort(key=lambda x: x.created_at)
 
-    content = (request.form.get('content') or '').strip()
-    if not content:
-        flash('コメントを入力してください。', 'warning')
+    return render_template(
+        'share/step_card_share_detail.html',
+        card=card,
+        roots=roots,
+        replies_map=replies_map,
+    )
+
+@share_bp.route('/card/<int:card_id>/comment', methods=['POST'])
+def post_comment(card_id):
+    # テンプレの name に合わせておく
+    body = (request.form.get('body') or '').strip()
+    parent_id_raw = request.form.get('parent_id')
+    parent_id = int(parent_id_raw) if parent_id_raw else None
+
+    if not body:
         return redirect(url_for('share.share_card_detail', card_id=card_id))
 
-    if not current_user.is_authenticated:
-        flash('コメントにはログインが必要です。', 'warning')
-        return redirect(url_for('share.share_card_detail', card_id=card_id))
+    uid = current_user.user_id if getattr(current_user, 'is_authenticated', False) else 1
 
-    c = Comment(card_id=card_id, user_id=current_user.user_id, body=content)
+    c = Comment(card_id=card_id, user_id=uid, body=body, parent_id=parent_id)
     db.session.add(c)
     db.session.commit()
     return redirect(url_for('share.share_card_detail', card_id=card_id))
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 # ヘルプカード共有一覧 -----------------------------------------------
 @share_bp.route('/share/help_cards', methods=['GET'])
