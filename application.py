@@ -53,4 +53,5 @@ with application.app_context():
     db.create_all()
 
 if __name__ == '__main__':
-    application.run(debug=True)
+    # Cloud9用に、ポート8080 と ホスト0.0.0.0 を指定する
+    application.run(debug=True, port=8080, host='0.0.0.0')
