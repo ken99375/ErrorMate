@@ -49,7 +49,7 @@
             {% endif %}
         </div>
 
-        <form method="post" action="{{ url_for('share.post_share_comment', card_id=card.card_id) }}" class="comment-form">
+        <form method="post" action="{{ url_for('share.post_comment', card_id=card.card_id) }}" class="comment-form">
             <input type="text" name="content" placeholder="コメントを入力" required>
             <button type="submit">送信</button>
         </form>
