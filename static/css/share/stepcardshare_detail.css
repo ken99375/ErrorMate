@@ -97,87 +97,70 @@
 
 @media (max-width:768px){.grid-2{grid-template-columns:1fr}}
 
+
+
+/* 入力フォーム（上） */
 .comment-form {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-    align-items: flex-start;
+    background: #fff;
+    border: 1px solid #dcdcdc;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 16px;
 }
+
+.comment-form .input-wrap {
+    position: relative;
+}
+
 
 .comment-form textarea {
-    flex: 1 1 auto;
-    min-height: 96px;        /* ← 高さアップ */
-    font-size: 16px;         /* ← 文字大きめ */
-    padding: 10px;           /* ← 余白広め */
+    width: 265%;
+    min-height: 160px;        /* ← 入力枠を大きく */
+    resize: vertical;
+    box-sizing: border-box;
+    padding: 10px 88px 10px 10px; /* 右にボタン分の余白 */
+    border: 1px solid #cfcfcf;
+    border-radius: 6px;
+    background: #fafafa;
+}
+
+.comment-form .btn-send {
+    position: static;   /* 右下固定 */
+    right: 10px;
+    bottom: 10px;
+    padding: 8px 14px;
     border: 1px solid #bbb;
+    border-radius: 6px;
+    background: #f0f0f0;
+    cursor: pointer;
+}
+
+/* 一覧（下） */
+.comment-list .comment-item {
+    background: #fff;
+    border: 1px solid #e3e3e3;
     border-radius: 8px;
-    resize: vertical;        /* ← ユーザーが縦に伸ばせる */
-    line-height: 1.5;
-}
-.comment-form button {
-    padding: 10px 14px;
-  height: 42px;            /* ボタン高さを入力欄に寄せる */
-}
-
-.comment-block {
-  margin-top: 28px;
-  background: #ffffffaa;
-  padding: 20px;        /* ← 24でもOK。外側余白アップ */
-  border-radius: 10px;
-}
-
-/* 一覧の上下余白と最大高さを緩める or 解除 */
-.comments {
-  display: grid;
-  gap: 14px;            /* カード間のスペース */
-  max-height: none;     /* 以前に上限を付けていたなら解除 */
-  overflow: visible;    /* スクロールでなく伸ばすなら */
-}
-
-.comment-item,
-.reply-item {
-  background: #fff;
-  border: 1px solid #e1e1e1;
-  border-radius: 8px;
-  padding: 12px 14px;    /* ← 内側を広げる */
+    padding: 12px;
+    margin-bottom: 12px;
 }
 
 .comment-meta {
-  display: flex;
-  gap: 10px;
-  font-size: 13px;       /* 14pxでもOK */
-  color: #666;
-  margin-bottom: 6px;
+    font-size: .9rem;
+    color: #666;
+    display: flex;
+    gap: 10px;
+    margin-bottom: 6px;
 }
 
-.comment-body {
-  font-size: 15px;       /* ← 本文を少し大きく */
-  line-height: 1.6;
-  overflow-wrap: anywhere;
-}
-
-/* 返信は少しだけインデント */
-.replies {
-  margin-top: 8px;
-  padding-left: 14px;     /* ← インデント幅 */
-  display: grid;
-  gap: 10px;
-}
-
-/* 返信入力フォームも広めに */
 .reply-form {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-  align-items: flex-start;
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
 }
-.reply-form input[type="text"],
-.reply-form textarea {
-  flex: 1 1 auto;
-  min-height: 64px;
-  font-size: 15px;
-  padding: 8px 10px;
-  border: 1px solid #bbb;
-  border-radius: 8px;
-  resize: vertical;
+
+.reply-form input {
+    flex: 1 1 auto;
+    padding: 8px;
+    border: 1px solid #cfcfcf;
+    border-radius: 6px;
 }

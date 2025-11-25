@@ -36,45 +36,56 @@
         <div class="comment-block">
             <h3>コメント</h3>
 
-            <form method="post" action="{{ url_for('share.post_comment', card_id=card.card_id) }}" class="comment-form">
-                <textarea name="body" placeholder="コメントを入力" required></textarea>
-            </form>
-            <button type="submit">送信</button>
-
-            <div class="comments">
-                {% if roots and roots|length > 0 %}
-                    {% for c in roots %}
-                        <div class="comment-item">
-                            <div class="comment-meta">
-                                <span>{{ c.author.user_name if c.author else ('ユーザID: ' ~ c.user_id) }}</span>
-                                <span>{{ c.created_at.strftime('%Y-%m-%d %H:%M') if c.created_at }}</span>
-                            </div>
-                            <div class="comment-body">{{ c.body }}</div>
-                            {% if replies_map.get(c.comment_id) %}
-                                <div class="replies">
-                                    {% for r in replies_map[c.comment_id] %}
-                                    <div class="reply-item">
-                                        <div class="comment-meta">
-                                            <span>{{ r.author.user_name if r.author else ('ユーザID: ' ~ r.user_id) }}</span>
-                                            <span>{{ r.created_at.strftime('%Y-%m-%d %H:%M') if r.created_at }}</span>
-                                        </div>
-                                        <div class="comment-body">{{ r.body }}</div>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                            <form method="post" action="{{ url_for('share.post_comment', card_id=card.card_id) }}" class="reply-form" style="margin-top:8px">
-                                <input type="hidden" name="parent_id" value="{{ c.comment_id }}">
-                                <input type="text" name="body" placeholder="返信を入力">
-                                <button type="submit">返信</button>
-                            </form>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="comment-empty">まだコメントはありません。</div>
-                {% endif %}
+            {# 入力フォーム（上） #}
+            <form method="post"
+                    action="{{ url_for('share.post_comment', card_id=card.card_id) }}"
+                    class="comment-form">
+                <div class="input-wrap">
+                    <textarea name="body" placeholder="コメントを入力" required></textarea>
+                    <button type="submit" class="btn-send">送信</button>
                 </div>
+            </form>
+
+            {# 一覧（下） #}
+            <div class="comment-list">
+                {% if roots and roots|length > 0 %}
+                {% for c in roots %}
+                    <div class="comment-item">
+                    <div class="comment-meta">
+                        <span>{{ c.author.user_name if c.author else ('ユーザID: ' ~ c.user_id) }}</span>
+                        <span>{{ c.created_at.strftime('%Y-%m-%d %H:%M') if c.created_at }}</span>
+                    </div>
+                    <div class="comment-body">{{ c.body }}</div>
+
+                    {% if replies_map.get(c.comment_id) %}
+                        <div class="replies">
+                        {% for r in replies_map[c.comment_id] %}
+                            <div class="reply-item">
+                            <div class="comment-meta">
+                                <span>{{ r.author.user_name if r.author else ('ユーザID: ' ~ r.user_id) }}</span>
+                                <span>{{ r.created_at.strftime('%Y-%m-%d %H:%M') if r.created_at }}</span>
+                            </div>
+                            <div class="comment-body">{{ r.body }}</div>
+                            </div>
+                        {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <form method="post"
+                            action="{{ url_for('share.post_comment', card_id=card.card_id) }}"
+                            class="reply-form">
+                        <input type="hidden" name="parent_id" value="{{ c.comment_id }}">
+                        <input type="text" name="body" placeholder="返信を入力">
+                        <button type="submit">返信</button>
+                    </form>
+                    </div>
+                {% endfor %}
+                {% else %}
+                <div class="comment-empty">まだコメントはありません。</div>
+                {% endif %}
             </div>
+        </div>
+
     <div class="footer-links">
         <a href="{{ url_for('share.share_step_card_list') }}">一覧に戻る</a>
     </div>
