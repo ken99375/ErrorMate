@@ -3,60 +3,93 @@
 {% block title %}ステップカード削除完了 - ErrorMate{% endblock %}
 
 {% block extra_css %}
-  <style>
-    html, body { height: 100%; margin: 0; }
-    body {
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN",
-                   "メイリオ", "Noto Sans JP", sans-serif;
-      display: grid;
-      place-items: center;
-      background: #fff;
-      color: #000;
-    }
-    .wrap {
-      text-align: center;
-      padding: 2rem;
-      box-sizing: border-box;
-      width: 100%;
-      max-width: 1100px;
-      display: flex;
-      flex-direction: column;
-      align-items: center; /* メッセージは中央表示のまま */
-    }
-    /* 大きなメッセージ */
-    .message[name="message"] {
-      font-weight: 700;
-      margin: 0 0 1.5rem;
-      font-size: clamp(48px, 10vw, 140px);
-      line-height: 1;
-    }
-    /* 下に出すが右寄りに見せるために左マージンを付与 */
-    a.link[name="link_list"] {
-      margin-top: 0.6rem;
-      margin-left: clamp(120px, 14vw, 360px); /* ここで「右寄り」の度合いを調整 */
-      text-decoration: underline;
-      font-weight: 700;
-      font-size: clamp(16px, 2.2vw, 28px);
-      color: inherit;
-      display: inline-block;
-    }
+<style>
+  main.container {
+    height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 0;
+  }
+  
+  .wrap {
+    text-align: center;
+    padding: 2rem;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 1100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .message {
+    font-weight: 700;
+    margin: 0 0 1.5rem;
+    font-size: clamp(48px, 10vw, 140px);
+    line-height: 1;
+  }
+  
+  a.link {
+    margin-top: 0.6rem;
+    margin-left: clamp(120px, 14vw, 360px);
+    text-decoration: underline;
+    font-weight: 700;
+    font-size: clamp(16px, 2.2vw, 28px);
+    color: inherit;
+    display: inline-block;
+  }
 
-    a.link:focus {
-      outline: 3px solid rgba(0,0,0,0.12);
-      outline-offset: 4px;
-      border-radius: 4px;
+  a.link:focus {
+    outline: 3px solid rgba(0,0,0,0.12);
+    outline-offset: 4px;
+    border-radius: 4px;
+  }
+  
+  @media (max-width: 700px) {
+    main.container {
+      height: auto;
+      min-height: 100vh;
     }
-    /* 狭い画面でははみ出さないように調整（リンクを中央寄せ） */
-    @media (max-width: 700px) {
-      .message[name="message"] { white-space: normal; font-size: clamp(40px, 12vw, 80px); }
-      a.link[name="link_list"] {
-        margin-left: clamp(20px, 6vw, 80px);
-        transform: none;
-        align-self: center;
-      }
+    .message { white-space: normal; font-size: clamp(40px, 12vw, 80px); }
+    a.link {
+      margin-left: clamp(20px, 6vw, 80px);
+      transform: none;
+      align-self: center;
     }
+  }
+</style>
 {% endblock %}
+
 {% block content %}
-    <div class="message" name="message">削除完了！</div>
-    <a href="#" class="link" name="link_list" id="link_list">一覧に戻る</a>
+<main class="container-fluid py-5"> 
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            
+            <div class="text-batole mt-5 mb-5">
+                <h1 class="display-5 fw-bold mb-2">削除が完了しました</h1>
+                <p class="lead text-muted">正常に削除されました。<br>ご利用ありがとうございます!!。</p>
+            </div>
+            
+            <div class="card-next shadow-sm p-4 mt-5">
+                <h2 class="h5 card-title mb-4">次のステップ</h2>
+                
+                <div class="d-grid gap-3">
+                    <a href="{{ url_for('main.index') }}" class="btn btn-warning btn-lg">
+                        ホームメニューに戻る
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right-short" viewBox="0 0 16 16">
+                          <path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z"/>
+                        </svg>
+                    </a>
+                    <a href="{{ url_for('step_card.list_cards') }}" class="btn btn-outline-info btn-lg">
+                        一覧表示に戻る
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right-short" viewBox="0 0 16 16">
+                          <path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</main>
 {% endblock %}

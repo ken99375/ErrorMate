@@ -37,7 +37,7 @@
     font-size: clamp(16px, 2.2vw, 28px);
     color: inherit;
     display: inline-block;
-  } 
+  }
 
   a.link:focus {
     outline: 3px solid rgba(0,0,0,0.12);
@@ -61,8 +61,35 @@
 {% endblock %}
 
 {% block content %}
-<div class="wrap" role="main" aria-live="polite">
-  <div class="message">編集完了！</div>
-  <a href="{{ url_for('step_card.list_cards') }}" class="link" id="link_list">一覧に戻る</a>
-</div>
+<main class="container-fluid py-5"> 
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            
+            <div class="text-batole mt-5 mb-5">
+                <h1 class="display-5 fw-bold mb-2">編集が完了しました</h1>
+                <p class="lead text-muted">正常に編集されました。<br>ご利用ありがとうございます!!。</p>
+            </div>
+            
+            <div class="card-next shadow-sm p-4 mt-5">
+                <h2 class="h5 card-title mb-4">次のステップ</h2>
+                
+                <div class="d-grid gap-3">
+                    <a href="{{ url_for('main.index') }}" class="btn btn-warning btn-lg">
+                        ホームメニューに戻る
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right-short" viewBox="0 0 16 16">
+                          <path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z"/>
+                        </svg>
+                    </a>
+                    <a href="{{ url_for('step_card.list_cards') }}" class="btn btn-outline-info btn-lg">
+                        一覧表示に戻る
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right-short" viewBox="0 0 16 16">
+                          <path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</main>
 {% endblock %}
