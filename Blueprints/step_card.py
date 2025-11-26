@@ -6,6 +6,8 @@ from uuid import uuid4
 from datetime import datetime, timedelta
 from sqlalchemy import func
 from flask import g
+from flask_login import login_required, current_user
+
 
 
 step_card_bp = Blueprint('step_card', __name__)
@@ -23,6 +25,7 @@ SESSION_TTL_MIN = 1
 def list_cards():
     cards = (
         StepCard.query
+        .filter(StepCard.user_id == current_user.user_id)   
         .filter(StepCard.status != STATUS_DELETED)
         .filter(StepCard.status.in_((STATUS_STEP, STATUS_PUBLIC)))  
         .order_by(StepCard.created_at.desc())
@@ -102,16 +105,14 @@ def create_card():
         if errors:
             return render_template('step_card_create.html',errors=errors,form_data=form_data)
 
-        # ここまで来たらDB保存
-        user = User.query.first()  # いまは仮で先頭ユーザー
         card = StepCard(
-            user_id=user.user_id if user else None,
+            user_id=current_user.user_id,
             title=title,
             error_code=error,
             modifying_code=fixcode,
             error_message=msg,
             execution_result=result,
-            status='step',
+            status=STATUS_STEP,
         )
         db.session.add(card)
         db.session.commit()
