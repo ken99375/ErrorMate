@@ -25,7 +25,7 @@ SESSION_TTL_MIN = 1
 def list_cards():
     cards = (
         StepCard.query
-        .filter(StepCard.user_id == current_user.user_id)   
+        .filter(StepCard.user_id == current_user.user_id)
         .filter(StepCard.status != STATUS_DELETED)
         .filter(StepCard.status.in_((STATUS_STEP, STATUS_PUBLIC)))  
         .order_by(StepCard.created_at.desc())
