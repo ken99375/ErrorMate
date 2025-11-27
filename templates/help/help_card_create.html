@@ -13,8 +13,8 @@
 
     <h2>エラータイトル</h2>
     <input type="text" class="input-box" name="title"
-          placeholder="エラータイトルを入力"
-          value="{{ form_data.title if form_data else '' }}">
+           placeholder="エラータイトルを入力"
+           value="{{ form_data.title if form_data else '' }}">
 
     {% if errors.title %}
       <p class="error">{{ errors.title }}</p>
@@ -22,8 +22,8 @@
 
     <h2>エラーコード</h2>
     <input type="text" class="input-box" name="code" id="code"
-          placeholder="エラーコードを入力"
-          value="{{ form_data.code if form_data else '' }}">
+           placeholder="エラーコードを入力"
+           value="{{ form_data.code if form_data else '' }}">
 
     {% if errors.code %}
       <p class="error">{{ errors.code }}</p>
@@ -37,25 +37,27 @@
       <p class="error">{{ errors.message }}</p>
     {% endif %}
 
-  <div class="tag-section">
-      <label class="tag-label">#タグ</label>
+    <div class="tag-section">
+      <div id="tagList" class="tag-list"></div>
 
-      <div id="tag-container">
-          {% if form_data and form_data.tags %}
-              {% for tag in form_data.tags %}
-                  <input type="text" class="tag-input" name="tags[]" placeholder="タグを入力" value="{{ tag }}">
-              {% endfor %}
-          {% else %}
-              <input type="text" class="tag-input" name="tags[]" placeholder="タグを入力">
-          {% endif %}
+      <div class="tag-input-row" style="display:flex; align-items:center; gap:.5rem; margin-top:.5rem;">
+        <label for="tagText" class="tag-label" style="font-weight:600;">#タグ</label>
+        <input id="tagText" type="text" class="tag-input" placeholder="例: python, NameError" />
+        <button type="button" id="tagAdd" class="tag-add-btn">＋</button>
       </div>
 
-      <button type="button" class="tag-add-btn" id="add-tag-btn">＋</button>
-  </div>
-
-
-    <!-- AI自動タグ生成ボタン -->
-    <button type="button" id="ai-tag-btn" class="btn btn-secondary">
+      <input
+          type="hidden"
+          id="tagsHidden"
+          name="tags"
+          value="{{ form_data.tags|join(',') if form_data and form_data.tags else '' }}"
+      >
+      
+      {% if errors.tags %}
+        <p class="error">{{ errors.tags }}</p>
+      {% endif %}
+    </div>
+    <button type="button" id="ai-tag-btn" class="btn btn-secondary" style="margin-top: 10px;">
         AIでタグ生成
     </button>
     <p id="tag-status" style="color: #666;"></p>
@@ -74,29 +76,6 @@
   </form>
 </div>
 
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    const addBtn = document.getElementById("add-tag-btn");
-    const container = document.getElementById("tag-container");
-
-    addBtn.addEventListener("click", function () {
-        const currentTags = container.querySelectorAll("input[name='tags[]']").length;
-
-        if (currentTags >= 5) {
-            alert("タグは最大5個までです。");
-            return;
-        }
-
-        const input = document.createElement("input");
-        input.type = "text";
-        input.name = "tags[]";
-        input.classList.add("tag-input");
-        input.placeholder = "タグを入力";
-
-        container.appendChild(input);
-    });
-});
-</script>
-
+<script src="{{ url_for('static', filename='js/share_tags.js') }}"></script>
 
 {% endblock %}

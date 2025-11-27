@@ -1,6 +1,7 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, g
+from flask_login import login_required, current_user
+from sqlalchemy import func
 from models import db, StepCard, Tag, User
-from flask import g
 
 help_bp = Blueprint('help', __name__)
 
@@ -13,6 +14,7 @@ def set_header_color():
 # 新規作成
 # ------------------------------------------------------------
 @help_bp.route('/create', methods=['GET', 'POST'])
+@login_required  # ← ログインしていないと作成できないように制限
 def create_help_card():
 
     errors = {}
@@ -24,14 +26,27 @@ def create_help_card():
     }
 
     if request.method == 'POST':
-        # 入力値を取得（エラー時に再表示するために form_data にも入れる）
-        form_data['title'] = title = request.form.get('title', '').strip()
-        form_data['code'] = code = request.form.get('code', '').strip()
-        form_data['message'] = message = request.form.get('message', '').strip()
+        # 入力値を取得
+        title = request.form.get('title', '').strip()
+        code = request.form.get('code', '').strip()
+        message = request.form.get('message', '').strip()
+        
+        # フォームデータに保持（エラー時の再表示用）
+        form_data['title'] = title
+        form_data['code'] = code
+        form_data['message'] = message
 
-        # 🔹 タグ一覧（複数）を取得
-        tags = request.form.getlist('tags[]')
-        form_data['tags'] = tags # form_data にも保存
+        # 🔹 タグ取得の変更点 ------------------------------------
+        # HTML側が <input name="tags" value="a,b,c"> となったため、
+        # getlist('tags[]') ではなく、文字列として受け取ります。
+        csv_tags = request.form.get('tags', '').strip()
+        
+        # カンマで分割してリスト化 (空文字は除外)
+        tag_names = [t for t in [x.strip() for x in csv_tags.split(',')] if t]
+        
+        # form_dataにはリストとして保存 (テンプレート側で join(',') して再表示するため)
+        form_data['tags'] = tag_names
+        # --------------------------------------------------------
 
         # 文字数制限を定義
         MAX_TITLE = 255
@@ -55,42 +70,61 @@ def create_help_card():
             errors['message'] = f'メッセージは{MAX_MESSAGE}文字以内で入力してください。'
 
         if errors:
-            # エラーがある場合は、エラーメッセージとフォームの内容を保持してテンプレートを再表示
+            # エラーがある場合はテンプレートを再表示
             return render_template('help/help_card_create.html', errors=errors, form_data=form_data)
 
         # -------------------------------------------------------
         # 🔥 StepCard 保存
         # -------------------------------------------------------
-        card = StepCard(
-            title=title,
-            error_code=code,
-            error_message=message,
-            user_id=1,   # ←本来はログイン中のユーザーIDを入れる
-            status='help'
-        )
-        db.session.add(card)
-        db.session.commit()  # card.id を取得するためにいったんコミット
+        try:
+            card = StepCard(
+                title=title,
+                error_code=code,
+                error_message=message,
+                user_id=current_user.user_id,  # ← ログイン中のユーザーIDを使用
+                status='help'
+            )
+            db.session.add(card)
+            # card.tags を操作する前に、card 自体は session に add されていればOK
+            # (flush は自動で行われることが多いですが、明示的に flush しても良いです)
 
-        # タグ保存処理
-        for tag_name in tags:
-            if not tag_name.strip():
-                continue
+            # ---------------------------------------------------
+            # タグ保存処理 (StepCardと同じロジック)
+            # ---------------------------------------------------
+            attached = set()
+            for raw in tag_names:
+                # タグ名の正規化（スペースをアンダースコアに）
+                norm = raw.replace(' ', '_')
+                
+                # 重複処理（同じタグを二重登録しない）
+                if norm in attached:
+                    continue
+                attached.add(norm)
 
-            # 既存タグがあるか検索（tag_name が正しいフィールド）
-            tag = Tag.query.filter_by(tag_name=tag_name).first()
+                # 既存タグ検索（大文字小文字を区別しない）
+                tag = Tag.query.filter(func.lower(Tag.tag_name) == norm.lower()).first()
+                
+                if not tag:
+                    # 存在しなければ新規作成
+                    tag = Tag(tag_name=norm)
+                    db.session.add(tag)
+                    db.session.flush()  # 新規タグのIDを確定させる
 
-            # 無ければ新規作成
-            if not tag:
-                tag = Tag(tag_name=tag_name)
-                db.session.add(tag)
-                db.session.commit()
+                # カードとタグを紐付け
+                if tag not in card.tags:
+                    card.tags.append(tag)
 
-            # StepCard と Tag を紐付け
-            card.tags.append(tag)
+            # 最後にまとめてコミット
+            db.session.commit()
+            
+            return redirect(url_for('help.complete'))
 
-        db.session.commit()
-
-        return redirect(url_for('help.complete'))
+        except Exception as e:
+            db.session.rollback()
+            # ログ出力などをここに入れると良いです
+            print(f"Error creating help card: {e}")
+            errors['database'] = '保存中にエラーが発生しました。'
+            return render_template('help/help_card_create.html', errors=errors, form_data=form_data)
 
     return render_template('help/help_card_create.html', errors=errors, form_data=form_data)
 
