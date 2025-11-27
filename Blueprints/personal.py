@@ -18,7 +18,11 @@ def set_header_color():
 
 # エラー発生回数------------------------------------------------------------------------
 @personal_bp.route('/ErrorCount', methods=['GET', 'POST'])
+@login_required  # ← 追加: ログイン必須にする
 def data_error_count():
+
+    # 現在のユーザーIDを取得
+    user_id = current_user.user_id
 
     # --- 1. 過去7日間の日付ラベルを生成 ---
     today = datetime.utcnow().date()
@@ -29,41 +33,41 @@ def data_error_count():
 
     start_date = date_keys[0] # 7日前の日付
 
-    # --- 2. データベースからデータを集計 (MySQL用に修正) ---
+    # --- 2. データベースからデータを集計 (ユーザーで絞り込み) ---
     step_card_results = db.session.query(
-        # 修正: func.date_format を使用し、引数の順序を変更 (カラム, フォーマット)
         func.date_format(StepCard.created_at, '%Y-%m-%d').label('date'),
         func.count(StepCard.card_id)
     ).filter(
+        StepCard.user_id == user_id,   # ← 追加: 自分のIDで絞り込み
         StepCard.created_at >= start_date,
         StepCard.status == 'public'
     ).group_by('date').all()
     
-    # 高速で検索できるように辞書に変換 (例: {'2025-11-18': 5})
     step_counts = {date: count for date, count in step_card_results}
 
-    # (B) HelpCard の日別カウントを取得 (MySQL用に修正)
+    # (B) HelpCard の日別カウントを取得 (ユーザーで絞り込み)
     help_card_results = db.session.query(
-        # 修正: func.date_format を使用
         func.date_format(StepCard.created_at, '%Y-%m-%d').label('date'),
         func.count(StepCard.card_id)
     ).filter(
+        StepCard.user_id == user_id,   # ← 追加: 自分のIDで絞り込み
         StepCard.created_at >= start_date,
         StepCard.status == 'help'
     ).group_by('date').all()
+    
     help_counts = {date: count for date, count in help_card_results}
 
     # --- 3. Chart.js用のデータ形式に整形 ---
     step_data_list = []
     help_data_list = []
 
-    for date_key in date_keys: # 7日間の日付をループ
-        step_data_list.append(step_counts.get(date_key, 0)) # その日付の件数、なければ0
-        help_data_list.append(help_counts.get(date_key, 0)) # その日付の件数、なければ0
+    for date_key in date_keys: 
+        step_data_list.append(step_counts.get(date_key, 0))
+        help_data_list.append(help_counts.get(date_key, 0))
 
     # Chart.jsに渡す最終的なPython辞書
     chart_data_py = {
-        "labels": date_labels, # X軸のラベル
+        "labels": date_labels,
         "datasets": [
             {
                 "label": 'ステップカード作成数',
@@ -84,9 +88,10 @@ def data_error_count():
         ]
     }
     
-    # Python辞書をJSON文字列に変換してテンプレートに渡す
     chart_data_json = json.dumps(chart_data_py)
 
+    # フォルダ名が 'Personal' (大文字) なのか 'personal' (小文字) なのか、
+    # 実際のフォルダと一致しているか確認してください
     return render_template('Personal/PersonalDataErrorCount.html', chart_data=chart_data_json)
 
 # 言語種別比率------------------------------------------------------------------------
