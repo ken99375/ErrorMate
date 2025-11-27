@@ -87,7 +87,7 @@ def data_error_count():
     # Python辞書をJSON文字列に変換してテンプレートに渡す
     chart_data_json = json.dumps(chart_data_py)
 
-    return render_template('personal/PersonalDataErrorCount.html', chart_data=chart_data_json)
+    return render_template('Personal/PersonalDataErrorCount.html', chart_data=chart_data_json)
 
 # 言語種別比率------------------------------------------------------------------------
 @personal_bp.route('/LanguageRatio', methods=['GET', 'POST']) 
@@ -113,7 +113,7 @@ def language_ratio_data():
 @personal_bp.route('/LanguageRatio', methods=['GET'])
 @login_required
 def language_ratio_view():
-    return render_template('personal/PersonalDataLanguage.html')
+    return render_template('Personal/PersonalDataLanguage.html')
     
 
 # エラー種別比率------------------------------------------------------------------------
@@ -162,7 +162,7 @@ def data_error_type_ratio():
     
     chart_data_json = json.dumps(chart_data_py)
 
-    return render_template('personal/PersonalDataErrorTypes.html', chart_data=chart_data_json)
+    return render_template('Personal/PersonalDataErrorTypes.html', chart_data=chart_data_json)
 
 # コメント回数------------------------------------------------------------------------
 @personal_bp.route('/Comment', methods=['GET', 'POST'])
@@ -219,7 +219,7 @@ def data_comment_count():
     # Python辞書をJSON文字列に変換してテンプレートに渡す
     chart_data_json = json.dumps(chart_data_py)
 
-    return render_template('personal/PersonalDataComment.html', chart_data=chart_data_json)
+    return render_template('Personal/PersonalDataComment.html', chart_data=chart_data_json)
 # コメント傾向------------------------------------------------------------------------
 @personal_bp.route('/Trend', methods=['GET', 'POST'])
 def data_comment_trend():
@@ -261,4 +261,4 @@ def data_comment_trend():
     
     chart_data_json = json.dumps(chart_data_py)
 
-    return render_template('personal/PersonalDataTrend.html', chart_data=chart_data_json)
+    return render_template('Personal/PersonalDataTrend.html', chart_data=chart_data_json)
