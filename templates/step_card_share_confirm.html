@@ -35,6 +35,10 @@
             <p>{{ card.execution_result or '' }}</p>
         </div>
         </div>
+        
+        <button type="button" id="ai-tag-btn" class="btn btn-secondary" style="margin-top: 10px;">
+        AIでタグ生成
+        </button>
 
         <form method="post" action="{{ url_for('step_card.do_share', card_id=card.card_id) }}">
 

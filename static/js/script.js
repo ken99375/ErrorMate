@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 // ====================================================
-    // 2. AIタグ生成の処理 (修正版)
+    // 2. AIタグ生成の処理 
     // ====================================================
     const aiTagBtn = document.getElementById("ai-tag-btn");
     
