@@ -352,3 +352,16 @@ body {
 }
 
 /* 既存のホバー効果はそのまま */
+
+
+.like-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  font-size: 1.05rem;
+}
+.like-btn .heart { line-height: 1; }
+.like-btn[aria-pressed="true"] .heart { transform: scale(1.05); }
