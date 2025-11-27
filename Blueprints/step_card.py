@@ -9,7 +9,6 @@ from flask import g
 from flask_login import login_required, current_user
 
 
-
 step_card_bp = Blueprint('step_card', __name__)
 
 ## ヘッダーの色指定
@@ -27,13 +26,10 @@ def list_cards():
         StepCard.query
         .filter(StepCard.user_id == current_user.user_id)
         .filter(StepCard.status != STATUS_DELETED)
-        .filter(StepCard.status.in_((STATUS_STEP, STATUS_PUBLIC)))  
+        .filter(StepCard.status.in_((STATUS_STEP, STATUS_PUBLIC))) 
         .order_by(StepCard.created_at.desc())
         .all()
     )
-
-    # cards = cards  :   右側cards : python側の変数名　左側card : テンプレート側に渡すときの名前
-    # Python変数 cards を、テンプレートの中で cards という名前で使えるようにしてる
     
     return render_template('step_card_list.html', cards=cards,  STATUS_PUBLIC=STATUS_PUBLIC)
 # ---------------------------------------------------------------------------
@@ -49,7 +45,6 @@ def detail_card(card_id):
 # ---------------------------------------------------------------------------
 
 
-
 # 新規作成------------------------------------------------------------------------------
 @step_card_bp.route('/create', methods=['GET', 'POST'])
 def create_card():
@@ -61,75 +56,101 @@ def create_card():
         'text_fixcode': '',
         'text_message': '',
         'text_result': '',
+        'tags': [] # タグの再表示用に追加
     }
 
     if request.method == 'POST':
         # 入力値を取得（エラー時に再表示するために form_data にも入れる）
-        form_data['text_title']   = title   = request.form.get('text_title', '').strip()
-        form_data['text_error']   = error   = request.form.get('text_error', '').strip()
-        form_data['text_fixcode'] = fixcode = request.form.get('text_fixcode', '').strip()
-        form_data['text_message'] = msg     = request.form.get('text_message', '').strip()
-        form_data['text_result']  = result  = request.form.get('text_result', '').strip()
+        title = request.form.get('text_title', '').strip()
+        error = request.form.get('text_error', '').strip()
+        fixcode = request.form.get('text_fixcode', '').strip()
+        msg = request.form.get('text_message', '').strip()
+        result = request.form.get('text_result', '').strip()
+        
+        # タグの取得（CSV文字列 → リスト）
+        csv_tags = request.form.get('tags', '').strip()
+        tag_names = [t for t in [x.strip() for x in csv_tags.split(',')] if t]
+
+        # フォームデータに格納
+        form_data['text_title'] = title
+        form_data['text_error'] = error
+        form_data['text_fixcode'] = fixcode
+        form_data['text_message'] = msg
+        form_data['text_result'] = result
+        form_data['tags'] = tag_names
 
         # 文字数制限調節コード
-        MAX_TITLE   = 255
-        MAX_CODE    = 65535
+        MAX_TITLE = 255
+        MAX_CODE = 65535
         MAX_MESSAGE = 65535
-        MAX_RESULT  = 65535
+        MAX_RESULT = 65535
 
         # 必須チェック
-        if not title:
-            errors['text_title'] = 'エラータイトルを入力してください。'
-        if not error:
-            errors['text_error'] = 'エラーコードを入力してください。'
-        if not fixcode:
-            errors['text_fixcode'] = '修正コードを入力してください。'
-        if not msg:
-            errors['text_message'] = 'エラーメッセージを入力してください。'
-        if not result:
-            errors['text_result'] = '実装結果を入力してください。'
+        if not title: errors['text_title'] = 'エラータイトルを入力してください。'
+        if not error: errors['text_error'] = 'エラーコードを入力してください。'
+        if not fixcode: errors['text_fixcode'] = '修正コードを入力してください。'
+        if not msg: errors['text_message'] = 'エラーメッセージを入力してください。'
+        if not result: errors['text_result'] = '実装結果を入力してください。'
 
         # 文字数チェック
-        if title and len(title) > MAX_TITLE:
-            errors['text_title'] = f'エラータイトルは{MAX_TITLE}文字以内で入力してください。'
-        if error and len(error) > MAX_CODE:
-            errors['text_error'] = f'エラーコードは{MAX_CODE}文字以内で入力してください。'
-        if fixcode and len(fixcode) > MAX_CODE:
-            errors['text_fixcode'] = f'修正コードは{MAX_CODE}文字以内で入力してください。'
-        if msg and len(msg) > MAX_MESSAGE:
-            errors['text_message'] = f'エラーメッセージは{MAX_MESSAGE}文字以内で入力してください。'
-        if result and len(result) > MAX_RESULT:
-            errors['text_result'] = f'実装結果は{MAX_RESULT}文字以内で入力してください。'
+        if title and len(title) > MAX_TITLE: errors['text_title'] = f'エラータイトルは{MAX_TITLE}文字以内で入力してください。'
+        if error and len(error) > MAX_CODE: errors['text_error'] = f'エラーコードは{MAX_CODE}文字以内で入力してください。'
+        if fixcode and len(fixcode) > MAX_CODE: errors['text_fixcode'] = f'修正コードは{MAX_CODE}文字以内で入力してください。'
+        if msg and len(msg) > MAX_MESSAGE: errors['text_message'] = f'エラーメッセージは{MAX_MESSAGE}文字以内で入力してください。'
+        if result and len(result) > MAX_RESULT: errors['text_result'] = f'実装結果は{MAX_RESULT}文字以内で入力してください。'
 
         # エラーがあれば保存せず画面再表示
         if errors:
             return render_template('step_card_create.html',errors=errors,form_data=form_data)
 
-        card = StepCard(
-            user_id=current_user.user_id,
-            title=title,
-            error_code=error,
-            modifying_code=fixcode,
-            error_message=msg,
-            execution_result=result,
-            status=STATUS_STEP,
-        )
-        db.session.add(card)
-        db.session.commit()
+        # 保存処理
+        try:
+            card = StepCard(
+                user_id=current_user.user_id,
+                title=title,
+                error_code=error,
+                modifying_code=fixcode,
+                error_message=msg,
+                execution_result=result,
+                status=STATUS_STEP,
+            )
+            db.session.add(card)
+            
+            # タグ保存ループ (Help Cardとロジックを統一)
+            attached = set()
+            for raw in tag_names:
+                norm = raw.replace(' ', '_') # 空白を_に置換
+                if norm in attached:
+                    continue
+                attached.add(norm)
 
-        return redirect(url_for('step_card.create_complete'))
+                # 既存タグ検索（大文字小文字無視）
+                tag = Tag.query.filter(func.lower(Tag.tag_name) == norm.lower()).first()
+                if not tag:
+                    tag = Tag(tag_name=norm)
+                    db.session.add(tag)
+                    db.session.flush()
+
+                if tag not in card.tags:
+                    card.tags.append(tag)
+                    
+            db.session.commit()
+            return redirect(url_for('step_card.create_complete'))
+
+        except SQLAlchemyError:
+            db.session.rollback()
+            errors['database'] = '保存に失敗しました'
+            return render_template('step_card_create.html', errors=errors, form_data=form_data)
 
     # GET のとき
     return render_template('step_card_create.html',errors=errors,form_data=form_data)
 # -------------------------------------------------------------------------------------
 
 
-
 # 完了画面
 @step_card_bp.route('/create/complete')
 def create_complete():
     return render_template('card/StepCardCreateComplete.html')
-
 
 
 # 編集
@@ -142,7 +163,7 @@ def edit_card(card_id):
 
     if request.method == 'POST':
         # フォーム値を取得
-        title   = request.form.get('text_title', '').strip()
+        title    = request.form.get('text_title', '').strip()
         error_code = request.form.get('text_error', '').strip()
         fix_code   = request.form.get('text_fixcode', '').strip()
         message    = request.form.get('text_message', '').strip()
@@ -163,28 +184,18 @@ def edit_card(card_id):
         MAX_RESULT  = 65535
 
         # 必須チェック
-        if not title:
-            errors['text_title'] = 'エラータイトルを入力してください。'
-        if not error_code:
-            errors['text_error'] = 'エラーコードを入力してください。'
-        if not fix_code:
-            errors['text_fixcode'] = '修正コードを入力してください。'
-        if not message:
-            errors['text_message'] = 'エラーメッセージを入力してください。'
-        if not result:
-            errors['text_result'] = '実装結果を入力してください。'
+        if not title: errors['text_title'] = 'エラータイトルを入力してください。'
+        if not error_code: errors['text_error'] = 'エラーコードを入力してください。'
+        if not fix_code: errors['text_fixcode'] = '修正コードを入力してください。'
+        if not message: errors['text_message'] = 'エラーメッセージを入力してください。'
+        if not result: errors['text_result'] = '実装結果を入力してください。'
 
         # 文字数チェック
-        if title and len(title) > MAX_TITLE:
-            errors['text_title'] = f'エラータイトルは{MAX_TITLE}文字以内で入力してください。'
-        if error_code and len(error_code) > MAX_CODE:
-            errors['text_error'] = f'エラーコードは{MAX_CODE}文字以内で入力してください。'
-        if fix_code and len(fix_code) > MAX_CODE:
-            errors['text_fixcode'] = f'修正コードは{MAX_CODE}文字以内で入力してください。'
-        if message and len(message) > MAX_MESSAGE:
-            errors['text_message'] = f'エラーメッセージは{MAX_MESSAGE}文字以内で入力してください。'
-        if result and len(result) > MAX_RESULT:
-            errors['text_result'] = f'実装結果は{MAX_RESULT}文字以内で入力してください。'
+        if title and len(title) > MAX_TITLE: errors['text_title'] = f'エラータイトルは{MAX_TITLE}文字以内で入力してください。'
+        if error_code and len(error_code) > MAX_CODE: errors['text_error'] = f'エラーコードは{MAX_CODE}文字以内で入力してください。'
+        if fix_code and len(fix_code) > MAX_CODE: errors['text_fixcode'] = f'修正コードは{MAX_CODE}文字以内で入力してください。'
+        if message and len(message) > MAX_MESSAGE: errors['text_message'] = f'エラーメッセージは{MAX_MESSAGE}文字以内で入力してください。'
+        if result and len(result) > MAX_RESULT: errors['text_result'] = f'実装結果は{MAX_RESULT}文字以内で入力してください。'
 
         if errors:
             # エラーがあれば編集画面に戻す
@@ -206,24 +217,29 @@ def edit_card(card_id):
         return redirect(url_for('step_card.edit_complete'))
 
     # GET時
+    # 既存データを form_data 形式に詰め替える
+    form_data = {
+        'text_title':   card.title,
+        'text_error':   card.error_code,
+        'text_fixcode': card.modifying_code,
+        'text_message': card.error_message,
+        'text_result':  card.execution_result,
+    }
     return render_template(
         'step_card_edit.html',
         card=card,
         errors={},
-        form={}
+        form=form_data # フォームにデータを渡す
     )
 
 
 @step_card_bp.route('/edit/complete')
 def edit_complete():
-    ## Compl"a"te ではなく、Compl"e"te！
     return render_template('card/StepCardUpdateComplete.html')
-
 
 
 def _del_token_key(card_id: int) -> str:
     return f'delete_token:{card_id}'
-
 
 
 # 確認画面 GET
@@ -276,16 +292,20 @@ def delete_card(card_id):
     return redirect(url_for('step_card.list_cards'))
 
 
-
-# 確認画面 
+# 確認画面 (GET)
 @step_card_bp.route('/<int:card_id>/share/confirm', methods=['GET'])
 def confirm_share(card_id):
     card = StepCard.query.get_or_404(card_id)
     # 既に公開ならその旨を表示
     if card.status == STATUS_PUBLIC:
         return render_template('step_card_share_already.html', card=card)
-    return render_template('step_card_share_confirm.html', card=card)
-
+    
+    # ★修正箇所: UndefinedError解消のため form_data を渡す
+    form_data = {
+        'tags': [tag.tag_name for tag in card.tags] # 既存タグがあれば初期値にセット
+    }
+    
+    return render_template('step_card_share_confirm.html', card=card, form_data=form_data, errors={})
 
 
 # 共有実行 POST（公開＋タグ保存→完了画面）
@@ -293,7 +313,6 @@ def confirm_share(card_id):
 def do_share(card_id):
     card = StepCard.query.get_or_404(card_id)
     if card.status == STATUS_PUBLIC:
-        # すでに公開なら既存の「すでに公開」画面
         return render_template('step_card_share_already.html', card=card)
 
     # 入力されたタグ（CSV）
@@ -301,13 +320,13 @@ def do_share(card_id):
     tag_names = [t for t in [x.strip() for x in csv_tags.split(',')] if t]
 
     if not tag_names:
+        # ★修正箇所: エラー時に form_data と errors を渡す
         return render_template(
             'step_card_share_confirm.html',
             card=card,
-            preset_tags=csv_tags,
-            form_error={'tags': 'タグを1件以上入力してください'}
+            form_data={'tags': tag_names}, 
+            errors={'tags': 'タグを1件以上入力してください'}
         )
-
 
     # タグ作成（存在しなければ新規）＋関連付け
     attached = set()
@@ -335,7 +354,12 @@ def do_share(card_id):
         db.session.commit()
     except SQLAlchemyError:
         db.session.rollback()
-        return render_template('step_card_share_failed.html', card=card)
+        # エラー時も form_data を渡す
+        return render_template(
+            'step_card_share_failed.html', 
+            card=card,
+            form_data={'tags': tag_names} 
+        )
 
     # 投稿完了画面へ
     return redirect(url_for('step_card.share_post_complete'))
@@ -357,7 +381,7 @@ def do_unshare(card_id):
         return redirect(url_for('step_card.list_cards'))
 
     try:
-        card.status = STATUS_STEP   # 公開→下書きへ戻す。タグは残す（要件どおり表示側だけ非公開）
+        card.status = STATUS_STEP  # 公開→下書きへ戻す。タグは残す（要件どおり表示側だけ非公開）
         db.session.commit()
     except SQLAlchemyError:
         db.session.rollback()
