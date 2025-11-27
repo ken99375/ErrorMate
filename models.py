@@ -2,6 +2,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+from sqlalchemy import UniqueConstraint
+
 
 db = SQLAlchemy()
 
@@ -90,3 +92,15 @@ class Tag(db.Model):
     tag_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     tag_name = db.Column(db.String(100), nullable=False, unique=True)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
+
+
+class CardLike(db.Model):
+    __tablename__ = 'likes'
+    like_id  = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    card_id  = db.Column(db.Integer, db.ForeignKey('step_cards.card_id'), nullable=False, index=True)
+    user_id  = db.Column(db.Integer, db.ForeignKey('users.user_id'),      nullable=False, index=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
+
+    __table_args__ = (
+        UniqueConstraint('card_id', 'user_id', name='uix_like_card_user'),
+    )
