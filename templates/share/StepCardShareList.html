@@ -43,29 +43,37 @@
 
                 <!-- 本文エリア -->
                 <div class="card-body">
-                <div class="info-label">エラーコード:</div>
-                <pre class="code-box">{{ card.error_code }}</pre>
-
-                <div class="info-label">エラーメッセージ:</div>
-                <div class="text-box">{{ card.error_message }}</div>
+                    <div class="info-label">エラーコード:</div>
+                    <pre class="code-box">{{ card.error_code }}</pre>
+    
+                    <div class="info-label">エラーメッセージ:</div>
+                    <div class="text-box">{{ card.error_message }}</div>
                 </div>
 
                 <!-- フッタ（ユーザ・タグ・ボタン） -->
                 <div class="card-footer">
-                <div class="meta">
-                    {{ card.author.user_name }}
-                    {% if card.tags %}
-                    {% for t in card.tags %} #{{ t.tag_name }}{% endfor %}
-                    {% endif %}
-                </div>
-
-                <div class="actions">
-                    <button class="like-btn">♡</button>
-                    <a href="{{ url_for('share.share_card_detail', card_id=card.card_id) }}" class="answer-link">詳細</a>
-                </div>
+                    <div class="meta">
+                        {{ card.author.user_name }}
+                        {% if card.tags %}
+                        {% for t in card.tags %} #{{ t.tag_name }}{% endfor %}
+                        {% endif %}
+                    </div>
+    
+                    <div class="actions">
+                      <button class="like-btn" 
+                          data-card="{{ card.card_id }}" 
+                          data-auth="{{ 1 if logged_in else 0 }}" 
+                          data-login="{{ login_url }}"
+                          aria-pressed="{{ 'true' if card.card_id in liked_ids else 'false' }}"
+                          >
+                        <span class="heart">{{ '♥' if card.card_id in liked_ids else '♡' }}</span>
+                        <span class="like-count">{{ like_counts.get(card.card_id, 0) }}</span>
+                      </button>
+                      <a href="{{ url_for('share.share_card_detail', card_id=card.card_id) }}" class="answer-link">詳細</a>
+                    </div>
                 </div>
             </div>
-            </div>
+        </div>
 
         {% endfor %}
     
@@ -74,6 +82,9 @@
     {% else %}
     <div class="alert alert-warning">該当するカードがありません。</div>
     {% endif %}
+    
+    
+    <script src="{{ url_for('static', filename='js/share/step_cards.js') }}"></script>
     
     {% endblock %}
     

@@ -114,7 +114,7 @@
 
 
 .comment-form textarea {
-    width: 265%;
+    width: auto;
     min-height: 160px;        /* ← 入力枠を大きく */
     resize: vertical;
     box-sizing: border-box;
