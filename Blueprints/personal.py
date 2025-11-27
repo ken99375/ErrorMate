@@ -29,28 +29,31 @@ def data_error_count():
 
     start_date = date_keys[0] # 7日前の日付
 
-    # --- 2. データベースからデータを集計 ---
+    # --- 2. データベースからデータを集計 (MySQL用に修正) ---
     step_card_results = db.session.query(
-    func.strftime('%Y-%m-%d', StepCard.created_at).label('date'),
-    func.count(StepCard.card_id)
+        # 修正: func.date_format を使用し、引数の順序を変更 (カラム, フォーマット)
+        func.date_format(StepCard.created_at, '%Y-%m-%d').label('date'),
+        func.count(StepCard.card_id)
     ).filter(
         StepCard.created_at >= start_date,
         StepCard.status == 'public'
     ).group_by('date').all()
+    
     # 高速で検索できるように辞書に変換 (例: {'2025-11-18': 5})
     step_counts = {date: count for date, count in step_card_results}
 
-    # (B) HelpCard の日別カウントを取得
+    # (B) HelpCard の日別カウントを取得 (MySQL用に修正)
     help_card_results = db.session.query(
-    func.strftime('%Y-%m-%d', StepCard.created_at).label('date'),
-    func.count(StepCard.card_id)
+        # 修正: func.date_format を使用
+        func.date_format(StepCard.created_at, '%Y-%m-%d').label('date'),
+        func.count(StepCard.card_id)
     ).filter(
         StepCard.created_at >= start_date,
         StepCard.status == 'help'
     ).group_by('date').all()
     help_counts = {date: count for date, count in help_card_results}
 
-        # --- 3. Chart.js用のデータ形式に整形 ---
+    # --- 3. Chart.js用のデータ形式に整形 ---
     step_data_list = []
     help_data_list = []
 
@@ -82,11 +85,9 @@ def data_error_count():
     }
     
     # Python辞書をJSON文字列に変換してテンプレートに渡す
-    # (JavaScriptで安全に読み込むため)
     chart_data_json = json.dumps(chart_data_py)
 
     return render_template('personal/PersonalDataErrorCount.html', chart_data=chart_data_json)
-
 
 # 言語種別比率------------------------------------------------------------------------
 @personal_bp.route('/LanguageRatio', methods=['GET', 'POST']) 
@@ -181,8 +182,9 @@ def data_comment_count():
     # Comment モデルがあると仮定
     from models import Comment  # Comment モデルをインポート
     
+    # 修正: MySQL用に func.date_format を使用
     comment_results = db.session.query(
-        func.strftime('%Y-%m-%d', Comment.created_at).label('date'),
+        func.date_format(Comment.created_at, '%Y-%m-%d').label('date'),
         func.count(Comment.comment_id)
     ).filter(
         Comment.user_id == user_id,
@@ -218,8 +220,6 @@ def data_comment_count():
     chart_data_json = json.dumps(chart_data_py)
 
     return render_template('personal/PersonalDataComment.html', chart_data=chart_data_json)
-
-
 # コメント傾向------------------------------------------------------------------------
 @personal_bp.route('/Trend', methods=['GET', 'POST'])
 def data_comment_trend():
