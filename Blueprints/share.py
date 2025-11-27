@@ -23,7 +23,7 @@ def set_header_color():
 
 
 
-@share_bp.route('/share/step_cards', methods=['GET'])
+@share_bp.route('/step_cards', methods=['GET'])
 def share_step_card_list():
     raw = (request.args.get('tag') or '').strip()
     keywords = [s for s in [x.strip().lower() for x in re.split(r'[,\s]+', raw)] if s]
@@ -79,18 +79,23 @@ def share_step_card_list():
     )
 
 
-@share_bp.route('/share/card/<int:card_id>/like', methods=['POST'])
+@share_bp.route('/card/<int:card_id>/like', methods=['POST'])
 @login_required
 def toggle_like(card_id):
+    # 任意: 存在チェック
+    StepCard.query.get_or_404(card_id)
+
     rec = CardLike.query.filter_by(card_id=card_id, user_id=current_user.user_id).first()
     if rec:
-        db.session.delete(rec); liked = False
+        db.session.delete(rec)
+        liked = False
     else:
-        db.session.add(CardLike(card_id=card_id, user_id=current_user.user_id)); liked = True
+        db.session.add(CardLike(card_id=card_id, user_id=current_user.user_id))
+        liked = True
     db.session.commit()
-    count = CardLike.query.filter_by(card_id=card_id).count()
-    return jsonify({"liked": liked, "count": count})
 
+    count = db.session.query(func.count(CardLike.like_id)).filter_by(card_id=card_id).scalar()
+    return jsonify({"liked": liked, "count": int(count)})
 
 
 @share_bp.route('/card/<int:card_id>', methods=['GET'])
