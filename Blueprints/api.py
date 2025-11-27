@@ -80,29 +80,35 @@ def analyze_error():
 # ------------------------------------------------
 @api_bp.route("/generate_tags", methods=["POST"])
 def generate_tags():
-    data = request.json
+    # 1. データ取得（もしJSONでなければ空辞書を使う）
+    data = request.get_json() or {}
+    
+    # 2. JSから送られた3つのデータを取得
     title = data.get("title", "")
+    code = data.get("code", "")     # ★追加: コードも受け取る
     message = data.get("message", "")
 
-    text = f"{title}\n{message}"
+    # タイトルとメッセージすらない場合はエラー
+    if not title and not message:
+        return jsonify({"error": "タイトルまたはメッセージが必要です"}), 400
 
-    if not text.strip():
-        return jsonify({"error": "タイトルとメッセージが必要です"}), 400
-
+    # 3. プロンプトにコードも含めるように修正
     prompt = f"""
-    以下のテキストから内容を要約し、関連するタグを2つだけ生成してください。
-    - 1つ目のタグは、テキスト内容から推測される「プログラミング言語」（例: Python, Java, JavaScript）にしてください。
-    - 2つ目のタグは、テキスト内容から推測される「エラーの種類」（例: NameError, TypeError, 文法エラー）にしてください。
+    以下のプログラミングエラーに関する情報から、関連するタグを2つ生成してください。
+    - 1つ目のタグは「プログラミング言語」（例: Python, Java, JavaScript）
+    - 2つ目のタグは「エラーの種類」（例: NameError, TypeError, SyntaxError）
     
-    出力は ["タグ1","タグ2"] のJSON形式のみで返してください。
+    出力は ["タグ1", "タグ2"] のJSONリスト形式のみで返してください。余計なマークダウンや説明は不要です。
 
-    テキスト:
-    {text}
+    【エラー情報】
+    タイトル: {title}
+    コード: {code}
+    エラーメッセージ: {message}
     """
 
     payload = {
         "contents": [{
-            "parts": [{"text": prompt}] # 1回で指示とテキストを両方送る
+            "parts": [{"text": prompt}]
         }]
     }
 
@@ -110,41 +116,39 @@ def generate_tags():
         "Content-Type": "application/json"
     }
 
-    response = requests.post(GEMINI_API_URL, headers=headers, json=payload)
-
-    # --- ★★★ ここからが不足している可能性のあるコード ★★★ ---
-
-    # APIエラーチェック
-    if response.status_code != 200:
-        print("★Gemini APIエラー内容 (generate_tags)★")
-        print(response.text)
-        return jsonify({"error": "Gemini APIエラー"}), 500
-
-    # テキスト抽出
     try:
-        result_text = response.json()["candidates"][0]["content"]["parts"][0]["text"]
-    except KeyError:
-        print("★Gemini APIエラー (KeyError)★")
-        print(response.text)
-        return jsonify({"error": "Gemini APIからの応答形式が不正です"}), 500
+        response = requests.post(GEMINI_API_URL, headers=headers, json=payload)
 
-    # AIが ```json ... ``` のようなマークダウンを返すことがあるため、それを除去する
-    clean_text = result_text.strip()
-    if clean_text.startswith('```json'):
-        clean_text = clean_text[7:]
-    if clean_text.startswith('```'):
-        clean_text = clean_text[3:]
-    if clean_text.endswith('```'):
-        clean_text = clean_text[:-3]
-    
-    clean_text = clean_text.strip()
+        # APIエラーチェック
+        if response.status_code != 200:
+            print(f"★Gemini API Error: {response.status_code}")
+            print(response.text)
+            return jsonify({"error": "Gemini APIエラー"}), 500
 
-    # JSONパース（["タグ1", "タグ2"]形式）
-    try:
+        # テキスト抽出
+        result_json = response.json()
+        if "candidates" not in result_json:
+            print("★Unexpected Response:", result_json)
+            return jsonify({"error": "AIからの応答が空です"}), 500
+            
+        result_text = result_json["candidates"][0]["content"]["parts"][0]["text"]
+
+        # クリーニング (Markdown除去)
+        clean_text = result_text.strip()
+        # ```json や ``` を削除
+        if clean_text.startswith("```json"):
+            clean_text = clean_text[7:]
+        elif clean_text.startswith("```"):
+            clean_text = clean_text[3:]
+        if clean_text.endswith("```"):
+            clean_text = clean_text[:-3]
+        
+        clean_text = clean_text.strip()
+
+        # JSONパース
         tags = json.loads(clean_text)
-    except json.JSONDecodeError:
-        print("AI 出力 (Raw):", result_text)
-        print("AI 出力 (Cleaned):", clean_text)
-        return jsonify({"error": "タグ解析に失敗しました"}), 500
+        return jsonify({"tags": tags})
 
-    return jsonify({"tags": tags})
+    except Exception as e:
+        print(f"★Server Error: {e}")
+        return jsonify({"error": str(e)}), 500

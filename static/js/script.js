@@ -33,54 +33,73 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 // ====================================================
-    // 2. AIタグ生成の処理 (修正版)
+    // 2. AIタグ生成の処理 (入力画面・確認画面 両対応版)
     // ====================================================
     const aiTagBtn = document.getElementById("ai-tag-btn");
     
     if (aiTagBtn) {
         aiTagBtn.addEventListener("click", async () => {
-            // ★修正1: タイトルなどの取得元IDが正しいか確認してください
-            // (画面では「エラーコード」のIDが code で、「エラータイトル」は title かもしれません)
-            // もしタイトル入力欄の name="title" の ID がない場合は、HTML側で id="title" を追加してください
-            const titleInput = document.querySelector('input[name="title"]'); 
-            const title = titleInput ? titleInput.value : "";
-            
-            const code = document.getElementById("code").value; // ここでコードを取得
-            const message = document.getElementById("message").value;
             const statusEl = document.getElementById("tag-status");
 
-            statusEl.textContent = "AIがタグ考え中…";
+            // ★万能な値取得関数: 要素の種類によって取り方を変える
+            const getText = (id) => {
+                const el = document.getElementById(id);
+                if (!el) return "";
+                // inputやtextareaならvalue、それ以外ならtextContent
+                return (el.tagName === "INPUT" || el.tagName === "TEXTAREA") ? el.value : el.textContent;
+            };
+
+            // 1. データの取得
+            // タイトルは画面によってIDやnameが違うことがあるため、念入りに探す
+            let title = getText("title"); 
+            if (!title) {
+                // 新規作成画面などで name="text_title" や name="title" の場合
+                const titleInput = document.querySelector('input[name="text_title"]') || document.querySelector('input[name="title"]');
+                if (titleInput) title = titleInput.value;
+            }
+
+            // コードとメッセージを取得（万能関数を使用）
+            const code = getText("code"); 
+            const message = getText("message");
+
+            // デバッグ用: 何が取れているかコンソールで確認できます
+            console.log("AIへ送信:", { title, code, message });
+
+            if (statusEl) statusEl.textContent = "AIがタグ考え中…";
 
             try {
-                // APIへ送信（title も送るように修正）
+                // APIへ送信
                 const res = await fetch("/api/generate_tags", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ title, code, message }) // codeも含めると精度が上がります
+                    body: JSON.stringify({ title, code, message })
                 });
+
+                if (!res.ok) throw new Error("API request failed");
 
                 const data = await res.json();
 
                 if (data.tags && data.tags.length > 0) {
-                    // ★修正2: チップ表示機能と連携する
-                    const tagInput = document.getElementById("tagText"); // 入力欄
+                    const tagInput = document.getElementById("tagText"); // タグ入力欄
                     const tagAddBtn = document.getElementById("tagAdd"); // ＋ボタン
 
-                    // 生成されたタグを1つずつ順番に追加処理する
-                    data.tags.forEach(tag => {
-                        tagInput.value = tag; // 入力欄にセット
-                        tagAddBtn.click();    // ＋ボタンをプログラムで押す
-                    });
-                    
-                    // 入力欄をクリア
-                    tagInput.value = "";
-                    statusEl.textContent = "タグ生成完了！";
+                    if (tagInput && tagAddBtn) {
+                        // 生成されたタグを1つずつ入力してボタンを押す（既存のタグ追加ロジックを利用）
+                        data.tags.forEach(tag => {
+                            tagInput.value = tag;
+                            tagAddBtn.click();
+                        });
+                        
+                        // 入力欄をクリア
+                        tagInput.value = "";
+                        if (statusEl) statusEl.textContent = "タグ生成完了！";
+                    }
                 } else {
-                    statusEl.textContent = "タグ生成失敗（候補なし）";
+                    if (statusEl) statusEl.textContent = "タグ生成失敗（候補なし）";
                 }
             } catch (e) {
                 console.error(e);
-                statusEl.textContent = "エラーが発生しました";
+                if (statusEl) statusEl.textContent = "エラーが発生しました";
             }
         });
     }
