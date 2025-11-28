@@ -44,27 +44,34 @@
             
             <!-- 本文エリア -->
             <div class="card-body">
-            <div class="info-label">エラーコード:</div>
-            <pre class="code-box">{{ card.error_message }}</pre>
-            <div class="info-label">エラーメッセージ:</div>
-            <div class="text-box">{{ card.error_message }}</div>
+                <div class="info-label">エラーコード:</div>
+                <pre class="code-box">{{ card.error_code }}</pre>
+                <div class="info-label">エラーメッセージ:</div>
+                <div class="text-box">{{ card.error_message }}</div>
             </div>
 
-            <!-- ユーザ名 + タグ -->
+            <!-- タグ -->
             {% if card.tags %}
                 {% for t in card.tags %}
                     #{{ t.tag_name }}　
                 {% endfor %}
             {% endif %}
 
-
             <!-- ❤️いいね + 回答リンク -->
-            <div class="d-flex justify-content-center align-items-center mt-3">
-                <button class="like-btn me-3" 
-                        data-card-id="{{ card.card_id }}" 
-                        data-liked="false">
-                    <i class="far fa-heart"></i> <i class="fas fa-heart"></i> </button>
+            <div class="d-flex justify-content-center align-items-center mt-3 actions">
 
+                <!-- ❤️ ハートボタン（StepCard と同形式） -->
+                <button class="like-btn me-3"
+                        data-card="{{ card.card_id }}"
+                        data-auth="{{ 1 if logged_in else 0 }}"
+                        data-login="{{ url_for('auth.login') }}"
+                        aria-pressed="{{ 'true' if card.card_id in liked_ids else 'false' }}"
+                >
+                    <span class="heart">{{ '♥' if card.card_id in liked_ids else '♡' }}</span>
+                    <span class="like-count">{{ like_counts.get(card.card_id, 0) }}</span>
+                </button>
+
+                <!-- 詳細/回答 -->
                 <a href="{{ url_for('share.share_help_card_detail', card_id=card.card_id) }}">
                     回答する
                 </a>
