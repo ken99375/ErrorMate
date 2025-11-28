@@ -22,16 +22,23 @@ SESSION_TTL_MIN = 1
 # 一覧------------------------------------------------------------------------
 @step_card_bp.route('/list')
 def list_cards():
-    cards = (
+    # ページ番号を取得 (デフォルトは1ページ目)
+    page = request.args.get('page', 1, type=int)
+    # 1ページあたりの表示件数
+    per_page = 3
+
+    # .all() ではなく .paginate() を使う
+    pagination = (
         StepCard.query
         .filter(StepCard.user_id == current_user.user_id)
         .filter(StepCard.status != STATUS_DELETED)
-        .filter(StepCard.status.in_((STATUS_STEP, STATUS_PUBLIC))) 
+        .filter(StepCard.status.in_((STATUS_STEP, STATUS_PUBLIC)))  
         .order_by(StepCard.created_at.desc())
-        .all()
+        .paginate(page=page, per_page=per_page, error_out=False)
     )
-    
-    return render_template('step_card_list.html', cards=cards,  STATUS_PUBLIC=STATUS_PUBLIC)
+
+    # テンプレートには pagination オブジェクトごと渡す
+    return render_template('step_card_list.html', pagination=pagination, STATUS_PUBLIC=STATUS_PUBLIC)
 # ---------------------------------------------------------------------------
 
 

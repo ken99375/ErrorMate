@@ -1,23 +1,31 @@
-    {% extends "base.html" %}
+{% extends "base.html" %}
 
-    {% block title %}ステップカード一覧 | ErrorMate{% endblock %}
+{% block title %}ステップカード一覧 | ErrorMate{% endblock %}
 
-    {% block extra_css %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/stepcard.css') }}">
-    {% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/stepcard.css') }}">
+<style>
+    /* ページネーション用の簡易スタイル（Bootstrapが入っていれば不要） */
+    .pagination { display: flex; list-style: none; padding: 0; justify-content: center; gap: 5px; margin-top: 20px;}
+    .page-link { padding: 8px 12px; border: 1px solid #ddd; color: #333; text-decoration: none; border-radius: 4px; }
+    .page-item.active .page-link { background-color: #007bff; color: white; border-color: #007bff; }
+    .page-item.disabled .page-link { color: #ccc; pointer-events: none; }
+</style>
+{% endblock %}
 
-    {% block content %}
-    <section id="screen-list" class="screen active">
+{% block content %}
+<section id="screen-list" class="screen active">
     <div class="screen-title">ステップカード一覧</div>
 
-    {# カード1件以上なら一覧＋右上の新規作成 #}
-    {% if cards %}
+    {# pagination.items がある場合（1件以上） #}
+    {% if pagination.items %}
         <div class="toolbar" id="toolbar">
             <a class="link-button" href="{{ url_for('step_card.create_card') }}"> 新規作成 </a>
         </div>
 
         <div id="card_list" class="card-list">
-            {% for card in cards %}
+            {# ★修正: cards ではなく pagination.items をループ #}
+            {% for card in pagination.items %}
                 <div class="card-item">
                     <h3 class="card-title">{{ card.title }}</h3>
                     {# 作成日はmodels.pyで作成しているcreated_atデータベースをstep_card.pyでコミットした瞬間に自動で時間の表記がされる #}
@@ -29,7 +37,7 @@
                             <form method="post"
                                 action="{{ url_for('step_card.do_unshare', card_id=card.card_id) }}"
                                 style="display:inline;">
-                            <button type="submit" class="btn-share btn-danger">共有解除</button>
+                                <button type="submit" class="btn-share btn-danger">共有解除</button>
                             </form>
                         {% else %}
                             <a href="{{ url_for('step_card.confirm_share', card_id=card.card_id) }}" class="btn-share">共有</a>
@@ -39,16 +47,40 @@
             {% endfor %}
         </div>
 
+        {# ★追加: ページネーションナビゲーション #}
+        {% if pagination.pages > 1 %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for(request.endpoint, page=pagination.prev_num) }}">前へ</a>
+                </li>
+
+                {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                    {% if page_num %}
+                        <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for(request.endpoint, page=page_num) }}">{{ page_num }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    {% endif %}
+                {% endfor %}
+
+                <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for(request.endpoint, page=pagination.next_num) }}">次へ</a>
+                </li>
+            </ul>
+        </nav>
+        {% endif %}
 
     {# 0件なら真ん中の新規作成だけ #}
     {% else %}
         <div id="empty_area" class="empty-message">
-        <p style="color: #e53935;">ステップカードが作られていません</p>
-        <a class="link-button"
-            href="{{ url_for('step_card.create_card') }}">
-            新規作成
-        </a>
+            <p style="color: #e53935;">ステップカードが作られていません</p>
+            <a class="link-button"
+               href="{{ url_for('step_card.create_card') }}">
+                新規作成
+            </a>
         </div>
     {% endif %}
-    </section>
-    {% endblock %}
+</section>
+{% endblock %}

@@ -136,14 +136,23 @@ def complete():
     return render_template('help/HelpCardPostComplete.html')
 
 # ------------------------------------------------------------
-# 一覧表示
-# ------------------------------------------------------------
+# request をインポートに追加
+from flask import request
+
+# 一覧表示--------------------------------------------------------------------
 @help_bp.route('/list')
 def list_help_cards():
-    cards = StepCard.query.filter_by(status='help') \
-    .order_by(StepCard.created_at.desc()) \
-    .all()
-    return render_template('share/HelpCardShareList.html', cards=cards)
+    page = request.args.get('page', 1, type=int)
+    per_page = 3
+
+    pagination = (
+        StepCard.query
+        .filter_by(status='help')
+        .order_by(StepCard.created_at.desc())
+        .paginate(page=page, per_page=per_page, error_out=False)
+    )
+    
+    return render_template('share/HelpCardShareList.html', pagination=pagination)
 
 # ------------------------------------------------------------
 # 詳細表示（コメントなし）
