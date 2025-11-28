@@ -101,11 +101,13 @@
 
 /* 入力フォーム（上） */
 .comment-form {
+    display:flex;
     background: #fff;
+    flex-direction:column;
     border: 1px solid #dcdcdc;
     border-radius: 8px;
     padding: 12px;
-    margin-bottom: 16px;
+    gap: 8px
 }
 
 .comment-form .input-wrap {
@@ -114,14 +116,21 @@
 
 
 .comment-form textarea {
-    width: auto;
-    min-height: 160px;        /* ← 入力枠を大きく */
+    width: 100%;
+    min-height: 200px;        
     resize: vertical;
     box-sizing: border-box;
-    padding: 10px 88px 10px 10px; /* 右にボタン分の余白 */
+    padding: 10px;
+    line-height: 1.6;
     border: 1px solid #cfcfcf;
     border-radius: 6px;
     background: #fafafa;
+}
+
+.comment-form button {
+    align-self: flex-end;
+    padding: 6px 14px;
+    border-radius: 6px;
 }
 
 .comment-form .btn-send {
