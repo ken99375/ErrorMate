@@ -36,24 +36,22 @@
         <div class="comment-block">
             <h3>コメント</h3>
 
-            {# 入力フォーム（上） #}
+            {# 入力フォーム #}
             <form method="post"
                     action="{{ url_for('share.post_comment', card_id=card.card_id) }}"
                     class="comment-form">
-                <div class="input-wrap">
                     <textarea name="body" placeholder="コメントを入力" required></textarea>
                     <button type="submit" class="btn-send">送信</button>
-                </div>
             </form>
 
-            {# 一覧（下） #}
+            {# 一覧 #}
             <div class="comment-list">
                 {% if roots and roots|length > 0 %}
                 {% for c in roots %}
                     <div class="comment-item">
                     <div class="comment-meta">
                         <span>{{ c.author.user_name if c.author else ('ユーザID: ' ~ c.user_id) }}</span>
-                        <span>{{ c.created_at.strftime('%Y-%m-%d %H:%M') if c.created_at }}</span>
+                        <span>{{ c.created_at|jst}}</span>
                     </div>
                     <div class="comment-body">{{ c.body }}</div>
 
@@ -63,7 +61,7 @@
                             <div class="reply-item">
                             <div class="comment-meta">
                                 <span>{{ r.author.user_name if r.author else ('ユーザID: ' ~ r.user_id) }}</span>
-                                <span>{{ r.created_at.strftime('%Y-%m-%d %H:%M') if r.created_at }}</span>
+                                <span>{{ r.created_at|jst }}</span>
                             </div>
                             <div class="comment-body">{{ r.body }}</div>
                             </div>

@@ -98,6 +98,8 @@ def toggle_like(card_id):
     return jsonify({"liked": liked, "count": int(count)})
 
 
+
+
 @share_bp.route('/card/<int:card_id>', methods=['GET'])
 def share_card_detail(card_id):
     card = (
