@@ -104,3 +104,4 @@ class CardLike(db.Model):
     __table_args__ = (
         UniqueConstraint('card_id', 'user_id', name='uix_like_card_user'),
     )
+ 

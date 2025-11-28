@@ -18,6 +18,7 @@ def set_header_color():
 @personal_bp.route('/ErrorCount', methods=['GET', 'POST'])
 @login_required
 def data_error_count():
+    # 現在のユーザーIDを取得
     user_id = current_user.user_id
 
     # --- 1. 過去7日間の日付ラベルを生成 ---
@@ -51,6 +52,7 @@ def data_error_count():
         StepCard.created_at >= start_date,
         StepCard.status == 'help'
     ).group_by('date').all()
+    
     help_counts = {date: count for date, count in help_card_results}
 
     # --- 3. Chart.js用のデータ形式に整形 ---
@@ -102,7 +104,6 @@ def language_ratio_data():
         return jsonify({"labels": [], "values": []})
 
     # 2. タグ名を集計
-    # card.tags は models.py の relationship で定義された Tag オブジェクトのリストです
     all_tag_names = []
     for card in user_cards:
         for tag in card.tags:
