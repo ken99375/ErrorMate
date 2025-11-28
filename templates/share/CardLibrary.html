@@ -2,6 +2,13 @@
 {% set header_theme = "header-card" %}
 {% block title %}カードライブラリ - ErrorMate{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<!-- FontAwesome (アイコン用) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}
+
+
 {% block content %}
 <div class="container mt-5" style="max-width: 1000px;">
   
@@ -9,13 +16,13 @@
       <div class="col-12 col-md-6">
         <a href="{{ url_for('share.share_step_card_list') }}" class="menu-card yellow">
           <span class="btn-text mb-2 fw-bold fs-5">ステップカード</span>
-          <i class="fa-solid fa-4x"></i>
+          <i class="fa-solid fa-pen-to-square fa-4x"></i>
         </a>
       </div>
       <div class="col-12 col-md-6">
         <a href="{{ url_for('share.share_help_card_list') }}" class="menu-card blue">
           <span class="btn-text mb-2 fw-bold fs-5">ヘルプカード</span>
-          <i class="fa-solid fa-4x"></i>
+          <i class="fa-solid fa-circle-question fa-4x"></i>
         </a>
       </div>
       
