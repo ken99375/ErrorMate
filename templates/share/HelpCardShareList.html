@@ -4,88 +4,131 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/share/helpcardshare.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    /* ページネーション等の簡易スタイル（ステップカードと共通） */
+    .pagination { display: flex; list-style: none; padding: 0; justify-content: center; gap: 5px; margin-top: 30px;}
+    .page-link { padding: 8px 12px; border: 1px solid #ddd; color: #333; text-decoration: none; border-radius: 4px; }
+    .page-item.active .page-link { background-color: #007bff; color: white; border-color: #007bff; }
+    .page-item.disabled .page-link { color: #ccc; pointer-events: none; }
+    
+    /* いいねボタン */
+    .like-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1.2rem;
+        color: #ccc;
+        transition: color 0.2s;
+    }
+    .like-btn.liked {
+        color: #e53935;
+    }
+    .like-count {
+        margin-left: 5px;
+        font-size: 1rem;
+        color: #555;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
 
-<!-- 🔍 タグ検索フォーム -->
-<div class="d-flex align-items-center mb-4" style="justify-content:flex-start;">
-    <form class="d-flex" method="get" action="{{ url_for('share.share_help_card_list') }}">
-        <input
-            type="text"
-            id="tagInput"
-            name="tag"
-            class="form-control me-2"
-            placeholder="タグ検索欄（複数はカンマ or スペース区切り）"
-            style="max-width:400px;font-size:1.2rem;"
-            value="{{ keyword|e }}"
-        >
-        <button id="searchBtn" type="submit" class="btn btn-outline-primary" style="font-size:1.1rem;">🔍</button>
-    </form>
-</div>
-
-<!-- 検索キーワード表示 -->
-{% if keyword %}
-<div class="mb-3">
-    <h5>検索キーワード: 「{{ keyword|e }}」</h5>
-</div>
-{% endif %}
-
-<!-- カード一覧 -->
-{% if matches %}
-<div class="row">
-
-    {% for card in matches %}
-    <div class="col-md-4 mb-4">
-        <div class="help-card p-3">
-
-            <!-- タイトル -->
-            <h5 class="card-title text-center">{{ card.title }}</h5>
-            
-            <!-- 本文エリア -->
-            <div class="card-body">
-                <div class="info-label">エラーコード:</div>
-                <pre class="code-box">{{ card.error_code }}</pre>
-                <div class="info-label">エラーメッセージ:</div>
-                <div class="text-box">{{ card.error_message }}</div>
-            </div>
-
-            <!-- タグ -->
-            {% if card.tags %}
-                {% for t in card.tags %}
-                    #{{ t.tag_name }}　
-                {% endfor %}
-            {% endif %}
-
-            <!-- ❤️いいね + 回答リンク -->
-            <div class="d-flex justify-content-center align-items-center mt-3 actions">
-
-                <!-- ❤️ ハートボタン（StepCard と同形式） -->
-                <button class="like-btn me-3"
-                        data-card="{{ card.card_id }}"
-                        data-auth="{{ 1 if logged_in else 0 }}"
-                        data-login="{{ url_for('auth.login') }}"
-                        aria-pressed="{{ 'true' if card.card_id in liked_ids else 'false' }}"
-                >
-                    <span class="heart">{{ '♥' if card.card_id in liked_ids else '♡' }}</span>
-                    <span class="like-count">{{ like_counts.get(card.card_id, 0) }}</span>
-                </button>
-
-                <!-- 詳細/回答 -->
-                <a href="{{ url_for('share.share_help_card_detail', card_id=card.card_id) }}">
-                    回答する
-                </a>
-
-            </div>
-
-        </div>
+    <div class="d-flex align-items-center mb-4" style="justify-content:flex-start;">
+        <form class="d-flex" method="get" action="{{ url_for('share.share_help_card_list') }}">
+            <input
+                type="text"
+                id="tagInput"
+                name="tag"
+                class="form-control me-2"
+                placeholder="タグ検索欄（複数はカンマ or スペース区切り）"
+                style="max-width:400px;font-size:1.2rem;"
+                value="{{ keyword|e }}"
+            >
+            <button id="searchBtn" type="submit" class="btn btn-outline-primary" style="font-size:1.1rem;">🔍</button>
+        </form>
     </div>
-    {% endfor %}
 
-</div>
+    {% if keyword %}
+    <div class="mb-3">
+        <h5>検索キーワード: 「{{ keyword|e }}」</h5>
+    </div>
+    {% endif %}
 
-{% else %}
-<div class="alert alert-warning">該当するカードがありません。</div>
-{% endif %}
+    {% if matches.items %}
+    <div class="row">
+
+        {% for card in matches.items %}
+        <div class="col-md-4 mb-4">
+            <div class="help-card p-3">
+                <h5 class="card-title text-center">{{ card.title }}</h5>
+
+                <div class="card-body">
+                    <div class="info-label">エラーコード:</div>
+                    <pre class="code-box">{{ card.error_code }}</pre>
+
+                    <div class="info-label">エラーメッセージ:</div>
+                    <div class="text-box">{{ card.error_message }}</div>
+                </div>
+
+                <div class="card-footer">
+                    <div class="meta">
+                        {{ card.author.user_name if card.author else '不明' }}
+                        {% if card.tags %}
+                            {% for t in card.tags %} 
+                                <span class="badge bg-secondary">#{{ t.tag_name }}</span>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="actions">
+                      <button class="like-btn {{ 'liked' if card.card_id in liked_ids else '' }}" 
+                          data-card="{{ card.card_id }}" 
+                          data-auth="{{ 1 if logged_in else 0 }}" 
+                          data-login="{{ url_for('auth.login') }}"
+                          aria-pressed="{{ 'true' if card.card_id in liked_ids else 'false' }}"
+                      >
+                        <i class="fa-icon {{ 'fa-solid' if card.card_id in liked_ids else 'fa-regular' }} fa-heart"></i>
+                        <span class="like-count" id="count-{{ card.card_id }}">
+                          {{ like_counts.get(card.card_id, 0) }}
+                        </span>
+                      </button>
+                    
+                      <a href="{{ url_for('share.share_help_card_detail', card_id=card.card_id) }}" class="answer-link">回答する</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+
+    {% if matches.pages > 1 %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            <li class="page-item {% if not matches.has_prev %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for(request.endpoint, page=matches.prev_num, tag=keyword) }}">前へ</a>
+            </li>
+            {% for page_num in matches.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                {% if page_num %}
+                    <li class="page-item {% if page_num == matches.page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for(request.endpoint, page=page_num, tag=keyword) }}">{{ page_num }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">class="page-link">...</span></li>
+                {% endif %}
+            {% endfor %}
+            <li class="page-item {% if not matches.has_next %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for(request.endpoint, page=matches.next_num, tag=keyword) }}">次へ</a>
+            </li>
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="alert alert-warning">該当するカードがありません。</div>
+    {% endif %}
+
+    <script src="{{ url_for('static', filename='js/share/help_cards.js') }}"></script>
 
 {% endblock %}
