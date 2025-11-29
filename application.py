@@ -1,4 +1,6 @@
-from flask import Flask
+from flask import Flask, request, session
+from pylti1p3.tool_config import ToolConfDict
+from pylti1p3.contrib.flask import FlaskOIDCLogin, FlaskMessageLaunch
 from flask_login import LoginManager
 from config import config
 from models import db, User
@@ -22,6 +24,51 @@ from Blueprints.admin import admin_bp
 load_dotenv()
 
 application = Flask(__name__)
+
+
+# 現在のMoodleのIPアドレス（http:// はつけない）
+MOODLE_IP = "http://54.157.54.36/"
+
+# MoodleのURLを組み立てる
+MOODLE_URL = f"http://{MOODLE_IP}"
+
+# LTIの設定情報
+lti_config = {
+    # 辞書のキーも変数を使う
+    MOODLE_URL: {
+        "client_id": "errormate_id",
+        # URLの中身も変数で自動組み立て
+        "auth_login_url": f"{MOODLE_URL}/mod/lti/auth.php",
+        "auth_token_url": f"{MOODLE_URL}/mod/lti/token.php",
+        "key_set_url": f"{MOODLE_URL}/mod/lti/certs.php",
+        "private_key_file": "private.key",
+        "public_key_file": "public.key",
+        "deployment_ids": ["1"]
+    }
+}
+
+#  ログイン開始（OIDC Login）
+@application.route('/lti/login', methods=['GET', 'POST'])
+def lti_login():
+    tool_conf = ToolConfDict(lti_config)
+    oidc_login = FlaskOIDCLogin(request, tool_conf)
+    return oidc_login.enable_check_cookies().redirect(request.args.get('target_link_uri'))
+    
+# 2. 実際の起動（LTI Launch）
+@application.route('/lti/launch', methods=['POST'])
+def lti_launch():
+    tool_conf = ToolConfDict(lti_config)
+    message_launch = FlaskMessageLaunch(request, tool_conf)
+    
+    # ここで「誰が来たか」を取得できる！
+    user_data = message_launch.get_launch_data()
+    email = user_data.get('email')
+    name = user_data.get('name')
+
+    # ErrorMateのログイン処理をここで行う（セッションに保存など）
+    session['user_email'] = email
+    
+    return f"ようこそ、Moodleから来た {name} さん！"
 
 @application.template_filter('jst')
 def jst(dt):
