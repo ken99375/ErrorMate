@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request, session, redirect
 from flask_login import LoginManager
 from config import config
 from models import db, User
@@ -23,6 +23,13 @@ load_dotenv()
 
 application = Flask(__name__)
 
+# Moodleから ?username=xxx で来た人を受け取る場所
+@application.route('/auto_login')
+def auto_login():
+    username = request.args.get('username')
+    # ここに「そのユーザーとしてログインさせる処理」を書く
+    return redirect('/')
+    
 @application.template_filter('jst')
 def jst(dt):
     if not dt:
