@@ -5,6 +5,7 @@ from flask_login import current_user, login_required
 from sqlalchemy.orm import joinedload, load_only
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from models import db, StepCard, Tag, STATUS_PUBLIC, User, Comment, CardLike
+from datetime import datetime, timedelta
 
 share_bp = Blueprint('share', __name__)
 
@@ -167,6 +168,20 @@ def post_comment(card_id):
         return redirect(url_for('share.share_card_detail', card_id=card_id))
 
     uid = current_user.user_id if getattr(current_user, 'is_authenticated', False) else 1
+    
+    
+    # このカードにこのユーザがこの本文(コメント)で親コメント宛に直近3秒以内に同じコメントをすでにしてない？
+    recent = Comment.query.filter(
+        Comment.card_id == card_id,
+        Comment.user_id == uid,
+        Comment.body == body,
+        Comment.parent_id == parent_id,
+        Comment.created_at >= datetime.utcnow() - timedelta(seconds=3)
+    ).first()
+
+    if recent:
+        return redirect(url_for('share.share_card_detail', card_id=card_id))
+
 
     c = Comment(card_id=card_id, user_id=uid, body=body, parent_id=parent_id)
     db.session.add(c)
@@ -273,6 +288,19 @@ def post_help_comment(card_id):
         return redirect(url_for('share.share_help_card_detail', card_id=card_id))
 
     uid = current_user.user_id if getattr(current_user, 'is_authenticated', False) else 1
+    
+    recent = Comment.query.filter(
+        Comment.card_id == card_id,
+        Comment.user_id == uid,
+        Comment.body == body,
+        Comment.parent_id == parent_id,
+        Comment.created_at >= datetime.utcnow() - timedelta(seconds=3)
+    ).first()
+
+    if recent:
+        return redirect(url_for('share.share_help_card_detail', card_id=card_id))
+
+    
 
     c = Comment(
         card_id=card_id,
