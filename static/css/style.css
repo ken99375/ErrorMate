@@ -327,10 +327,10 @@ footer {
     color: #fff;
 }
 
-.step_list  { 
-    /* カードライブラリ用：さわやかライトイエロー色*/
-    background: linear-gradient(135deg, #fff3b0, #ffec99, #ffe066);
-    color: #fff;
+.step_list {
+    /* 作成したステップカードを見る：薄めネイビー */
+    background: linear-gradient(135deg,#4a6fa5,#3f5f8c,#344b6e);
+    color: #ffffff;
 }
 
 .data  { 
