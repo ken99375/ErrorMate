@@ -1,9 +1,11 @@
-from flask import Flask
+from flask import Flask, request, session, redirect
 from flask_login import LoginManager
 from config import config
 from models import db, User
 # ★追加1：.env読み込み用のライブラリをインポート
 from dotenv import load_dotenv
+from datetime import timezone
+from zoneinfo import ZoneInfo
 
 # Blueprintのインポート
 from Blueprints.main import main_bp
@@ -20,6 +22,23 @@ from Blueprints.admin import admin_bp
 load_dotenv()
 
 application = Flask(__name__)
+
+# Moodleから ?username=xxx で来た人を受け取る場所
+@application.route('/auto_login')
+def auto_login():
+    username = request.args.get('username')
+    # ここに「そのユーザーとしてログインさせる処理」を書く
+    return redirect('/')
+    
+@application.template_filter('jst')
+def jst(dt):
+    if not dt:
+        return ''
+    # DBにnaive(タイムゾーンなし)でUTC保存してる想定
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    # 表示だけJSTに
+    return dt.astimezone(ZoneInfo("Asia/Tokyo")).strftime('%Y-%m-%d %H:%M')
 
 # 設定の読み込み
 application.config.from_object(config['default'])

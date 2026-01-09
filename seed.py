@@ -2,31 +2,67 @@ from application import application as app
 from models import db, User, Tag, StepCard, Comment
 from datetime import datetime
 
+def get_or_create_user(mail, **kwargs):
+    """
+    mail で既存ユーザを探して、
+    ・いれば：そのユーザを更新
+    ・いなければ：新規作成
+    を返す。
+    """
+    user = User.query.filter_by(mail=mail).first()
+    if user:
+        # 既存ユーザを更新する
+        for key, value in kwargs.items():
+            setattr(user, key, value)
+    else:
+        user = User(mail=mail, **kwargs)
+        db.session.add(user)
+    return user  # ★ タプルじゃなくて user だけ返す
+
+
+
+def get_or_create_tag(tag_name):
+    """
+    tag_name で既存タグを探して、
+      ・いれば: そのタグを返す
+      ・いなければ: 新規作成して返す
+    """
+    tag = Tag.query.filter_by(tag_name=tag_name).first()
+    if tag:
+        return tag
+    tag = Tag(tag_name=tag_name)
+    db.session.add(tag)
+    return tag
+
+
+
+
+
 def seed_data():
     """開発用の初期データを投入する"""
     with app.app_context():
         print("データベースを初期化します...")
-        db.drop_all()   # 既存のテーブルを全て削除（開発用！本番では絶対ダメ）
+        # db.drop_all()   # 既存のテーブルを全て削除（開発用！本番では絶対ダメ）
         db.create_all() # 最新のmodels.pyに基づいてテーブルを再作成
 
         # --- 1. ユーザーの作成 ---
         print("ユーザーを作成中...")
-        student1 = User(user_name='山田 太郎', mail='student1@test.com', password='password', role='student')
-        student2 = User(user_name='鈴木 花子', mail='student2@test.com', password='password', role='student')
-        student3 = User(user_name='上野 優太', mail='student3@test.com', password='password', role='student')
-        student4 = User(user_name='佐々木 蓮', mail='student4@test.com', password='password', role='student')
-        student5 = User(user_name='中川 美咲', mail='student5@test.com', password='password', role='student')
-        student6 = User(user_name='高橋 健', mail='student6@test.com', password='password', role='student')
-        student7 = User(user_name='森本 彩', mail='student7@test.com', password='password', role='student')
-        student8 = User(user_name='藤井 翼', mail='student8@test.com', password='password', role='student')
-        student9 = User(user_name='岡本 結衣', mail='student9@test.com', password='password', role='student')
-        student10 = User(user_name='清水 拓海', mail='student10@test.com', password='password', role='student')
+        student1 = get_or_create_user(user_name='山田 太郎', mail='student1@test.com', password='password', role='student')
+        student2 = get_or_create_user(user_name='鈴木 花子', mail='student2@test.com', password='password', role='student')
+        student3 = get_or_create_user(user_name='上野 優太', mail='student3@test.com', password='password', role='student')
+        student4 = get_or_create_user(user_name='佐々木 蓮', mail='student4@test.com', password='password', role='student')
+        student5 = get_or_create_user(user_name='中川 美咲', mail='student5@test.com', password='password', role='student')
+        student6 = get_or_create_user(user_name='高橋 健', mail='student6@test.com', password='password', role='student')
+        student7 = get_or_create_user(user_name='森本 彩', mail='student7@test.com', password='password', role='student')
+        student8 = get_or_create_user(user_name='藤井 翼', mail='student8@test.com', password='password', role='student')
+        student9 = get_or_create_user(user_name='岡本 結衣', mail='student9@test.com', password='password', role='student')
+        student10 = get_or_create_user(user_name='清水 拓海', mail='student10@test.com', password='password', role='student')
 
-        teacher1 = User(user_name='佐藤 先生', mail='teacher1@test.com', password='password', role='teacher')
-        teacher2 = User(user_name='中村 先生', mail='teacher2@test.com', password='password', role='teacher')
-        teacher3 = User(user_name='小林 先生', mail='teacher3@test.com', password='password', role='teacher')
-        teacher4 = User(user_name='石田 先生', mail='teacher4@test.com', password='password', role='teacher')
-        teacher5 = User(user_name='田中 先生', mail='teacher5@test.com', password='password', role='teacher')
+        teacher1 = get_or_create_user(user_name='佐藤 先生', mail='teacher1@test.com', password='password', role='teacher')
+        teacher2 = get_or_create_user(user_name='中村 先生', mail='teacher2@test.com', password='password', role='teacher')
+        teacher3 = get_or_create_user(user_name='小林 先生', mail='teacher3@test.com', password='password', role='teacher')
+        teacher4 = get_or_create_user(user_name='石田 先生', mail='teacher4@test.com', password='password', role='teacher')
+        teacher5 = get_or_create_user(user_name='田中 先生', mail='teacher5@test.com', password='password', role='teacher')
 
         
         db.session.add_all([student1, student2, teacher1, teacher2, student3, student4, student5, student6, 
@@ -39,7 +75,7 @@ def seed_data():
     'Spring Boot', 'React', 'API通信','Git/GitHub', '例外処理', 'デバッグ', '最適化', 'SQL']
         tags = {}
         for name in tag_names:
-            tag = Tag(tag_name=name)
+            tag = get_or_create_tag(name)
             db.session.add(tag)
             tags[name] = tag # 後で使いやすいように辞書に入れておく
         db.session.commit()

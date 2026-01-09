@@ -313,27 +313,27 @@ footer {
 }
 
 /* カラー設定（必要ならそのまま維持） */
-.yellow { 
+.step { 
     background: linear-gradient(135deg, #ffdb4c, #f7d037 ,#FFB100);
     color: #fff;
 }
-.blue   { 
+.liblary   { 
     background: linear-gradient(135deg, #5cadfa, #3c7ffc, #007BFF);
     color: #fff;
 }
-.green   { 
+.help   { 
     /* ヘルプ要求カード用：落ち着き＋前向きグリーン */
     background: linear-gradient(135deg, #3DDC97, #00B37E);
     color: #fff;
 }
 
-.light-yellow  { 
-    /* カードライブラリ用：さわやかライトイエロー色*/
-    background: linear-gradient(135deg, #fff3b0, #ffec99, #ffe066);
-    color: #fff;
+.step_list {
+    /* 作成したステップカードを見る：薄めネイビー */
+    background: linear-gradient(135deg,#4a6fa5,#3f5f8c,#344b6e);
+    color: #ffffff;
 }
 
-.pink  { 
+.data  { 
     /* カードライブラリ用：ピンク色*/
     background: linear-gradient(135deg, #fa6824, #ffa068, #ffcba9);
     color: #fff;

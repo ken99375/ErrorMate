@@ -29,7 +29,7 @@
                 <div class="card-item">
                     <h3 class="card-title">{{ card.title }}</h3>
                     {# 作成日はmodels.pyで作成しているcreated_atデータベースをstep_card.pyでコミットした瞬間に自動で時間の表記がされる #}
-                    <p>作成日: {{ card.created_at.strftime('%Y-%m-%d %H:%M') if card.created_at }}</p>
+                    <p>作成日: {{ card.created_at|jst }}</p>
                     <p>エラーコード: {{ card.error_code | default('') }}</p>
                     <div class="card-actions">
                         <a href="{{ url_for('step_card.detail_card', card_id=card.card_id) }}" class="btn-detail">詳細</a>

@@ -17,11 +17,11 @@
     {% block content %}
     <section id="screen-editor" class="screen active">
     <div class="form-box">
-        <h2>エラータイトル</h2>
+        <h2>ステップカード</h2>
 
         <form id="step_form" method="post" action="{{ url_for('step_card.create_card') }}">
         <div class="form-row">
-            <label for="text_title">エラータイトル</label>
+            <label for="text_title">タイトル</label>
             <input
             type="text"
             id="text_title"
@@ -29,6 +29,7 @@
             maxlength="255"
             value="{{ form_data.text_title }}"
             >
+            <p>ここにタイトルを入力</p>
             {% if errors.text_title %}
             <p class="form-error">{{ errors.text_title }}</p>
             {% endif %}

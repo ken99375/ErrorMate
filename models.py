@@ -61,8 +61,8 @@ class StepCard(db.Model):
     modifying_code = db.Column(db.Text)
     execution_result = db.Column(db.Text)
     evaluation = db.Column(db.Integer, default=0)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.now, onupdate=datetime.utcnow)
     status = db.Column(db.String(50), nullable=False, default=STATUS_STEP, index=True)
 
     tags = db.relationship('Tag', secondary=card_tags, lazy='subquery',
@@ -78,7 +78,7 @@ class Comment(db.Model):
     card_id = db.Column(db.Integer, db.ForeignKey('step_cards.card_id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
     body = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     # 追加: 親コメント（NULL ならルート）
     parent_id  = db.Column(db.Integer, db.ForeignKey('comments.comment_id'), nullable=True)
 
@@ -91,7 +91,7 @@ class Tag(db.Model):
 
     tag_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     tag_name = db.Column(db.String(100), nullable=False, unique=True)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
 
 class CardLike(db.Model):
@@ -99,8 +99,9 @@ class CardLike(db.Model):
     like_id  = db.Column(db.Integer, primary_key=True, autoincrement=True)
     card_id  = db.Column(db.Integer, db.ForeignKey('step_cards.card_id'), nullable=False, index=True)
     user_id  = db.Column(db.Integer, db.ForeignKey('users.user_id'),      nullable=False, index=True)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     __table_args__ = (
         UniqueConstraint('card_id', 'user_id', name='uix_like_card_user'),
     )
+ 

@@ -4,25 +4,24 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-<!-- FontAwesome (アイコン用) -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 {% endblock %}
-
 
 {% block content %}
 <div class="container mt-5" style="max-width: 1000px;">
   
     <div class="row g-4">
       <div class="col-12 col-md-6">
-        <a href="{{ url_for('share.share_step_card_list') }}" class="menu-card yellow">
-          <span class="btn-text mb-2 fw-bold fs-5">ステップカード</span>
-          <i class="fa-solid fa-pen-to-square fa-4x"></i>
+        <a href="{{ url_for('share.share_step_card_list') }}" class="menu-card step">
+          class="btn-text mb-2 fw-bold fs-5">ステップカード</span>
+          <i class="fa-solid fa-lightbulb fa-4x"></i>
         </a>
       </div>
+      
       <div class="col-12 col-md-6">
-        <a href="{{ url_for('share.share_help_card_list') }}" class="menu-card blue">
-          <span class="btn-text mb-2 fw-bold fs-5">ヘルプカード</span>
-          <i class="fa-solid fa-circle-question fa-4x"></i>
+        <a href="{{ url_for('share.share_help_card_list') }}" class="menu-card help">
+          class="btn-text mb-2 fw-bold fs-5">ヘルプカード</span>
+          <i class="fa-solid fa-bell fa-4x"></i>
         </a>
       </div>
       
