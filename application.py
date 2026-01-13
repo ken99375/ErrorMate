@@ -1,5 +1,5 @@
-from flask import Flask, request, session, redirect
-from flask_login import LoginManager
+from flask import Flask, request, session, redirect, url_for
+from flask_login import LoginManager, login_user
 from config import config
 from models import db, User
 # ★追加1：.env読み込み用のライブラリをインポート
@@ -26,9 +26,23 @@ application = Flask(__name__)
 # Moodleから ?username=xxx で来た人を受け取る場所
 @application.route('/auto_login')
 def auto_login():
-    username = request.args.get('username')
-    # ここに「そのユーザーとしてログインさせる処理」を書く
-    return redirect('/')
+    # 1. URLから ?username= の中身（例: tada）を取り出す
+    username_from_url = request.args.get('username')
+    
+    # 2. その名前のユーザーがデータベースにいるか探す
+    # (※あなたのDBのカラム名が 'name' なのか 'username' なのか 'email' なのかに合わせて変更してください)
+    user = User.query.filter_by(username=username_from_url).first() 
+
+    if user:
+        # 3. ★ここが一番重要！★ そのユーザーとしてログイン状態にする
+        login_user(user)
+        
+        # 4. ログイン成功！トップページへ
+        return redirect(url_for('index'))
+        
+    else:
+        # ユーザーが見つからなかった場合のエラー表示
+        return f"エラー: '{username_from_url}' というユーザーが見つかりません。"
     
 @application.template_filter('jst')
 def jst(dt):
