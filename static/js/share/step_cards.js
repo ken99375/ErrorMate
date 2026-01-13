@@ -29,3 +29,14 @@ document.addEventListener('click', async (e) => {
 });
 
 
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.comment-form button[type="submit"], .reply-form button[type="submit"]');
+  if (!btn) return;
+
+  if (btn.disabled) {
+    e.preventDefault();
+    return;
+  }
+
+  btn.disabled = true;
+});

@@ -10,7 +10,7 @@ document.addEventListener('click', async (e) => {
   const cardId = btn.dataset.card;
 
   try {
-    const res = await fetch(`/share/card/${cardId}/like`, {   // ← 修正ポイント！
+    const res = await fetch(`/share/card/${cardId}/like`, {
       method: 'POST',
       headers: { 'X-Requested-With': 'fetch' },
       credentials: 'same-origin'
@@ -39,4 +39,17 @@ document.addEventListener('click', async (e) => {
     console.error(err);
     alert('通信に失敗しました');
   }
+});
+
+
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.comment-form button[type="submit"], .reply-form button[type="submit"]');
+  if (!btn) return;
+
+  if (btn.disabled) {
+    e.preventDefault();
+    return;
+  }
+
+  btn.disabled = true;
 });
