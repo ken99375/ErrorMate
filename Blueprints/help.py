@@ -21,6 +21,7 @@ def create_help_card():
     form_data = {
         'title': '',
         'code': '',
+        'fix_code': '',
         'message': '',
         'tags': []
     }
@@ -30,11 +31,13 @@ def create_help_card():
         title = request.form.get('title', '').strip()
         code = request.form.get('code', '').strip()
         message = request.form.get('message', '').strip()
+        fix_code = request.form.get('fix_code', '').strip()
         
         # フォームデータに保持（エラー時の再表示用）
         form_data['title'] = title
         form_data['code'] = code
         form_data['message'] = message
+        form_data['fix_code'] = fix_code
 
         # 🔹 タグ取得の変更点 ------------------------------------
         # HTML側が <input name="tags" value="a,b,c"> となったため、
@@ -60,6 +63,8 @@ def create_help_card():
             errors['code'] = 'コードを入力してください。'
         if not message:
             errors['message'] = 'メッセージを入力してください。'
+        if not fix_code:
+            errors['fix_code'] = '修正コードを入力してください。'
 
         # 文字数チェック
         if title and len(title) > MAX_TITLE:
@@ -68,6 +73,8 @@ def create_help_card():
             errors['code'] = f'コードは{MAX_CODE}文字以内で入力してください。'
         if message and len(message) > MAX_MESSAGE:
             errors['message'] = f'メッセージは{MAX_MESSAGE}文字以内で入力してください。'
+        if fix_code and len(fix_code) > MAX_CODE:
+            errors['fix_code'] = f'修正コードは{MAX_CODE}文字以内で入力してください。'
 
         if errors:
             # エラーがある場合はテンプレートを再表示
