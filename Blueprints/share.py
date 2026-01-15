@@ -6,10 +6,6 @@ from sqlalchemy.orm import joinedload, load_only
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from models import db, StepCard, Tag, STATUS_PUBLIC, User, Comment, CardLike
 from datetime import datetime, timedelta
-<<<<<<< HEAD
-=======
-
->>>>>>> 42b9cec442e52d6e645717d561e13e3f9c0ff5b2
 
 share_bp = Blueprint('share', __name__)
 
@@ -173,11 +169,8 @@ def post_comment(card_id):
 
     uid = current_user.user_id if getattr(current_user, 'is_authenticated', False) else 1
     
-<<<<<<< HEAD
     
     # このカードにこのユーザがこの本文(コメント)で親コメント宛に直近3秒以内に同じコメントをすでにしてない？
-=======
->>>>>>> 42b9cec442e52d6e645717d561e13e3f9c0ff5b2
     recent = Comment.query.filter(
         Comment.card_id == card_id,
         Comment.user_id == uid,
@@ -187,10 +180,6 @@ def post_comment(card_id):
     ).first()
 
     if recent:
-<<<<<<< HEAD
-=======
-        # すでに投稿されているので何もしない
->>>>>>> 42b9cec442e52d6e645717d561e13e3f9c0ff5b2
         return redirect(url_for('share.share_card_detail', card_id=card_id))
 
 
@@ -309,14 +298,9 @@ def post_help_comment(card_id):
     ).first()
 
     if recent:
-<<<<<<< HEAD
         return redirect(url_for('share.share_help_card_detail', card_id=card_id))
 
     
-=======
-        # すでに投稿されているので何もしない
-        return redirect(url_for('share.share_help_card_detail', card_id=card_id))
->>>>>>> 42b9cec442e52d6e645717d561e13e3f9c0ff5b2
 
     c = Comment(
         card_id=card_id,
