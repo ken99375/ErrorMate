@@ -11,9 +11,9 @@
 
   <form action="{{ url_for('help.create_help_card') }}" method="POST">
 
-    <h2>エラータイトル</h2>
+    <h2>タイトル</h2>
     <input type="text" class="input-box" name="title"
-           placeholder="エラータイトルを入力"
+           placeholder="タイトルを入力"
            value="{{ form_data.title if form_data else '' }}">
 
     {% if errors.title %}
@@ -21,9 +21,9 @@
     {% endif %}
 
     <h2>エラーコード</h2>
-    <input type="text" class="input-box" name="code" id="code"
-           placeholder="エラーコードを入力"
-           value="{{ form_data.code if form_data else '' }}">
+    <!-- 修正ポイント: input から textarea に変更 -->
+    <textarea class="message-box" name="code" id="code"
+              placeholder="エラーが起きたコードを貼り付けてください">{{ form_data.code if form_data else '' }}</textarea>
 
     {% if errors.code %}
       <p class="error">{{ errors.code }}</p>
@@ -31,7 +31,7 @@
 
     <h2>エラーメッセージ</h2>
     <textarea class="message-box" name="message" id="message"
-              placeholder="エラーメッセージを入力">{{ form_data.message if form_data else '' }}</textarea>
+              placeholder="エラー内容を表示したターミナルを入力してください">{{ form_data.message if form_data else '' }}</textarea>
 
     {% if errors.message %}
       <p class="error">{{ errors.message }}</p>
@@ -61,12 +61,6 @@
         AIでタグ生成
     </button>
     <p id="tag-status" style="color: #666;"></p>
-
-    <div class="destination-section">
-        <label>投稿先選択</label>
-        <label><input type="radio" name="target" value="teacher"> 教師</label>
-        <label><input type="radio" name="target" value="student"> 学生</label>
-    </div>
 
     <div class="button-section">
       <a href="{{ url_for('main.index') }}" class="back-link">メニューに戻る</a>
