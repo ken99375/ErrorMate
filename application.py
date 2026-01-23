@@ -81,7 +81,7 @@ application.register_blueprint(auth_bp, url_prefix='/auth')
 application.register_blueprint(help_bp, url_prefix='/help')
 application.register_blueprint(personal_bp, url_prefix='/personal')
 application.register_blueprint(share_bp, url_prefix='/share')
-application.register_blueprint(api_bp, url_prefix="/api")
+application.register_blueprint(api_bp, url_prefix='/api')
 application.register_blueprint(admin_bp, url_prefix='/admin')
 
 # アプリ起動時にテーブルを作成

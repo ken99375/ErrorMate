@@ -8,13 +8,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const navMenu = document.querySelector(".nav-menu");
     const navLinks = document.querySelectorAll(".nav-menu a");
 
-    if (menu) { // 要素が存在するかチェック
+    if (menu && overlay && navMenu) {
         menu.addEventListener("click", () => {
             const isActive = menu.classList.toggle("active");
             overlay.classList.toggle("active");
             navMenu.classList.toggle("active");
 
-            // アニメーション付きでリンクを順番に出す
             if (isActive) {
                 navLinks.forEach((link, i) => {
                     setTimeout(() => link.classList.add("show"), i * 80);
@@ -32,116 +31,137 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-// ====================================================
-    // 2. AIタグ生成の処理 (入力画面・確認画面 両対応版)
+    // ====================================================
+    // 2. AIタグ生成の処理 
     // ====================================================
     const aiTagBtn = document.getElementById("ai-tag-btn");
     
     if (aiTagBtn) {
         aiTagBtn.addEventListener("click", async () => {
             const statusEl = document.getElementById("tag-status");
+            const codeEl = document.getElementById("code");
+            const messageEl = document.getElementById("message");
+            const titleInput = document.querySelector('input[name="title"]') || document.getElementById("title");
 
-            // ★万能な値取得関数: 要素の種類によって取り方を変える
-            const getText = (id) => {
-                const el = document.getElementById(id);
-                if (!el) return "";
-                // inputやtextareaならvalue、それ以外ならtextContent
-                return (el.tagName === "INPUT" || el.tagName === "TEXTAREA") ? el.value : el.textContent;
-            };
-
-            // 1. データの取得
-            // タイトルは画面によってIDやnameが違うことがあるため、念入りに探す
-            let title = getText("title"); 
-            if (!title) {
-                // 新規作成画面などで name="text_title" や name="title" の場合
-                const titleInput = document.querySelector('input[name="text_title"]') || document.querySelector('input[name="title"]');
-                if (titleInput) title = titleInput.value;
+            // 必須要素が一つでも欠けていたら中断
+            if (!statusEl || !codeEl || !messageEl) {
+                console.warn("AI生成に必要な要素が見つかりません");
+                return;
             }
 
-            // コードとメッセージを取得（万能関数を使用）
-            const code = getText("code"); 
-            const message = getText("message");
+            const title = titleInput ? titleInput.value : "";
+            const code = codeEl.value;
+            const message = messageEl.value;
 
-            // デバッグ用: 何が取れているかコンソールで確認できます
-            console.log("AIへ送信:", { title, code, message });
+            if (!code && !message) {
+                statusEl.textContent = "コードかメッセージを入力してください";
+                return;
+            }
 
-            if (statusEl) statusEl.textContent = "AIがタグ考え中…";
+            statusEl.textContent = "AIがタグ考え中…";
+            aiTagBtn.disabled = true;
 
             try {
-                // APIへ送信
+                // Flask側のAPIへ送信
                 const res = await fetch("/api/generate_tags", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ title, code, message })
                 });
 
-                if (!res.ok) throw new Error("API request failed");
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
                 const data = await res.json();
 
                 if (data.tags && data.tags.length > 0) {
-                    const tagInput = document.getElementById("tagText"); // タグ入力欄
-                    const tagAddBtn = document.getElementById("tagAdd"); // ＋ボタン
+                    const tagInput = document.getElementById("tagText");
+                    const tagAddBtn = document.getElementById("tagAdd");
 
                     if (tagInput && tagAddBtn) {
-                        // 生成されたタグを1つずつ入力してボタンを押す（既存のタグ追加ロジックを利用）
                         data.tags.forEach(tag => {
-                            tagInput.value = tag;
-                            tagAddBtn.click();
+                            tagInput.value = tag.replace(/^#/, '');
+                            tagAddBtn.click(); // 下の「3. タグ追加の処理」を呼び出す
                         });
-                        
-                        // 入力欄をクリア
                         tagInput.value = "";
-                        if (statusEl) statusEl.textContent = "タグ生成完了！";
+                        statusEl.textContent = "タグ生成完了！";
                     }
                 } else {
-                    if (statusEl) statusEl.textContent = "タグ生成失敗（候補なし）";
+                    statusEl.textContent = "タグの候補が見つかりませんでした";
                 }
             } catch (e) {
-                console.error(e);
-                if (statusEl) statusEl.textContent = "エラーが発生しました";
+                console.error("AI Tag Generation Error:", e);
+                statusEl.textContent = "サーバーとの通信に失敗しました";
+            } finally {
+                aiTagBtn.disabled = false;
             }
         });
     }
 
     // ====================================================
-    // 3. タグ追加の処理
+    // 3. タグ追加の処理 (チップ表示機能)
     // ====================================================
-    const container = document.getElementById("tag-container");
-    const addBtn = document.getElementById("add-tag-btn");
+    const tagInput = document.getElementById("tagText");
+    const tagAddBtn = document.getElementById("tagAdd");
+    const tagList = document.getElementById("tagList");
+    const tagsHidden = document.getElementById("tagsHidden");
 
-    if (container && addBtn) {
-        // 既存の click イベントを解除（重複防止）
-        const newAddBtn = addBtn.cloneNode(true);
-        addBtn.parentNode.replaceChild(newAddBtn, addBtn);
+    if (tagAddBtn && tagInput && tagList && tagsHidden) {
+        // 現在保存されているタグを取得してリスト化
+        const getTagsArray = () => tagsHidden.value ? tagsHidden.value.split(',').filter(t => t !== "") : [];
 
-        newAddBtn.addEventListener("click", function (e) {
-            e.preventDefault();
+        const renderTags = () => {
+            const tagsArray = getTagsArray();
+            tagList.innerHTML = '';
+            tagsArray.forEach((tag, index) => {
+                const chip = document.createElement('span');
+                chip.className = 'tag-chip';
+                chip.innerHTML = `#${tag} <i class="fa-solid fa-xmark ms-1" style="cursor:pointer;"></i>`;
+                
+                chip.querySelector('i').addEventListener('click', () => {
+                    const currentTags = getTagsArray();
+                    currentTags.splice(index, 1);
+                    tagsHidden.value = currentTags.join(',');
+                    renderTags();
+                });
+                
+                tagList.appendChild(chip);
+            });
+        };
 
-            const currentTags = container.querySelectorAll("input[name='tags[]']").length;
-            if (currentTags >= 5) {
-                alert("タグは最大5個までです。");
-                return;
-            }
+        tagAddBtn.addEventListener('click', () => {
+            const rawValue = tagInput.value.trim();
+            if (rawValue === "") return;
 
-            const input = document.createElement("input");
-            input.type = "text";
-            input.name = "tags[]";
-            input.classList.add("tag-input");
-            input.placeholder = "タグを入力";
+            const tagsArray = getTagsArray();
+            const newTags = rawValue.split(',').map(t => t.trim().replace(/\s+/g, '_')).filter(t => t !== "");
+            
+            newTags.forEach(tag => {
+                if (tagsArray.length < 10 && !tagsArray.includes(tag)) {
+                    tagsArray.push(tag);
+                }
+            });
 
-            container.appendChild(input);
+            tagsHidden.value = tagsArray.join(',');
+            tagInput.value = "";
+            renderTags();
         });
+
+        tagInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                tagAddBtn.click();
+            }
+        });
+
+        renderTags();
     }
 
     // ====================================================
     // 4. いいねボタンの処理 
     // ====================================================
     const likeButtons = document.querySelectorAll('.like-btn');
-
     likeButtons.forEach(button => {
         button.addEventListener('click', function() {
-            // CSSクラス '.liked' をトグル
             this.classList.toggle('liked');
         });
     });
