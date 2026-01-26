@@ -88,6 +88,10 @@
 {% endfor %}
 
 <div class="footer-links">
+    {% if card.user_id == current_user.user_id %}
+        <a href="{{ url_for('step_card.create_card', help_id=card.card_id) }}">ステップカード化</a>
+    {% endif %}
+    
     <a href="{{ url_for('share.share_help_card_list') }}">一覧に戻る</a>
 </div>
 
