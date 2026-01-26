@@ -1,13 +1,15 @@
     body {
-    margin: 0;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-family: "Segoe UI", sans-serif;
+        background-color: #a7c7e7;
+        margin: 0;
     }
+
 
     header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 8%;
+    padding: 8px 16px;
     border-bottom: 2px solid #e6cd79;
     background: #ffd24d;
     }
