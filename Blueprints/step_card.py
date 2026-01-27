@@ -26,7 +26,7 @@ def list_cards():
     # ページ番号を取得 (デフォルトは1ページ目)
     page = request.args.get('page', 1, type=int)
     # 1ページあたりの表示件数
-    per_page = 3
+    per_page = 8
 
     # .all() ではなく .paginate() を使う
     pagination = (
@@ -349,7 +349,7 @@ def confirm_share(card_id):
     if card.status == STATUS_PUBLIC:
         return render_template('step_card_share_already.html', card=card)
     
-    # ★修正箇所: UndefinedError解消のため form_data を渡す
+    
     form_data = {
         'tags': [tag.tag_name for tag in card.tags] # 既存タグがあれば初期値にセット
     }
