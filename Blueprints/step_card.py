@@ -1,5 +1,5 @@
 import re
-from flask import Blueprint, render_template, request, redirect, url_for,abort,session
+from flask import Blueprint, render_template, request, redirect, url_for,abort,session,abort
 from models import db, StepCard, User,Tag,STATUS_STEP, STATUS_PUBLIC, STATUS_DELETED
 from sqlalchemy.exc import SQLAlchemyError
 from uuid import uuid4
@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import func
 from flask import g
 from flask_login import login_required, current_user
+from models import StepCard, Tag, db, STATUS_HELP, STATUS_STEP
 
 
 step_card_bp = Blueprint('step_card', __name__)
@@ -25,7 +26,7 @@ def list_cards():
     # ページ番号を取得 (デフォルトは1ページ目)
     page = request.args.get('page', 1, type=int)
     # 1ページあたりの表示件数
-    per_page = 3
+    per_page = 8
 
     # .all() ではなく .paginate() を使う
     pagination = (
@@ -57,6 +58,10 @@ def detail_card(card_id):
 def create_card():
 
     errors = {}
+    
+    # ヘルプカードIDをURLで渡して、ステップカード作成画面を事前入力するための受け取り口
+    help_id = request.args.get('help_id', type=int)
+    
     form_data = {
         'text_title': '',
         'text_error': '',
@@ -65,8 +70,27 @@ def create_card():
         'text_result': '',
         'tags': [] # タグの再表示用に追加
     }
+    
+    if request.method == 'GET' and help_id:
+        help_card = StepCard.query.filter_by(card_id=help_id, status=STATUS_HELP).first()
+
+        # 他人のhelpカードを勝手に変換されると困るので一応ガード
+        if not help_card or help_card.user_id != current_user.user_id:
+            abort(403)
+
+        form_data['text_title'] = help_card.title or ''
+        form_data['text_error'] = help_card.error_code or ''
+        form_data['text_message'] = help_card.error_message or ''
+        # タグも引き継ぐなら
+        form_data['tags'] = [t.tag_name for t in help_card.tags]
+
+        return render_template('step_card_create.html', errors=errors, form_data=form_data, help_id=help_id)
 
     if request.method == 'POST':
+        raw_help_id = request.form.get('help_id', '').strip()
+        if raw_help_id.isdigit():
+            help_id = int(raw_help_id)
+            
         # 入力値を取得（エラー時に再表示するために form_data にも入れる）
         title = request.form.get('text_title', '').strip()
         error = request.form.get('text_error', '').strip()
@@ -112,16 +136,34 @@ def create_card():
 
         # 保存処理
         try:
-            card = StepCard(
-                user_id=current_user.user_id,
-                title=title,
-                error_code=error,
-                modifying_code=fixcode,
-                error_message=msg,
-                execution_result=result,
-                status=STATUS_STEP,
-            )
-            db.session.add(card)
+            if help_id:
+                card = StepCard.query.filter_by(card_id=help_id, status=STATUS_HELP).first()
+                if not card or card.user_id != current_user.user_id:
+                    abort(403)
+
+                # help → step に変換
+                card.title = title
+                card.error_code = error
+                card.error_message = msg
+                card.modifying_code = fixcode
+                card.execution_result = result
+                card.status = STATUS_STEP
+
+
+                card.tags.clear()
+            else:
+                card = StepCard(
+                    user_id=current_user.user_id,
+                    title=title,
+                    error_code=error,
+                    modifying_code=fixcode,
+                    error_message=msg,
+                    execution_result=result,
+                    status=STATUS_STEP,
+                )
+                db.session.add(card)
+                
+                
             
             # タグ保存ループ (Help Cardとロジックを統一)
             attached = set()
@@ -307,7 +349,7 @@ def confirm_share(card_id):
     if card.status == STATUS_PUBLIC:
         return render_template('step_card_share_already.html', card=card)
     
-    # ★修正箇所: UndefinedError解消のため form_data を渡す
+    
     form_data = {
         'tags': [tag.tag_name for tag in card.tags] # 既存タグがあれば初期値にセット
     }
