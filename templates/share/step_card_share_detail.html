@@ -70,10 +70,10 @@
                     {% endif %}
 
                     <form method="post"
-                            action="{{ url_for('share.post_comment', card_id=card.card_id) }}"
-                            class="reply-form">
+                          action="{{ url_for('share.post_comment', card_id=card.card_id) }}"
+                          class="reply-form">
                         <input type="hidden" name="parent_id" value="{{ c.comment_id }}">
-                        <input type="text" name="body" placeholder="返信を入力">
+                        <input type="text" name="body" placeholder="返信を入力" required>
                         <button type="submit">返信</button>
                     </form>
                     </div>
