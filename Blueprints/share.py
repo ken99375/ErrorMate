@@ -81,12 +81,14 @@ def share_step_card_list():
     return render_template(
         'share/StepCardShareList.html',
         keyword=raw,
-        matches=pagination,  # paginationオブジェクトを渡す
-        like_counts=like_counts, 
-        liked_ids=liked_ids,  
+        matches=cards,          # ← リストを渡す
+        pagination=pagination,  # ← ページネーション用に別で渡す
+        like_counts=like_counts,
+        liked_ids=liked_ids,
         logged_in=current_user.is_authenticated,
         login_url=url_for('auth.login', next=request.full_path or request.path),
     )
+
 
 
 # -------------------------------------------------------------------------
