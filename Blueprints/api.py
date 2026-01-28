@@ -1,154 +1,153 @@
 from flask import Blueprint, request, jsonify
-import requests
-import json
 import os
 from dotenv import load_dotenv
 
+api_bp = Blueprint("api", __name__, url_prefix="/api")
+
 load_dotenv()
 
-api_bp = Blueprint('api', __name__)
 
-API_KEY = os.environ.get('GEMINI_API_KEY') or ""
-
-if not API_KEY:
-    print("警告：GEMINI_API_KEYが設定されていません。.envファイルを確認してください。")
-
-# -------------------------------------
-# Gemini 2.0 Flash（正式版）を使用
-# -------------------------------------
-GEMINI_API_URL = (
-    f"https://generativelanguage.googleapis.com/v1/models/"
-    f"gemini-2.0-flash:generateContent?key={API_KEY}"
-)
-
-
-# ------------------------------------------------
-# エラー分析 API
-# ------------------------------------------------
-@api_bp.route('/analyze-error', methods=['POST'])
-def analyze_error():
-    data = request.get_json()
-    if not data:
-        return jsonify({"error": "JSONデータがありません。"}), 400
-
-    error_code = data.get('code')
-    error_message = data.get('message')
-
-    if not error_code or not error_message:
-        return jsonify({"error": "コードまたはメッセージが不足しています。"}), 400
-
-    system_prompt = (
-        "あなたはプログラミング学習を支援する優秀なアシスタントです。"
-        "以下のエラーコードとエラーメッセージを分析し、以下の3点について日本語で簡潔に回答してください。"
-        "1. エラーの根本的な原因は何か。"
-        "2. 一般的な修正方法（コード例は不要）。"
-        "3. このエラーから学ぶべき重要な概念（1つ）。"
-    )
-
-    user_query = f"""
-    エラーコード:
-    {error_code}
-
-    エラーメッセージ:
-    {error_message}
-    """
-
-    payload = {
-        "contents": [
-            {"parts": [{"text": system_prompt}]},
-            {"parts": [{"text": user_query}]}
-        ]
-    }
-
-    response = requests.post(GEMINI_API_URL, json=payload)
-    
-    try:
-        result = response.json()
-        ai_text = result["candidates"][0]["content"]["parts"][0]["text"]
-    except Exception as e:
-        print("★Gemini APIエラー (analyze-error)★")
-        print(f"Status Code: {response.status_code}")
-        print(f"Response Body: {response.text}")
-        print(f"Error: {e}")
-        return jsonify({"error": "Gemini APIの解析に失敗しました"}), 500
-
-    return jsonify({"result": ai_text})
-
-
-# ------------------------------------------------
-# タグ生成 API
-# ------------------------------------------------
-@api_bp.route("/generate_tags", methods=["POST"])
+@api_bp.route("/ai/tags", methods=["POST"])
 def generate_tags():
-    # 1. データ取得（もしJSONでなければ空辞書を使う）
-    data = request.get_json() or {}
-    
-    # 2. JSから送られた3つのデータを取得
-    title = data.get("title", "")
-    code = data.get("code", "")     # ★追加: コードも受け取る
-    message = data.get("message", "")
+    data = request.get_json(silent=True) or {}
 
-    # タイトルとメッセージすらない場合はエラー
-    if not title and not message:
-        return jsonify({"error": "タイトルまたはメッセージが必要です"}), 400
+    title = data.get("title", "").lower()
+    code = data.get("code", "").lower()
+    message = data.get("message", "").lower()
 
-    # 3. プロンプトにコードも含めるように修正
-    prompt = f"""
-    以下のプログラミングエラーに関する情報から、関連するタグを2つ生成してください。
-    - 1つ目のタグは「プログラミング言語」（例: Python, Java, JavaScript）
-    - 2つ目のタグは「エラーの種類」（例: NameError, TypeError, SyntaxError）
-    
-    出力は ["タグ1", "タグ2"] のJSONリスト形式のみで返してください。余計なマークダウンや説明は不要です。
+    tags = set()
 
-    【エラー情報】
-    タイトル: {title}
-    コード: {code}
-    エラーメッセージ: {message}
-    """
+    text_all = f"{title} {code} {message}"
 
-    payload = {
-        "contents": [{
-            "parts": [{"text": prompt}]
-        }]
-    }
+    # =========================
+    # ① Pythonエラー種別
+    # =========================
+    if "nameerror" in message:
+        tags.add("NameError")
+    if "typeerror" in message:
+        tags.add("TypeError")
+    if "attributeerror" in message:
+        tags.add("AttributeError")
+    if "syntaxerror" in message:
+        tags.add("SyntaxError")
+    if "keyerror" in message:
+        tags.add("KeyError")
+    if "indexerror" in message:
+        tags.add("IndexError")
+    if "importerror" in message or "modulenotfounderror" in message:
+        tags.add("ImportError")
 
-    headers = {
-        "Content-Type": "application/json"
-    }
+    # =========================
+    # ② HTTP / API エラー
+    # =========================
+    if "404" in message:
+        tags.add("404")
+        tags.add("NotFound")
+    if "500" in message:
+        tags.add("500")
+        tags.add("InternalServerError")
+    if "403" in message:
+        tags.add("403")
+        tags.add("Forbidden")
+    if "401" in message:
+        tags.add("401")
+        tags.add("Unauthorized")
+    if "timeout" in message:
+        tags.add("Timeout")
+    if "too many requests" in message or "429" in message:
+        tags.add("RateLimit")
 
-    try:
-        response = requests.post(GEMINI_API_URL, headers=headers, json=payload)
+    # =========================
+    # ③ フレームワーク・言語
+    # =========================
+    if "flask" in text_all:
+        tags.add("Flask")
+    if "django" in text_all:
+        tags.add("Django")
+    if "fastapi" in text_all:
+        tags.add("FastAPI")
 
-        # APIエラーチェック
-        if response.status_code != 200:
-            print(f"★Gemini API Error: {response.status_code}")
-            print(response.text)
-            return jsonify({"error": "Gemini APIエラー"}), 500
+    if "python" in text_all or "traceback" in message:
+        tags.add("Python")
+    if "javascript" in text_all or "js" in title:
+        tags.add("JavaScript")
+    if "html" in text_all:
+        tags.add("HTML")
+    if "css" in text_all:
+        tags.add("CSS")
+    if "json" in text_all:
+        tags.add("JSON")
 
-        # テキスト抽出
-        result_json = response.json()
-        if "candidates" not in result_json:
-            print("★Unexpected Response:", result_json)
-            return jsonify({"error": "AIからの応答が空です"}), 500
-            
-        result_text = result_json["candidates"][0]["content"]["parts"][0]["text"]
+    # =========================
+    # ④ DB・データ関連
+    # =========================
+    if "sql" in text_all:
+        tags.add("SQL")
+    if "sqlite" in text_all:
+        tags.add("SQLite")
+    if "mysql" in text_all:
+        tags.add("MySQL")
+    if "postgres" in text_all:
+        tags.add("PostgreSQL")
+    if "foreign key" in text_all:
+        tags.add("外部キー")
+    if "unique constraint" in text_all:
+        tags.add("制約違反")
 
-        # クリーニング (Markdown除去)
-        clean_text = result_text.strip()
-        # ```json や ``` を削除
-        if clean_text.startswith("```json"):
-            clean_text = clean_text[7:]
-        elif clean_text.startswith("```"):
-            clean_text = clean_text[3:]
-        if clean_text.endswith("```"):
-            clean_text = clean_text[:-3]
-        
-        clean_text = clean_text.strip()
+    # =========================
+    # ⑤ 認証・セキュリティ
+    # =========================
+    if "login" in text_all or "auth" in text_all:
+        tags.add("認証")
+    if "token" in text_all:
+        tags.add("トークン")
+    if "jwt" in text_all:
+        tags.add("JWT")
+    if "csrf" in text_all:
+        tags.add("CSRF")
 
-        # JSONパース
-        tags = json.loads(clean_text)
-        return jsonify({"tags": tags})
+    # =========================
+    # ⑥ フロントエンド挙動
+    # =========================
+    if "fetch" in text_all:
+        tags.add("fetch")
+    if "axios" in text_all:
+        tags.add("axios")
+    if "cors" in text_all:
+        tags.add("CORS")
+    if "failed to load resource" in text_all:
+        tags.add("通信エラー")
 
-    except Exception as e:
-        print(f"★Server Error: {e}")
-        return jsonify({"error": str(e)}), 500
+    # =========================
+    # ⑦ 日本語トラブル文脈
+    # =========================
+    if "動かない" in message or "動きません" in message:
+        tags.add("不具合")
+    if "表示されない" in message:
+        tags.add("画面表示")
+    if "保存できない" in message or "登録できない" in message:
+        tags.add("保存処理")
+    if "エラーが出る" in message:
+        tags.add("エラー")
+
+    # =========================
+    # ⑧ ファイル・構成
+    # =========================
+    if ".py" in text_all:
+        tags.add("Pythonファイル")
+    if ".js" in text_all:
+        tags.add("JSファイル")
+    if ".html" in text_all:
+        tags.add("HTMLファイル")
+
+    # =========================
+    # ⑨ フォールバック
+    # =========================
+    if not tags:
+        tags.add("技術相談")
+        tags.add("未分類")
+
+    # 最大7個まで
+    result = list(tags)[:7]
+
+    return jsonify({"tags": result})

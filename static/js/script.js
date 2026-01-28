@@ -31,79 +31,124 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ====================================================
-    // 2. AIタグ生成の処理 
-    // ====================================================
-    const aiTagBtn = document.getElementById("ai-tag-btn");
-    
-    if (aiTagBtn) {
-        aiTagBtn.addEventListener("click", async () => {
-            const statusEl = document.getElementById("tag-status");
-            const codeEl = document.getElementById("code");
-            const messageEl = document.getElementById("message");
-            const titleInput = document.querySelector('input[name="title"]') || document.getElementById("title");
+document.addEventListener("DOMContentLoaded", () => {
 
-            // 必須要素が一つでも欠けていたら中断
-            if (!statusEl || !codeEl || !messageEl) {
-                console.warn("AI生成に必要な要素が見つかりません");
-                return;
-            }
+  // ====================================================
+  // 共通要素取得（null ガード前提）
+  // ====================================================
+  const tagBtn = document.getElementById("ai-tag-btn");
+  const tagList = document.getElementById("tagList");
+  const tagStatus = document.getElementById("tag-status");
+  const tagsHidden = document.getElementById("tagsHidden");
 
-            const title = titleInput ? titleInput.value : "";
-            const code = codeEl.value;
-            const message = messageEl.value;
+  const titleEl = document.getElementById("title");
+  const codeEl = document.getElementById("code");
+  const messageEl = document.getElementById("message");
 
-            if (!code && !message) {
-                statusEl.textContent = "コードかメッセージを入力してください";
-                return;
-            }
+  const tagInput = document.getElementById("tagText");
+  const tagAddBtn = document.getElementById("tagAdd");
 
-            statusEl.textContent = "AIがタグ考え中…";
-            aiTagBtn.disabled = true;
+  if (!tagList || !tagsHidden) return;
 
-            try {
-                // Flask側のAPIへ送信
-                const res = await fetch("/api/generate_tags", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ title, code, message })
-                });
+  // ====================================================
+  // タグ管理ユーティリティ
+  // ====================================================
+  const getTagsArray = () =>
+    tagsHidden.value
+      ? tagsHidden.value.split(",").filter(t => t !== "")
+      : [];
 
-                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+  const setTagsArray = (tags) => {
+    tagsHidden.value = tags.join(",");
+    renderManualTags();
+  };
 
-                const data = await res.json();
+  // ====================================================
+  // 手動タグ描画
+  // ====================================================
+  const renderManualTags = () => {
+    tagList.innerHTML = "";
+    getTagsArray().forEach((tag, index) => {
+      const span = document.createElement("span");
+      span.className = "tag-chip";
+      span.textContent = `#${tag}`;
 
-                if (data.tags && data.tags.length > 0) {
-                    const tagInput = document.getElementById("tagText");
-                    const tagAddBtn = document.getElementById("tagAdd");
+      span.addEventListener("click", () => {
+        const tags = getTagsArray();
+        tags.splice(index, 1);
+        setTagsArray(tags);
+      });
 
-                    if (tagInput && tagAddBtn) {
-                        data.tags.forEach(tag => {
-                            tagInput.value = tag.replace(/^#/, '');
-                            tagAddBtn.click(); // 下の「3. タグ追加の処理」を呼び出す
-                        });
-                        tagInput.value = "";
-                        statusEl.textContent = "タグ生成完了！";
-                    }
-                } else {
-                    statusEl.textContent = "タグの候補が見つかりませんでした";
-                }
-            } catch (e) {
-                console.error("AI Tag Generation Error:", e);
-                statusEl.textContent = "サーバーとの通信に失敗しました";
-            } finally {
-                aiTagBtn.disabled = false;
-            }
+      tagList.appendChild(span);
+    });
+  };
+
+  renderManualTags();
+
+  // ====================================================
+  // 手動タグ追加
+  // ====================================================
+  if (tagAddBtn && tagInput) {
+    tagAddBtn.addEventListener("click", () => {
+      const raw = tagInput.value.trim();
+      if (!raw) return;
+
+      const current = getTagsArray();
+      raw.split(",")
+        .map(t => t.trim().toLowerCase())
+        .filter(t => t && !current.includes(t))
+        .slice(0, 10 - current.length)
+        .forEach(t => current.push(t));
+
+      setTagsArray(current);
+      tagInput.value = "";
+    });
+  }
+
+  // ====================================================
+  // AIタグ描画（AI専用）
+  // ====================================================
+  const renderAiTags = (tags) => {
+    setTagsArray(tags.slice(0, 5));
+  };
+
+  // ====================================================
+  // AIタグ生成
+  // ====================================================
+  if (tagBtn && titleEl && codeEl && messageEl) {
+    tagBtn.addEventListener("click", async () => {
+      tagStatus.textContent = "タグ生成中…";
+
+      try {
+        const res = await fetch("/api/ai/tags", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: titleEl.value,
+            code: codeEl.value,
+            message: messageEl.value
+          })
         });
-    }
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+
+        renderAiTags(data.tags);
+        tagStatus.textContent = "タグを生成しました";
+      } catch (e) {
+        console.error(e);
+        tagStatus.textContent = "タグ生成に失敗しました";
+      }
+    });
+  }
+
+});
 
     // ====================================================
     // 3. タグ追加の処理 (チップ表示機能)
     // ====================================================
     const tagInput = document.getElementById("tagText");
     const tagAddBtn = document.getElementById("tagAdd");
-    const tagList = document.getElementById("tagList");
-    const tagsHidden = document.getElementById("tagsHidden");
 
     if (tagAddBtn && tagInput && tagList && tagsHidden) {
         // 現在保存されているタグを取得してリスト化
