@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import json
 from collections import Counter
 
-personal_bp = Blueprint('personal', __name__)
+personal_bp = Blueprint('personal', __name__,  url_prefix="/personal")
 
 ## ヘッダーの色指定
 @personal_bp.before_request
@@ -92,54 +92,59 @@ def data_error_count():
 
 
 # 言語種別比率 (タグ集計) API ----------------------------------------------------
-# ★修正: URLを /api/LanguageRatio に変更して、画面表示用のURLと区別
-@personal_bp.route('/api/LanguageRatio', methods=['GET', 'POST']) 
-def language_ratio_data():
-    user_id = current_user.user_id
-    
-    # 1. ユーザーのカードを全て取得
-    user_cards = StepCard.query.filter_by(user_id=user_id).all()
 
-    if not user_cards:
-        return jsonify({"labels": [], "values": []})
+LANGUAGE_ALIASES = {
+    "python": {"python", "py", "python3"},
+    "java": {"java"},
+    "c": {"c"},
+    "c++": {"c++", "cpp"},
+    "c#": {"c#", "csharp"},
+    "go": {"go", "go言語", "golang"},
+    "javascript": {"javascript", "js"},
+    "typescript": {"typescript", "ts"},
+    "php": {"php"},
+    "ruby": {"ruby", "rb"},
+    "swift": {"swift"},
+    "kotlin": {"kotlin"},
+    "rust": {"rust"}
+}
 
-    # 2. タグ名を集計
-    all_tag_names = []
-    for card in user_cards:
-        for tag in card.tags:
-            all_tag_names.append(tag.tag_name)
-    
-    # タグが一つもない場合
-    if not all_tag_names:
-        return jsonify({"labels": [], "values": []})
+def normalize_language(tag_name: str):
+    tag = tag_name.lower().strip()
 
-    # 3. Counterで出現回数をカウント
-    tag_count = Counter(all_tag_names)
-
-    # 4. Chart.js 用にキー(ラベル)と値(データ)をリスト化
-    labels = list(tag_count.keys())
-    values = list(tag_count.values())
-
-    return jsonify({
-        "labels": labels,
-        "values": values
-    })
+    for lang, aliases in LANGUAGE_ALIASES.items():
+        if tag in aliases:
+            return lang
+    return None
 
 
-# 言語種別比率 (画面表示) --------------------------------------------------------
-@personal_bp.route('/LanguageRatio', methods=['GET'])
+# ====================================================
+# 言語種別比率（画面表示）
+# ====================================================
+@personal_bp.route("/language_ratio")
 @login_required
-def language_ratio_view():
-    # データ存在チェック
-    # ユーザーがカードを1枚でも持っているか確認
-    card = StepCard.query.filter_by(user_id=current_user.user_id).first()
+def language_ratio_page():
+    return render_template("personal/PersonalDataLanguage.html")
 
-    # もしカードが1枚もなければ、エラー画面を表示
-    if not card:
-        return render_template('personal/PersonalDataError.html')
 
-    # データがある場合は、通常のグラフ画面を表示
-    return render_template('personal/PersonalDataLanguage.html')
+@personal_bp.route('/api/language_ratio')
+@login_required
+def language_ratio_api():
+    from collections import Counter
+
+    user_id = current_user.user_id
+    cards = StepCard.query.filter_by(user_id=user_id).all()
+
+    counter = Counter()
+
+    for card in cards:
+        for tag in card.tags:
+            normalized = normalize_language(tag.tag_name)
+            if normalized:
+                counter[normalized] += 1
+
+    return jsonify(counter)
+
     
 
 # エラー種別比率------------------------------------------------------------------------

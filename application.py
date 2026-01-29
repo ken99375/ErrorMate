@@ -23,26 +23,46 @@ load_dotenv()
 
 application = Flask(__name__)
 
+class PrefixMiddleware(object):
+    def __init__(self, app, prefix=''):
+        self.app = app
+        self.prefix = prefix
+
+    def __call__(self, environ, start_response):
+        # もしURLが /errormate で始まっていたら、その部分をカットして整える
+        if environ['PATH_INFO'].startswith(self.prefix):
+            environ['PATH_INFO'] = environ['PATH_INFO'][len(self.prefix):]
+            environ['SCRIPT_NAME'] = self.prefix
+            return self.app(environ, start_response)
+        else:
+            # Apacheがすでにカットしていた場合の保険
+            environ['SCRIPT_NAME'] = self.prefix
+            return self.app(environ, start_response)
+
+# アプリ全体にこの設定を適用する
+application.wsgi_app = PrefixMiddleware(application.wsgi_app, prefix='/errormate')
+
 # Moodleから ?username=xxx で来た人を受け取る場所
 @application.route('/auto_login')
 def auto_login():
-    # 1. URLから ?username= の中身（例: tada）を取り出す
-    username_from_url = request.args.get('username')
-    
-    # 2. その名前のユーザーがデータベースにいるか探す
-    # (※あなたのDBのカラム名が 'name' なのか 'username' なのか 'email' なのかに合わせて変更してください)
-    user = User.query.filter_by(username=username_from_url).first() 
+    # 1. URLから ?username=xxx を受け取る
+    target_username = request.args.get('username')
+
+    if not target_username:
+        return "エラー: ユーザー名が指定されていません"
+
+    # 2. データベースからそのユーザーを探す
+    # (あなたのDBのカラム名が 'name' なら .filter_by(name=...) にしてください)
+    user = User.query.filter_by(user_name=target_username).first()
 
     if user:
-        # 3. ★ここが一番重要！★ そのユーザーとしてログイン状態にする
+        # 3. ★ここが核心★ パスワード無視でログイン状態にする
         login_user(user)
         
-        # 4. ログイン成功！トップページへ
+        # 4. トップページ（ダッシュボード）へ転送
         return redirect(url_for('index'))
-        
     else:
-        # ユーザーが見つからなかった場合のエラー表示
-        return f"エラー: '{username_from_url}' というユーザーが見つかりません。"
+        return f"エラー: ユーザー '{target_username}' はシステムに登録されていません。"
     
 @application.template_filter('jst')
 def jst(dt):
