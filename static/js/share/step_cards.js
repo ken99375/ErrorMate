@@ -40,3 +40,22 @@ document.addEventListener('click', (e) => {
 
   btn.disabled = true;
 });
+
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.js-open-delete');
+  if (!btn) return;
+
+  const action = btn.dataset.action;
+  const title  = btn.dataset.title || '';
+
+  const form = document.getElementById('deleteConfirmForm');
+  if (form) form.action = action;
+
+  const label = document.getElementById('deleteTargetTitle');
+  if (label) label.textContent = title ? `対象: ${title}` : '';
+
+/* global bootstrap */
+
+  const modalEl = document.getElementById('deleteConfirmModal');
+  if (modalEl) new bootstrap.Modal(modalEl).show();
+});

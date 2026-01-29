@@ -53,3 +53,20 @@ document.addEventListener('click', (e) => {
 
   btn.disabled = true;
 });
+
+
+/* global bootstrap */
+
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.js-open-delete');
+  if (!btn) return;
+
+  const action = btn.dataset.action;
+
+  const form = document.getElementById('deleteConfirmForm');
+  if (form) form.action = action;
+
+
+  const modalEl = document.getElementById('deleteConfirmModal');
+  if (modalEl) new bootstrap.Modal(modalEl).show();
+});

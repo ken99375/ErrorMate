@@ -95,13 +95,46 @@
                       </button>
                     
                       <a href="{{ url_for('share.share_help_card_detail', card_id=card.card_id) }}" class="answer-link">回答する</a>
+                      
+                      {% if current_user.is_authenticated and current_user.role == 'teacher' %}
+                          <button type="button"
+                                  class="action-btn action-btn--danger js-open-delete"
+                                  data-action="{{ url_for('share.admin_delete_shared_help_card', card_id=card.card_id) }}"
+                                  data-title="{{ card.title|e }}">削除
+                          </button>
+                      {% endif %}
+
                     </div>
                 </div>
             </div>
         </div>
         {% endfor %}
-
     </div>
+    
+    {% if current_user.is_authenticated and current_user.role == 'teacher' %}
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">削除確認</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+          </div>
+    
+          <div class="modal-body">
+            <p class="mb-0">このカードを削除しますか？</p>
+          </div>
+    
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+            <form method="POST" id="deleteConfirmForm" style="display:inline;">
+              <button type="submit" class="btn btn-danger">削除する</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
 
     {% if matches.pages > 1 %}
     <nav aria-label="Page navigation">
@@ -115,7 +148,7 @@
                         <a class="page-link" href="{{ url_for(request.endpoint, page=page_num, tag=keyword) }}">{{ page_num }}</a>
                     </li>
                 {% else %}
-                    <li class="page-item disabled">class="page-link">...</span></li>
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
                 {% endif %}
             {% endfor %}
             <li class="page-item {% if not matches.has_next %}disabled{% endif %}">
@@ -129,6 +162,8 @@
     <div class="alert alert-warning">該当するカードがありません。</div>
     {% endif %}
 
-    <script src="{{ url_for('static', filename='js/share/help_cards.js') }}"></script>
+{% endblock %}
 
+{% block extra_js %}
+    <script src="{{ url_for('static', filename='js/share/help_cards.js') }}"></script>
 {% endblock %}

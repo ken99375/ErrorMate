@@ -1,10 +1,10 @@
 import re
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, g, session
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, g, session, abort
 from sqlalchemy import func
 from flask_login import current_user, login_required
 from sqlalchemy.orm import joinedload, load_only
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
-from models import db, StepCard, Tag, STATUS_PUBLIC, User, Comment, CardLike
+from models import db, StepCard, Tag, STATUS_PUBLIC, STATUS_DELETED, User, Comment, CardLike, STATUS_STEP
 from datetime import datetime, timedelta
 
 share_bp = Blueprint('share', __name__)
@@ -56,7 +56,6 @@ def share_step_card_list():
     else:
         pagination = base_q.paginate(page=page, per_page=per_page, error_out=False)
 
-    # 現在のページのカードリスト
     cards = pagination.items
     card_ids = [c.card_id for c in cards]
 
@@ -81,8 +80,8 @@ def share_step_card_list():
     return render_template(
         'share/StepCardShareList.html',
         keyword=raw,
-        matches=cards,          # ← リストを渡す
-        pagination=pagination,  # ← ページネーション用に別で渡す
+        matches=cards,         
+        pagination=pagination, 
         like_counts=like_counts,
         liked_ids=liked_ids,
         logged_in=current_user.is_authenticated,
@@ -314,3 +313,48 @@ def post_help_comment(card_id):
     db.session.commit()
 
     return redirect(url_for('share.share_help_card_detail', card_id=card_id))
+    
+    
+# -------------------------------------------------------------------------
+# 管理者削除権限
+# -------------------------------------------------------------------------
+@share_bp.route('/step_cards/<int:card_id>/admin_unshared', methods=['POST'])
+@login_required
+def admin_unshared_step_card(card_id):
+    # teacher以外は弾く
+    if current_user.role != 'teacher':
+        abort(403)
+
+    card = StepCard.query.get_or_404(card_id)
+
+    if card.status != STATUS_PUBLIC:
+        abort(400)
+
+    # 論理削除
+    card.status = STATUS_STEP
+    db.session.commit()
+
+    flash('カードを削除しました', 'success')
+    return redirect(url_for('share.share_step_card_list'))
+
+
+
+@share_bp.route('/help_cards/<int:card_id>/admin_delete', methods=['POST'])
+@login_required
+def admin_delete_shared_help_card(card_id):
+    # teacher以外は弾く
+    if current_user.role != 'teacher':
+        abort(403)
+
+    card = StepCard.query.get_or_404(card_id)
+
+    # ヘルプカードだけ対象
+    if card.status != 'help':
+        abort(400)
+
+    # 論理削除
+    card.status = STATUS_DELETED
+    db.session.commit()
+
+    flash('カードを削除しました', 'success')
+    return redirect(request.referrer or url_for('share.share_help_card_list'))

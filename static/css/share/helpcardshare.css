@@ -373,3 +373,39 @@ body {
 }
  
 /* 既存のホバー効果はそのまま */
+
+
+.card-footer{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.card-footer .meta{
+  flex: 1;
+  min-width: 0;             
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-footer .actions{
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+/* カード上の削除ボタン */
+.action-btn--danger{
+  background: #ff0000;
+  border: 1px solid #ff0000;
+  color: #fff;
+}
+.action-btn--danger:hover{
+  background: #5c636a;
+  border-color: #5c636a;
+}

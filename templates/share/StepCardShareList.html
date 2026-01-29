@@ -14,115 +14,149 @@
     
     {% block content %}
     
-    <!-- タグ検索フォーム -->
-    <div class="d-flex align-items-center mb-4" style="justify-content:flex-start;">
-        <form class="d-flex" method="get" action="{{ url_for('share.share_step_card_list') }}">
-            <input
-                type="text"
-                id="tagInput"
-                name="tag"
-                class="form-control me-2"
-                placeholder="タグ検索欄（複数はカンマ or スペース区切り）"
-                style="max-width:400px;font-size:1.2rem;"
-                value="{{ keyword|e }}"
-            >
-            <button id="searchBtn" type="submit" class="btn btn-outline-primary" style="font-size:1.1rem;">🔍</button>
-        </form>
-    </div>
+        <!-- タグ検索フォーム -->
+        <div class="d-flex align-items-center mb-4" style="justify-content:flex-start;">
+            <form class="d-flex" method="get" action="{{ url_for('share.share_step_card_list') }}">
+                <input
+                    type="text"
+                    id="tagInput"
+                    name="tag"
+                    class="form-control me-2"
+                    placeholder="タグ検索欄（複数はカンマ or スペース区切り）"
+                    style="max-width:400px;font-size:1.2rem;"
+                    value="{{ keyword|e }}"
+                >
+                <button id="searchBtn" type="submit" class="btn btn-outline-primary" style="font-size:1.1rem;">🔍</button>
+            </form>
+        </div>
+        
+        <!-- 検索キーワード表示 -->
+        {% if keyword %}
+        <div class="mb-3">
+            <h5>検索キーワード: 「{{ keyword|e }}」</h5>
+        </div>
+        {% endif %}
+        
+        <!-- カード一覧 -->
+        {% if matches %}
+        <div class="row">
+        
+            {% for card in matches %}
+            <div class="col-md-4 mb-4">
+                <div class="help-card p-3">
+                    <!-- タイトル（2行までで省略） -->
+                    <h5 class="card-title text-center">{{ card.title }}</h5>
     
-    <!-- 検索キーワード表示 -->
-    {% if keyword %}
-    <div class="mb-3">
-        <h5>検索キーワード: 「{{ keyword|e }}」</h5>
-    </div>
-    {% endif %}
-    
-    <!-- カード一覧 -->
-    {% if matches %}
-    <div class="row">
-    
-        {% for card in matches %}
-        <div class="col-md-4 mb-4">
-            <div class="help-card p-3">
-                <!-- タイトル（2行までで省略） -->
-                <h5 class="card-title text-center">{{ card.title }}</h5>
-
-                <!-- 本文エリア -->
-                <div class="card-body">
-                    <div class="info-label">エラーコード:</div>
-                    <pre class="code-box">{{ card.error_code }}</pre>
-    
-                    <div class="info-label">エラーメッセージ:</div>
-                    <div class="text-box">{{ card.error_message }}</div>
-                </div>
-
-                <!-- フッタ（ユーザ・タグ・ボタン） -->
-                <div class="card-footer">
-                    <div class="meta">
-                        {{ card.author.user_name }}
-                        {% if card.tags %}
-                        {% for t in card.tags %} #{{ t.tag_name }}{% endfor %}
-                        {% endif %}
+                    <!-- 本文エリア -->
+                    <div class="card-body">
+                        <div class="info-label">エラーコード:</div>
+                        <pre class="code-box">{{ card.error_code }}</pre>
+        
+                        <div class="info-label">エラーメッセージ:</div>
+                        <div class="text-box">{{ card.error_message }}</div>
                     </div>
     
-                    <div class="actions">
-                      <button class="like-btn" 
-                          data-card="{{ card.card_id }}" 
-                          data-auth="{{ 1 if logged_in else 0 }}" 
-                          data-login="{{ login_url }}"
-                          aria-pressed="{{ 'true' if card.card_id in liked_ids else 'false' }}"
-                          >
-                        <span class="heart">{{ '♥' if card.card_id in liked_ids else '♡' }}</span>
-                        <span class="like-count">{{ like_counts.get(card.card_id, 0) }}</span>
-                      </button>
-                      <a href="{{ url_for('share.share_card_detail', card_id=card.card_id) }}" class="answer-link">詳細</a>
+                    <!-- フッタ（ユーザ・タグ・ボタン） -->
+                    <div class="card-footer">
+                        <div class="meta">
+                            {{ card.author.user_name }}
+                            {% if card.tags %}
+                            {% for t in card.tags %} #{{ t.tag_name }}{% endfor %}
+                            {% endif %}
+                        </div>
+        
+                        <div class="actions">
+                            <button class="like-btn" 
+                                    data-card="{{ card.card_id }}" 
+                                    data-auth="{{ 1 if logged_in else 0 }}" 
+                                    data-login="{{ login_url }}"
+                                    aria-pressed="{{ 'true' if card.card_id in liked_ids else 'false' }}"
+                                    >
+                                <span class="heart">{{ '♥' if card.card_id in liked_ids else '♡' }}</span>
+                                <span class="like-count">{{ like_counts.get(card.card_id, 0) }}</span>
+                            </button>
+                            <a href="{{ url_for('share.share_card_detail', card_id=card.card_id) }}" class="action-btn action-btn--info">詳細</a>
+                        
+                            {% if current_user.is_authenticated and current_user.role == 'teacher' %}
+                                <button type="button"
+                                        class="action-btn action-btn--danger js-open-delete"
+                                        data-action="{{ url_for('share.admin_unshared_step_card', card_id=card.card_id) }}"
+                                        data-title="{{ card.title|e }}">共有解除
+                                </button>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
-
-        {% endfor %}
-    
-    </div>
-    
-    {% if pagination and pagination.pages > 1 %}
-    <nav aria-label="Page navigation">
-      <ul class="pagination justify-content-center">
-    
-        <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
-          <a class="page-link"
-             href="{{ url_for('share.share_step_card_list', page=pagination.prev_num, tag=keyword) }}">前へ</a>
-        </li>
-    
-        {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
-          {% if page_num %}
-            <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+        
+        {% if current_user.is_authenticated and current_user.role == 'teacher' %}
+        <!-- モーダルはページに1個だけ -->
+        <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">解除確認</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+              </div>
+        
+              <div class="modal-body">
+                <p class="mb-0">このカードを共有解除しますか？</p>
+              </div>
+        
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                <form method="POST" id="deleteConfirmForm" style="display:inline;">
+                  <button type="submit" class="btn btn-danger">解除する</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        
+        {% if pagination and pagination.pages > 1 %}
+        <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-center">
+        
+            <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
               <a class="page-link"
-                 href="{{ url_for('share.share_step_card_list', page=page_num, tag=keyword) }}">{{ page_num }}</a>
+                 href="{{ url_for('share.share_step_card_list', page=pagination.prev_num, tag=keyword) }}">前へ</a>
             </li>
-          {% else %}
-            <li class="page-item disabled"><span class="page-link">...</span></li>
-          {% endif %}
-        {% endfor %}
+        
+            {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+              {% if page_num %}
+                <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                  <a class="page-link"
+                     href="{{ url_for('share.share_step_card_list', page=page_num, tag=keyword) }}">{{ page_num }}</a>
+                </li>
+              {% else %}
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+              {% endif %}
+            {% endfor %}
+        
+            <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+              <a class="page-link"
+                 href="{{ url_for('share.share_step_card_list', page=pagination.next_num, tag=keyword) }}">次へ</a>
+            </li>
+        
+          </ul>
+        </nav>
+        {% endif %}
     
-        <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
-          <a class="page-link"
-             href="{{ url_for('share.share_step_card_list', page=pagination.next_num, tag=keyword) }}">次へ</a>
-        </li>
-    
-      </ul>
-    </nav>
-    {% endif %}
+        
+        
+        {% else %}
+        <div class="alert alert-warning">該当するカードがありません。</div>
+        {% endif %}
+        
 
-    
-    
-    {% else %}
-    <div class="alert alert-warning">該当するカードがありません。</div>
-    {% endif %}
-    
-    
-    <script src="{{ url_for('static', filename='js/share/step_cards.js') }}"></script>
-    
     {% endblock %}
+    
+    {% block extra_js %}
+        <script src="{{ url_for('static', filename='js/share/step_cards.js') }}"></script>
+    {% endblock %}
+
     
     

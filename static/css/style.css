@@ -5,7 +5,7 @@ body {
   margin: 0;
 }
 
-/*三神:/
+
 /* ハンバーガーメニュー */
 .container {
   position: relative;
@@ -80,9 +80,9 @@ body {
     display: none;
     flex-direction: column;
     position: fixed;
-    top: 48%;
+    top: 90px;
     right: 30px;
-    transform: translateY(-50%);
+    transform: none;
     align-items: flex-start;
     justify-content: flex-start;
     padding: 20px;
@@ -101,7 +101,7 @@ body {
 .nav-menu.active {
     display: flex;
     opacity: 1;
-    transform: translateY(-50%) scale(1);
+    transform: none;
 }
 
 .nav-menu a {
