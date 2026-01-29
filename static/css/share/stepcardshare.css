@@ -390,3 +390,15 @@ body {
   flex-wrap: nowrap;
   white-space: nowrap;
 }
+
+.action-btn--danger{
+  background: #CDE6C7;
+  border: 1px solid black;
+  color: black;
+}
+
+.action-btn--danger:hover{
+  background: #5c636a;
+  border-color: #5c636a;
+  color: #fff;
+}

@@ -1,5 +1,5 @@
 import re
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, g, session, abort
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, g, session, abort,flash
 from sqlalchemy import func
 from flask_login import current_user, login_required
 from sqlalchemy.orm import joinedload, load_only
@@ -315,6 +315,27 @@ def post_help_comment(card_id):
     return redirect(url_for('share.share_help_card_detail', card_id=card_id))
     
     
+@share_bp.route('/help_cards/<int:card_id>/delete', methods=['POST'])
+@login_required
+def delete_my_help_card(card_id):
+    card = StepCard.query.get_or_404(card_id)
+    
+    # 自分のカード以外は削除不可
+    if card.user_id != current_user.user_id:
+            abort(403)
+    
+    # helpカード以外は対象外
+    if card.status != 'help':
+        abort(400)
+    
+    # 論理削除
+    card.status = STATUS_DELETED
+    db.session.commit()
+    
+    flash('ヘルプカードを削除しました', 'success')
+    return redirect(url_for('share.share_help_card_list'))
+        
+        
 # -------------------------------------------------------------------------
 # 管理者削除権限
 # -------------------------------------------------------------------------
