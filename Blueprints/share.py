@@ -332,7 +332,7 @@ def delete_my_help_card(card_id):
     card.status = STATUS_DELETED
     db.session.commit()
     
-    flash('ヘルプカードを削除しました', 'success')
+    
     return redirect(url_for('share.share_help_card_list'))
         
         
@@ -354,8 +354,8 @@ def admin_unshared_step_card(card_id):
     # 論理削除
     card.status = STATUS_STEP
     db.session.commit()
-
-    flash('カードを削除しました', 'success')
+    
+    
     return redirect(url_for('share.share_step_card_list'))
 
 
@@ -376,6 +376,6 @@ def admin_delete_shared_help_card(card_id):
     # 論理削除
     card.status = STATUS_DELETED
     db.session.commit()
-
-    flash('カードを削除しました', 'success')
+    
+    
     return redirect(request.referrer or url_for('share.share_help_card_list'))

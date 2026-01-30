@@ -82,27 +82,39 @@
                         {% endif %}
                     </div>
                     <div class="actions">
-                      <button class="like-btn {{ 'liked' if card.card_id in liked_ids else '' }}" 
-                          data-card="{{ card.card_id }}" 
-                          data-auth="{{ 1 if logged_in else 0 }}" 
-                          data-login="{{ url_for('auth.login') }}"
-                          aria-pressed="{{ 'true' if card.card_id in liked_ids else 'false' }}"
-                      >
-                        <i class="fa-icon {{ 'fa-solid' if card.card_id in liked_ids else 'fa-regular' }} fa-heart"></i>
-                        <span class="like-count" id="count-{{ card.card_id }}">
-                          {{ like_counts.get(card.card_id, 0) }}
-                        </span>
-                      </button>
+                        <button class="like-btn {{ 'liked' if card.card_id in liked_ids else '' }}" 
+                                data-card="{{ card.card_id }}" 
+                                data-auth="{{ 1 if logged_in else 0 }}" 
+                                data-login="{{ url_for('auth.login') }}"
+                                aria-pressed="{{ 'true' if card.card_id in liked_ids else 'false' }}">
+                                  
+                            <i class="fa-icon {{ 'fa-solid' if card.card_id in liked_ids else 'fa-regular' }} fa-heart"></i>
+                            <span class="like-count" id="count-{{ card.card_id }}">
+                                {{ like_counts.get(card.card_id, 0) }}
+                            </span>
+                        </button>
                     
-                      <a href="{{ url_for('share.share_help_card_detail', card_id=card.card_id) }}" class="answer-link">回答する</a>
-                      
-                      {% if current_user.is_authenticated and current_user.role == 'teacher' %}
-                          <button type="button"
-                                  class="action-btn action-btn--danger js-open-delete"
-                                  data-action="{{ url_for('share.admin_delete_shared_help_card', card_id=card.card_id) }}"
-                                  data-title="{{ card.title|e }}">削除
-                          </button>
-                      {% endif %}
+                        <a href="{{ url_for('share.share_help_card_detail', card_id=card.card_id) }}" class="answer-link">回答する</a>
+                          
+                        {% set delete_url = None %}
+                        
+                        {% if current_user.is_authenticated %}
+                            {% if current_user.role == 'student' and card.user_id == current_user.user_id %}
+                                {% set delete_url = url_for('share.delete_my_help_card', card_id=card.card_id) %}
+                            {% elif current_user.role == 'teacher' %}
+                                {% set delete_url = url_for('share.admin_delete_shared_help_card', card_id=card.card_id) %}
+                            {% endif %}
+                        {% endif %}
+                        
+                        {% if delete_url %}
+                        <button type="button"
+                                class="action-btn action-btn--danger js-open-delete"
+                                data-action="{{ delete_url }}"
+                                data-title="{{ card.title|e }}">
+                            削除
+                        </button>
+                        {% endif %}
+
 
                     </div>
                 </div>
@@ -111,29 +123,34 @@
         {% endfor %}
     </div>
     
-    {% if current_user.is_authenticated and current_user.role == 'teacher' %}
-    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">削除確認</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
-          </div>
+    {% if current_user.is_authenticated and current_user.role in ['teacher', 'student'] %}
+      {% set delete_msg = 'このカードを削除しますか？' if current_user.role == 'teacher'
+                          else 'このヘルプカードを削除しますか？' %}
     
-          <div class="modal-body">
-            <p class="mb-0">このカードを削除しますか？</p>
-          </div>
+      <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">削除確認</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+            </div>
     
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-            <form method="POST" id="deleteConfirmForm" style="display:inline;">
-              <button type="submit" class="btn btn-danger">削除する</button>
-            </form>
+            <div class="modal-body">
+              <p class="mb-0">{{ delete_msg }}</p>
+              <small class="text-muted" id="deleteTargetTitle"></small>
+            </div>
+    
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+              <form method="POST" id="deleteConfirmForm" style="display:inline;">
+                <button type="submit" class="btn btn-danger">削除する</button>
+              </form>
+            </div>
           </div>
         </div>
       </div>
-    </div>
     {% endif %}
+
 
 
     {% if matches.pages > 1 %}
