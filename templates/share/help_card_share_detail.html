@@ -110,48 +110,11 @@
     {% if card.user_id == current_user.user_id %}
         <a href="{{ url_for('step_card.create_card', help_id=card.card_id) }}">ステップカード化</a>
     {% endif %}
-    {% if current_user.is_authenticated and current_user.role == 'student' and card.user_id == current_user.user_id %}
-      <button type="button"
-              class="action-btn action-btn--danger js-open-delete"
-              data-action="{{ url_for('share.delete_my_help_card', card_id=card.card_id) }}"
-              data-title="{{ card.title|e }}">
-        削除
-      </button>
-    {% endif %}
     
     <a href="{{ url_for('share.share_help_card_list') }}">一覧に戻る</a>
 </div>
-
-{% if current_user.is_authenticated and current_user.role == 'student' and card.user_id == current_user.user_id %}
-<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">削除確認</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
-      </div>
-
-      <div class="modal-body">
-        <p class="mb-0">このヘルプカードを削除しますか？</p>
-        <small class="text-muted" id="deleteTargetTitle"></small>
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-        <form method="POST" id="deleteConfirmForm" style="display:inline;">
-          <button type="submit" class="btn btn-danger">削除する</button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-{% endif %}
-
 
 
 </section>
 {% endblock %}
 
-{% block extra_js %}
-<script src="{{ url_for('static', filename='js/share/help_cards.js') }}"></script>
-{% endblock %}
