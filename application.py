@@ -1,8 +1,8 @@
-from flask import Flask, request, session, redirect, url_for
-from flask_login import LoginManager, login_user
+import pymysql
+from flask import Flask, request, session, redirect, url_for, render_template
+from flask_login import LoginManager, login_user, current_user, login_required
 from config import config
 from models import db, User
-# ★追加1：.env読み込み用のライブラリをインポート
 from dotenv import load_dotenv
 from datetime import timezone
 from zoneinfo import ZoneInfo
@@ -17,75 +17,117 @@ from Blueprints.share import share_bp
 from Blueprints.api import api_bp
 from Blueprints.admin import admin_bp
 
-# ★追加2：ここで.envファイルを強制的に読み込む！
-# これがないと、configが環境変数(DB情報)を見つけられません
+# .env読み込み
 load_dotenv()
 
 application = Flask(__name__)
 
+# ---------------------------------------------------
+# ミドルウェア（URL修正用）
+# ---------------------------------------------------
 class PrefixMiddleware(object):
     def __init__(self, app, prefix=''):
         self.app = app
         self.prefix = prefix
 
     def __call__(self, environ, start_response):
-        # もしURLが /errormate で始まっていたら、その部分をカットして整える
         if environ['PATH_INFO'].startswith(self.prefix):
             environ['PATH_INFO'] = environ['PATH_INFO'][len(self.prefix):]
             environ['SCRIPT_NAME'] = self.prefix
             return self.app(environ, start_response)
         else:
-            # Apacheがすでにカットしていた場合の保険
             environ['SCRIPT_NAME'] = self.prefix
             return self.app(environ, start_response)
 
-# アプリ全体にこの設定を適用する
 application.wsgi_app = PrefixMiddleware(application.wsgi_app, prefix='/errormate')
 
-# Moodleから ?username=xxx で来た人を受け取る場所
+# ---------------------------------------------------
+# Moodle通知取得関数
+# ---------------------------------------------------
+def get_moodle_notifications(username):
+    # MoodleのDB接続情報
+    connection = pymysql.connect(
+        host='errormate-db.csw63pcdluwh.us-east-1.rds.amazonaws.com',
+        user='admin',
+        password='Sukoyakana314',
+        database='moodle',
+        cursorclass=pymysql.cursors.DictCursor
+    )
+    try:
+        with connection.cursor() as cursor:
+            # SQL: ErrorMateのusernameとMoodleのusernameが一致する前提
+            sql = """
+            SELECT n.subject, n.smallmessage, n.timecreated
+            FROM mdl_notifications n
+            JOIN mdl_user u ON n.useridto = u.id
+            WHERE u.username = %s
+            AND n.timeread IS NULL
+            ORDER BY n.timecreated DESC
+            LIMIT 5
+            """
+            cursor.execute(sql, (username,))
+            result = cursor.fetchall()
+            return result
+    except Exception as e:
+        print(f"Moodle DB Error: {e}")
+        return [] # エラー時は空リストを返す
+    finally:
+        connection.close()
+
+# ---------------------------------------------------
+# コンテキストプロセッサ（全ページで通知変数を使えるようにする魔法）
+# ---------------------------------------------------
+@application.context_processor
+def inject_notifications():
+    notices = []
+    # ログインしている時だけMoodleを見に行く
+    if current_user.is_authenticated:
+        try:
+            # Userモデルのカラム名に合わせて修正 (user_name or name or username)
+            # auto_loginの記述を見ると 'user_name' のようです
+            notices = get_moodle_notifications(current_user.user_name)
+        except Exception as e:
+            print(f"Notification Error: {e}")
+    
+    # これでHTML側では {{ notices }} と書くだけで表示されます
+    return dict(notices=notices)
+
+
+# ---------------------------------------------------
+# 自動ログインルート
+# ---------------------------------------------------
 @application.route('/auto_login')
 def auto_login():
-    # 1. URLから ?username=xxx を受け取る
     target_username = request.args.get('username')
-
     if not target_username:
         return "エラー: ユーザー名が指定されていません"
 
-    # 2. データベースからそのユーザーを探す
-    # (あなたのDBのカラム名が 'name' なら .filter_by(name=...) にしてください)
     user = User.query.filter_by(user_name=target_username).first()
 
     if user:
-        # 3. ★ここが核心★ パスワード無視でログイン状態にする
         login_user(user)
-        
-        # 4. トップページ（ダッシュボード）へ転送
-        return redirect(url_for('index'))
+        return redirect(url_for('main.index')) # Blueprintの場合は 'main.index'
     else:
         return f"エラー: ユーザー '{target_username}' はシステムに登録されていません。"
-    
+
+# ---------------------------------------------------
+# フィルタ設定
+# ---------------------------------------------------
 @application.template_filter('jst')
 def jst(dt):
     if not dt:
         return ''
-    # DBにnaive(タイムゾーンなし)でUTC保存してる想定
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=timezone.utc)
-    # 表示だけJSTに
     return dt.astimezone(ZoneInfo("Asia/Tokyo")).strftime('%Y-%m-%d %H:%M')
 
-# 設定の読み込み
+# 設定読み込み
 application.config.from_object(config['default'])
 
-# 接続先確認（これで mysql+pymysql://... と表示されれば成功！）
-print("--------------------------------------------------") 
-print("★接続先:", application.config.get('SQLALCHEMY_DATABASE_URI')) 
-print("--------------------------------------------------")
-
-# データベースの初期化
+# DB初期化
 db.init_app(application)
 
-# ログインマネージャーの初期化
+# ログインマネージャー初期化
 login_manager = LoginManager()
 login_manager.init_app(application)
 login_manager.login_view = 'auth.login'
@@ -94,7 +136,7 @@ login_manager.login_view = 'auth.login'
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# Blueprintの登録
+# Blueprint登録
 application.register_blueprint(main_bp)
 application.register_blueprint(step_card_bp, url_prefix='/card')
 application.register_blueprint(auth_bp, url_prefix='/auth')
@@ -104,10 +146,15 @@ application.register_blueprint(share_bp, url_prefix='/share')
 application.register_blueprint(api_bp, url_prefix='/api')
 application.register_blueprint(admin_bp, url_prefix='/admin')
 
-# アプリ起動時にテーブルを作成
+# テーブル作成
 with application.app_context():
     db.create_all()
 
+# ---------------------------------------------------
+# 起動処理
+# ---------------------------------------------------
 if __name__ == '__main__':
-    # Cloud9用に、ポート8080 と ホスト0.0.0.0 を指定する
+    print("--------------------------------------------------") 
+    print("★接続先:", application.config.get('SQLALCHEMY_DATABASE_URI')) 
+    print("--------------------------------------------------")
     application.run(debug=True, port=8080, host='0.0.0.0')

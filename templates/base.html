@@ -32,6 +32,21 @@
         height="40"
         margin-left="20";>
     </a>
+    
+    <!--<div class="card">-->
+    <!--    <div class="card-header">Moodle通知</div>-->
+    <!--    <ul class="list-group list-group-flush">-->
+    <!--        {% for notice in notices %}-->
+    <!--            <li class="list-group-item">-->
+    <!--                <strong>{{ notice.subject }}</strong><br>-->
+    <!--                <small class="text-muted">{{ notice.timecreated | jst }}</small><br>-->
+    <!--                <small>{{ notice.smallmessage | safe }}</small>-->
+    <!--            </li>-->
+    <!--        {% else %}-->
+    <!--            <li class="list-group-item">新しい通知はありません</li>-->
+    <!--        {% endfor %}-->
+    <!--    </ul>-->
+    <!--</div>-->
 
         {# ここを追加（ユーザー名表示 / ログイン状態で切替） #}
         {% if current_user.is_authenticated %}
