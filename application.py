@@ -22,6 +22,7 @@ from Blueprints.personal import personal_bp
 from Blueprints.share import share_bp
 from Blueprints.api import api_bp
 from Blueprints.admin import admin_bp
+from Blueprints.lti import lti_bp
 
 # .env読み込み
 load_dotenv()
@@ -40,7 +41,7 @@ application.wsgi_app = ProxyFix(application.wsgi_app, x_proto=1, x_host=1)
 
 application.config['LTI_CONFIG'] = {
     'secret': {
-        'my_errormate_key': 'my_errormate_secret'
+        'my_errormate_key':  os.environ.get('LTI_SHARED_SECRET', '')
     },
     'writers': {
         'grade': False,
