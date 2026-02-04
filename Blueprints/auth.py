@@ -10,7 +10,7 @@ auth_bp = Blueprint('auth', __name__)
 @auth_bp.route('/login')
 def login():
     flash('現在はMoodle連携のみ利用可能です', 'error')
-    return redirect(url_for('index'))
+    return redirect(url_for('main.index'))
 
 
 # ------------------------------------------------------------
