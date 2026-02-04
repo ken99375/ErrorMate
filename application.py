@@ -37,18 +37,6 @@ application = Flask(__name__)
 # x_proto=1 は、手前のWebサーバー(Apache/Nginx)から「httpで来てるよ」という情報を受け取る設定です
 application.wsgi_app = ProxyFix(application.wsgi_app, x_proto=1, x_host=1)
 
-# ... (既存のLTI設定) ...
-
-application.config['LTI_CONFIG'] = {
-    'secret': {
-        'my_errormate_key':  os.environ['LTI_SHARED_SECRET']
-    },
-    'writers': {
-        'grade': False,
-        'submission': False
-    },
-    'is_secure': False  # ★重要: これを追加するとHTTPでも動きます
-}
 
 # application.config.update(
 #     LTI_CONSUMER_KEY='errormate',        # Moodleに登録した値
@@ -143,82 +131,6 @@ def lti_error(exception=None):
     ), 500
 
 
-# ② その後にルート
-@application.route('/lti/launch', methods=['POST'])
-# @lti(application, error=lti_error)
-# def lti_launch(lti):
-
-#     print("LTI LAUNCH CALLED")
-
-#     moodle_user_id = lti.user_id
-#     email = lti.lis_person_contact_email_primary
-#     fullname = lti.lis_person_name_full or "Moodle User"
-#     roles = (lti.roles or "").lower()
-#     course_id = lti.context_id
-
-#     if not moodle_user_id:
-#         return "LTI user_id missing", 400
-
-#     # --- ロール判定（ベストプラクティス） ---
-#     if "instructor" in roles or "teacher" in roles:
-#         role = "teacher"
-#     elif "learner" in roles or "student" in roles:
-#         role = "student"
-#     else:
-#         role = "guest"
-
-#     # --- ユーザー取得 or 作成 ---
-#     user = User.query.filter_by(moodle_user_id=moodle_user_id).first()
-
-#     if not user:
-#         user = User(
-#             moodle_user_id=moodle_user_id,
-#             mail=email,
-#             username=fullname,
-#             role=role
-#         )
-#         db.session.add(user)
-#     else:
-#         # Moodle側で名前やメールが変わることがあるので更新
-#         user.mail = email
-#         user.username = fullname
-#         user.role = role
-
-#     db.session.commit()
-
-#     # --- ここ重要：セッション固定攻撃対策 ---
-#     login_user(user, fresh=True)
-
-#     print(f"LOGIN SUCCESS: {user.username} ({user.role}) from course {course_id}")
-
-#     return redirect(url_for('main.index'))
-# def lti_launch():
-    
-#     from flask import request
-#     print("method:", request.method)
-#     print("url:", request.url)
-#     print("base_url:", request.base_url)
-#     print("headers host:", request.headers.get("Host"))
-#     print("headers x-forwarded-proto:", request.headers.get("X-Forwarded-Proto"))
-
-
-#     from flask import request
-#     print("===== RAW LTI POST DATA =====")
-#     for k, v in request.form.items():
-#         print(k, "=", v)
-#     print("===== END =====")
-
-#     return "DEBUG OK"
-@lti(application, error=lti_error)
-def lti_launch(lti):
-    print("LTI LAUNCH VERIFIED")
-    print("user_id:", lti.user_id)
-    print("roles:", lti.roles)
-    print("context_id:", lti.context_id)
-    return redirect(url_for('main.index'))
-
-
-
 # ---------------------------------------------------
 # 自動ログインルート (廃止推奨)
 # ---------------------------------------------------
@@ -241,6 +153,18 @@ def jst(dt):
     return dt.astimezone(ZoneInfo("Asia/Tokyo")).strftime('%Y-%m-%d %H:%M')
 
 application.config.from_object(config['default'])
+
+# ... (既存のLTI設定) ...
+
+application.config['LTI_CONFIG'] = {
+    'consumers': {
+        'my_errormate_key': {
+            'secret': 'my_errormate_secret'
+        }
+    },
+    'is_secure': False  # HTTPの場合は必須
+}
+
 
 db.init_app(application)
 migrate = Migrate(application, db)
