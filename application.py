@@ -191,24 +191,30 @@ def lti_error(exception=None):
 #     print(f"LOGIN SUCCESS: {user.username} ({user.role}) from course {course_id}")
 
 #     return redirect(url_for('main.index'))
-def lti_launch():
+# def lti_launch():
     
-    from flask import request
-    print("method:", request.method)
-    print("url:", request.url)
-    print("base_url:", request.base_url)
-    print("headers host:", request.headers.get("Host"))
-    print("headers x-forwarded-proto:", request.headers.get("X-Forwarded-Proto"))
+#     from flask import request
+#     print("method:", request.method)
+#     print("url:", request.url)
+#     print("base_url:", request.base_url)
+#     print("headers host:", request.headers.get("Host"))
+#     print("headers x-forwarded-proto:", request.headers.get("X-Forwarded-Proto"))
 
 
-    from flask import request
-    print("===== RAW LTI POST DATA =====")
-    for k, v in request.form.items():
-        print(k, "=", v)
-    print("===== END =====")
+#     from flask import request
+#     print("===== RAW LTI POST DATA =====")
+#     for k, v in request.form.items():
+#         print(k, "=", v)
+#     print("===== END =====")
 
-    return "DEBUG OK"
-
+#     return "DEBUG OK"
+@lti(application, error=lti_error)
+def lti_launch(lti):
+    print("LTI LAUNCH VERIFIED")
+    print("user_id:", lti.user_id)
+    print("roles:", lti.roles)
+    print("context_id:", lti.context_id)
+    return redirect(url_for('main.index'))
 
 
 
