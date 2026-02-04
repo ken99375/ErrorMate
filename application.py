@@ -50,10 +50,10 @@ application.config['LTI_CONFIG'] = {
     'is_secure': False  # ★重要: これを追加するとHTTPでも動きます
 }
 
-application.config.update(
-    LTI_CONSUMER_KEY='errormate',        # Moodleに登録した値
-    LTI_SHARED_SECRET='your_secret_here' # Moodleと同じ値
-)
+# application.config.update(
+#     LTI_CONSUMER_KEY='errormate',        # Moodleに登録した値
+#     LTI_SHARED_SECRET='your_secret_here' # Moodleと同じ値
+# )
 
 # ---------------------------------------------------
 # ミドルウェア（URL修正用）
