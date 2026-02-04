@@ -261,6 +261,8 @@ application.register_blueprint(personal_bp, url_prefix='/personal')
 application.register_blueprint(share_bp, url_prefix='/share')
 application.register_blueprint(api_bp, url_prefix='/api')
 application.register_blueprint(admin_bp, url_prefix='/admin')
+application.register_blueprint(lti_bp, url_prefix='/lti')
+
 
 with application.app_context():
     db.create_all()

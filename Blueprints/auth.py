@@ -20,4 +20,4 @@ def login():
 def logout():
     session.clear()
     flash('ログアウトしました', 'success')
-    return redirect(url_for('index'))
+    return redirect(url_for('main.index'))
