@@ -130,7 +130,7 @@ def inject_notifications():
 
 # ---------------------------------------------------
 # LTI ログインルート (ここを追加・修正)
-@application.route('/lti/launch', methods=['POST'])
+
 def lti_error(exception=None):
     print("====== LTI ERROR START ======")
     print(exception)
@@ -192,6 +192,14 @@ def lti_error(exception=None):
 
 #     return redirect(url_for('main.index'))
 def lti_launch():
+    
+    from flask import request
+    print("method:", request.method)
+    print("url:", request.url)
+    print("base_url:", request.base_url)
+    print("headers host:", request.headers.get("Host"))
+    print("headers x-forwarded-proto:", request.headers.get("X-Forwarded-Proto"))
+
 
     from flask import request
     print("===== RAW LTI POST DATA =====")
