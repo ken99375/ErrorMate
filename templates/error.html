@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>エラーが発生しました</title>
+    <style>
+        body { font-family: sans-serif; padding: 2rem; text-align: center; }
+        .error-box { background: #ffebee; border: 1px solid #ffcdd2; color: #b71c1c; padding: 20px; border-radius: 5px; display: inline-block; }
+        a { color: #0d47a1; }
+    </style>
+</head>
+<body>
+    <div class="error-box">
+        <h2>システムエラー</h2>
+        <p>{{ message }}</p>
+        {% if exception %}
+            <p><small>詳細: {{ exception }}</small></p>
+        {% endif %}
+    </div>
+    <p>
+        <a href="{{ url_for('main.index') }}">トップページへ戻る</a>
+    </p>
+</body>
+</html>

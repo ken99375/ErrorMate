@@ -16,13 +16,11 @@ class User(UserMixin, db.Model):
     """ユーザテーブル (設計書: USER)"""
     __tablename__ = 'users'
 
-    user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_name = db.Column(db.String(255), nullable=False)
-    mail = db.Column(db.String(50), nullable=False, unique=True)
-    first_name = db.Column(db.String(50))
-    last_name = db.Column(db.String(50))
-    password_hash = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.String(50), nullable=False, default='student')
+    user_id = db.Column(db.Integer, primary_key=True)
+    moodle_user_id = db.Column(db.Integer, unique=True, nullable=True)
+    username = db.Column(db.String(100), nullable=True)
+    mail = db.Column(db.String(255), nullable=False)
+    role = db.Column(db.String(50), nullable=True)
 
     # リレーションシップ
     cards = db.relationship('StepCard', backref='author', lazy=True)
@@ -31,16 +29,16 @@ class User(UserMixin, db.Model):
     def get_id(self):
         return str(self.user_id)
 
-    @property
-    def password(self):
-        raise AttributeError('password is not a readable attribute')
+    # @property
+    # def password(self):
+    #     raise AttributeError('password is not a readable attribute')
 
-    @password.setter
-    def password(self, password):
-        self.password_hash = generate_password_hash(password)
+    # @password.setter
+    # def password(self, password):
+    #     self.password_hash = generate_password_hash(password)
 
     def verify_password(self, password):
-        return check_password_hash(self.password_hash, password)
+        raise RuntimeError("Password authentication is disabled. Use Moodle LTI.")
 
 
 # ステップカードとタグの中間テーブル

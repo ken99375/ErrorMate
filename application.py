@@ -1,6 +1,12 @@
 import pymysql
-from flask import Flask, request, session, redirect, url_for, render_template
+import uuid
+import os # 環境変数用に追加
+from flask import Flask, request, session, redirect, url_for, render_template, flash
 from flask_login import LoginManager, login_user, current_user, login_required
+from flask_migrate import Migrate
+from werkzeug.security import generate_password_hash # パスワード生成用に追加
+from werkzeug.middleware.proxy_fix import ProxyFix
+from pylti.flask import lti # LTI用に追加
 from config import config
 from models import db, User
 from dotenv import load_dotenv
@@ -21,6 +27,32 @@ from Blueprints.admin import admin_bp
 load_dotenv()
 
 application = Flask(__name__)
+
+# ---------------------------------------------------
+# ★追加: プロキシ対応 (HTTPSとして認識させる)
+# AWS ELBやCloud9の背後で動く場合に必須です
+# ---------------------------------------------------
+
+# x_proto=1 は、手前のWebサーバー(Apache/Nginx)から「httpで来てるよ」という情報を受け取る設定です
+application.wsgi_app = ProxyFix(application.wsgi_app, x_proto=1, x_host=1)
+
+# ... (既存のLTI設定) ...
+
+application.config['LTI_CONFIG'] = {
+    'secret': {
+        'my_errormate_key': 'my_errormate_secret'
+    },
+    'writers': {
+        'grade': False,
+        'submission': False
+    },
+    'is_secure': False  # ★重要: これを追加するとHTTPでも動きます
+}
+
+application.config.update(
+    LTI_CONSUMER_KEY='errormate',        # Moodleに登録した値
+    LTI_SHARED_SECRET='your_secret_here' # Moodleと同じ値
+)
 
 # ---------------------------------------------------
 # ミドルウェア（URL修正用）
@@ -45,15 +77,20 @@ application.wsgi_app = PrefixMiddleware(application.wsgi_app, prefix='/errormate
 # Moodle通知取得関数
 # ---------------------------------------------------
 def get_moodle_notifications(username):
-    # MoodleのDB接続情報
-    connection = pymysql.connect(
-        host='errormate-db.csw63pcdluwh.us-east-1.rds.amazonaws.com',
-        user='admin',
-        password='Sukoyakana314',
-        database='moodle',
-        cursorclass=pymysql.cursors.DictCursor
-    )
+    # セキュリティ向上: 環境変数から取得するように変更推奨
+    db_host = 'errormate-db.csw63pcdluwh.us-east-1.rds.amazonaws.com'
+    db_user = 'admin'
+    db_password = os.environ.get('MOODLE_DB_PASSWORD', 'Sukoyakana314') # .envになければデフォルト使用
+
     try:
+        connection = pymysql.connect(
+            host=db_host,
+            user=db_user,
+            password=db_password,
+            database='moodle',
+            cursorclass=pymysql.cursors.DictCursor,
+            connect_timeout=5
+        )
         with connection.cursor() as cursor:
             # SQL: ErrorMateのusernameとMoodleのusernameが一致する前提
             sql = """
@@ -70,48 +107,115 @@ def get_moodle_notifications(username):
             return result
     except Exception as e:
         print(f"Moodle DB Error: {e}")
-        return [] # エラー時は空リストを返す
+        return [] 
     finally:
-        connection.close()
+        # connectionが未定義の場合のエラーを防ぐ
+        if 'connection' in locals() and connection.open:
+            connection.close()
 
 # ---------------------------------------------------
-# コンテキストプロセッサ（全ページで通知変数を使えるようにする魔法）
+# コンテキストプロセッサ
 # ---------------------------------------------------
 @application.context_processor
 def inject_notifications():
     notices = []
-    # ログインしている時だけMoodleを見に行く
     if current_user.is_authenticated:
         try:
-            # Userモデルのカラム名に合わせて修正 (user_name or name or username)
-            # auto_loginの記述を見ると 'user_name' のようです
+            # 注意: LTIで作成されたユーザーの user_name が Moodleの username と一致している必要があります
             notices = get_moodle_notifications(current_user.user_name)
         except Exception as e:
             print(f"Notification Error: {e}")
-    
-    # これでHTML側では {{ notices }} と書くだけで表示されます
     return dict(notices=notices)
 
 
 # ---------------------------------------------------
-# 自動ログインルート
+# LTI ログインルート (ここを追加・修正)
+@application.route('/lti/launch', methods=['POST'])
+def lti_error(exception=None):
+    print("====== LTI ERROR START ======")
+    print(exception)
+    print("====== LTI ERROR END ======")
+    return render_template(
+        'error.html',
+        message="LTI認証エラーが発生しました。",
+        exception=exception
+    ), 500
+
+
+# ② その後にルート
+@application.route('/lti/launch', methods=['POST'])
+# @lti(application, error=lti_error)
+# def lti_launch(lti):
+
+#     print("LTI LAUNCH CALLED")
+
+#     moodle_user_id = lti.user_id
+#     email = lti.lis_person_contact_email_primary
+#     fullname = lti.lis_person_name_full or "Moodle User"
+#     roles = (lti.roles or "").lower()
+#     course_id = lti.context_id
+
+#     if not moodle_user_id:
+#         return "LTI user_id missing", 400
+
+#     # --- ロール判定（ベストプラクティス） ---
+#     if "instructor" in roles or "teacher" in roles:
+#         role = "teacher"
+#     elif "learner" in roles or "student" in roles:
+#         role = "student"
+#     else:
+#         role = "guest"
+
+#     # --- ユーザー取得 or 作成 ---
+#     user = User.query.filter_by(moodle_user_id=moodle_user_id).first()
+
+#     if not user:
+#         user = User(
+#             moodle_user_id=moodle_user_id,
+#             mail=email,
+#             username=fullname,
+#             role=role
+#         )
+#         db.session.add(user)
+#     else:
+#         # Moodle側で名前やメールが変わることがあるので更新
+#         user.mail = email
+#         user.username = fullname
+#         user.role = role
+
+#     db.session.commit()
+
+#     # --- ここ重要：セッション固定攻撃対策 ---
+#     login_user(user, fresh=True)
+
+#     print(f"LOGIN SUCCESS: {user.username} ({user.role}) from course {course_id}")
+
+#     return redirect(url_for('main.index'))
+def lti_launch():
+
+    from flask import request
+    print("===== RAW LTI POST DATA =====")
+    for k, v in request.form.items():
+        print(k, "=", v)
+    print("===== END =====")
+
+    return "DEBUG OK"
+
+
+
+
 # ---------------------------------------------------
-@application.route('/auto_login')
-def auto_login():
-    target_username = request.args.get('username')
-    if not target_username:
-        return "エラー: ユーザー名が指定されていません"
+# 自動ログインルート (廃止推奨)
+# ---------------------------------------------------
+# セキュリティリスクが高いため、LTI稼働後はコメントアウトまたは削除してください
+# @application.route('/auto_login')
+# def auto_login():
+#     target_username = request.args.get('username')
+#     # ... (省略) ...
 
-    user = User.query.filter_by(user_name=target_username).first()
-
-    if user:
-        login_user(user)
-        return redirect(url_for('main.index')) # Blueprintの場合は 'main.index'
-    else:
-        return f"エラー: ユーザー '{target_username}' はシステムに登録されていません。"
 
 # ---------------------------------------------------
-# フィルタ設定
+# フィルタ設定・初期化
 # ---------------------------------------------------
 @application.template_filter('jst')
 def jst(dt):
@@ -121,16 +225,14 @@ def jst(dt):
         dt = dt.replace(tzinfo=timezone.utc)
     return dt.astimezone(ZoneInfo("Asia/Tokyo")).strftime('%Y-%m-%d %H:%M')
 
-# 設定読み込み
 application.config.from_object(config['default'])
 
-# DB初期化
 db.init_app(application)
-
-# ログインマネージャー初期化
+migrate = Migrate(application, db)
 login_manager = LoginManager()
 login_manager.init_app(application)
 login_manager.login_view = 'auth.login'
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -146,7 +248,6 @@ application.register_blueprint(share_bp, url_prefix='/share')
 application.register_blueprint(api_bp, url_prefix='/api')
 application.register_blueprint(admin_bp, url_prefix='/admin')
 
-# テーブル作成
 with application.app_context():
     db.create_all()
 
