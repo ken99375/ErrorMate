@@ -1,6 +1,7 @@
 from flask import (
     Blueprint, redirect, url_for, flash, session
 )
+from flask_login import logout_user
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -9,15 +10,15 @@ auth_bp = Blueprint('auth', __name__)
 # ------------------------------------------------------------
 @auth_bp.route('/login')
 def login():
-    flash('現在はMoodle連携のみ利用可能です', 'error')
-    return redirect(url_for('main.index'))
-
-
+    return "Moodle(LTI)から起動してください", 401
+    
+    
 # ------------------------------------------------------------
 # ログアウト
 # ------------------------------------------------------------
 @auth_bp.route('/logout')
 def logout():
+    logout_user()
     session.clear()
     flash('ログアウトしました', 'success')
     return redirect(url_for('main.index'))
