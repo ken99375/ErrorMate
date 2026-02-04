@@ -41,7 +41,7 @@ application.wsgi_app = ProxyFix(application.wsgi_app, x_proto=1, x_host=1)
 
 application.config['LTI_CONFIG'] = {
     'secret': {
-        'my_errormate_key':  os.environ.get('LTI_SHARED_SECRET', '')
+        'my_errormate_key':  os.environ['LTI_SHARED_SECRET']
     },
     'writers': {
         'grade': False,
