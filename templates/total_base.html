@@ -49,14 +49,29 @@
 <div class="personal-shell">
     <!-- 左メニュー -->
     <aside class="personal-sidebar">
-        <nav>
-            <a href=".html" data-key="total_errors"
-                class="{{ 'active' if active_key=='total_errors' else '' }}">総エラー発生回数</a>
-            <a href=".html" data-key="error_types"
-                class="{{ 'active' if active_key=='error_types' else '' }}">エラー種別分布</a>
-            <a href=".html" data-key="comment_total"
-                class="{{ 'active' if active_key=='comment_total' else '' }}">コメント総数</a>
-</nav>
+
+    <nav>
+      <a href="{{ url_for('total.stepcard_post_ranking') }}"
+         class="{{ 'active' if active_key=='stepcard_post_ranking' else '' }}">
+        ステップカード投稿数
+      </a>
+    
+      <a href="{{ url_for('total.comment_post_ranking') }}"
+         class="{{ 'active' if active_key=='comment_post_ranking' else '' }}">
+        コメント送信数
+      </a>
+    
+      <a href="{{ url_for('total.comment_reception_ranking') }}"
+         class="{{ 'active' if active_key=='comment_reception_ranking' else '' }}">
+        コメント受信数
+      </a>
+    
+      <a href="{{ url_for('total.total_errors') }}"
+         class="{{ 'active' if active_key=='total_errors' else '' }}">
+        総エラー発生回数
+      </a>
+    </nav>
+
 
     </aside>
         <!-- 各ページ固有コンテンツ -->

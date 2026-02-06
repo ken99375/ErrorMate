@@ -109,11 +109,13 @@
             <a href="{{ url_for('share.share_help_card_list') }}">・ヘルプ要求カード</a>
         </div>
         <div class="menu-section">
-            <span class="menu-title">全体分析</span>
-            <a href="#">・総エラー発生回数</a>
-            <a href="#">・エラー種別分布</a>
-            <a href="#">・コメント総数</a>
+          <span class="menu-title">全体分析</span>
+            <a href="{{ url_for('total.stepcard_post_ranking') }}">・ステップカード投稿数</a>
+            <a href="{{ url_for('total.comment_post_ranking') }}">・コメント送信数</a>
+            <a href="{{ url_for('total.comment_reception_ranking') }}">・コメント受信数</a>
+            <a href="{{ url_for('total.total_errors') }}">・総エラー発生回数</a>
         </div>
+
         </nav>
         {% endif %}
         

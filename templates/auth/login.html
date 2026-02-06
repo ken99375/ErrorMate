@@ -1,42 +1,182 @@
-<!-- 本来はMoodleからのログインになるが、開発段階はauthからとする。-->
-<!--適当でいいのでGPTで作成する-->
-
-{% extends 'base.html' %}
-
-{% block title %}ログイン - ErrorMate{% endblock %}
+{% extends "base.html" %}
+{% block title %}ログイン{% endblock %}
 
 {% block content %}
-<div class="auth-container">
+<style>
+  /* ---- Auth page styling (login) ---- */
+  .auth-page {
+    min-height: calc(100vh - 120px); /* header/footerがある前提のゆる調整 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+    background:
+      radial-gradient(1200px 600px at 10% 10%, rgba(99, 102, 241, .18), transparent 60%),
+      radial-gradient(1200px 600px at 90% 20%, rgba(16, 185, 129, .14), transparent 60%),
+      radial-gradient(1000px 600px at 50% 100%, rgba(59, 130, 246, .12), transparent 60%),
+      linear-gradient(180deg, rgba(240, 253, 250, 1), rgba(236, 254, 255, 1));
+  }
 
-  <p>Moodleでのログインになるため、ここにこだわりはない</p>
-    <h2>ログイン</h2>
+  .auth-card {
+    width: min(720px, 94vw);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, .78);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(15, 23, 42, .08);
+    box-shadow:
+      0 20px 60px rgba(2, 6, 23, .10),
+      0 1px 0 rgba(255, 255, 255, .6) inset;
+    overflow: hidden;
+  }
 
-    <!-- フラッシュメッセージの表示エリア -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <ul class="flashes">
-        {% for category, message in messages %}
-          <li class="flash-{{ category }}">{{ message }}</li>
-        {% endfor %}
-        </ul>
+  .auth-card__header {
+    padding: 26px 28px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .auth-badge {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(59,130,246,1), rgba(99,102,241,1));
+    box-shadow: 0 10px 20px rgba(59,130,246,.22);
+  }
+
+  .auth-title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 800;
+    color: rgba(15, 23, 42, .92);
+    letter-spacing: .02em;
+  }
+
+  .auth-subtitle {
+    margin: 0;
+    padding: 0 28px 18px;
+    font-size: 13px;
+    color: rgba(15, 23, 42, .60);
+  }
+
+  .auth-card__body {
+    padding: 18px 28px 26px;
+  }
+
+  .auth-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .auth-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: rgba(15, 23, 42, .78);
+    margin-bottom: 6px;
+  }
+
+  .auth-input {
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid rgba(15, 23, 42, .14);
+    background: rgba(255,255,255,.92);
+    padding: 12px 14px;
+    outline: none;
+    transition: box-shadow .2s ease, border-color .2s ease, transform .06s ease;
+  }
+
+  .auth-input:focus {
+    border-color: rgba(59,130,246,.55);
+    box-shadow: 0 0 0 4px rgba(59,130,246,.18);
+  }
+
+  .auth-actions {
+    margin-top: 10px;
+    display: grid;
+    gap: 10px;
+  }
+
+  .auth-btn {
+    width: 100%;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-weight: 800;
+    color: white;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 1), rgba(99, 102, 241, 1));
+    box-shadow: 0 14px 26px rgba(37,99,235,.22);
+    transition: transform .08s ease, box-shadow .2s ease, filter .2s ease;
+  }
+
+  .auth-btn:hover { filter: brightness(1.02); }
+  .auth-btn:active { transform: translateY(1px); box-shadow: 0 10px 20px rgba(37,99,235,.18); }
+
+  .auth-footer {
+    padding: 16px 28px 22px;
+    border-top: 1px solid rgba(15, 23, 42, .08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 13px;
+    color: rgba(15, 23, 42, .62);
+  }
+
+  .auth-link {
+    color: rgba(37, 99, 235, 1);
+    text-decoration: none;
+    font-weight: 800;
+  }
+  .auth-link:hover { text-decoration: underline; }
+
+  .auth-alert {
+    border-radius: 12px;
+    padding: 12px 14px;
+    background: rgba(239, 68, 68, .10);
+    border: 1px solid rgba(239, 68, 68, .20);
+    color: rgba(127, 29, 29, .95);
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+</style>
+
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-card__header">
+      <div class="auth-badge" aria-hidden="true"></div>
+      <h2 class="auth-title">ログイン</h2>
+    </div>
+    <p class="auth-subtitle">メールアドレスとパスワードを入力してください。</p>
+
+    <div class="auth-card__body">
+      {% if error %}
+        <div class="auth-alert">{{ error }}</div>
       {% endif %}
-    {% endwith %}
 
-    <form method="post" class="auth-form">
-        <div class="form-group">
-            <label for="mail">メールアドレス</label>
-            <input type="email" id="mail" name="mail" required placeholder="example@school.ac.jp">
-        </div>
-        <div class="form-group">
-            <label for="password">パスワード</label>
-            <input type="password" id="password" name="password" required placeholder="パスワードを入力">
-        </div>
-        <button type="submit" class="btn-primary">ログイン</button>
-    </form>
+      <form method="post" action="{{ url_for('auth.login') }}">
+        <div class="auth-grid">
+          <div>
+            <label class="auth-label" for="mail">メールアドレス</label>
+            <input class="auth-input" type="email" id="mail" name="mail" required autocomplete="email">
+          </div>
 
-    <p class="auth-link">
-        アカウントをお持ちでない方は <a href="{{ url_for('auth.signup') }}">こちらから登録（開発用）</a>
-    </p>
-    <p class="dev-info">※テスト用アカウント: 作成したユーザーでログインしてください</p>
+          <div>
+            <label class="auth-label" for="password">パスワード</label>
+            <input class="auth-input" type="password" id="password" name="password" required autocomplete="current-password">
+          </div>
+        </div>
+
+        <div class="auth-actions">
+          <button class="auth-btn" type="submit">ログイン</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="auth-footer">
+      <span>アカウントがない場合：</span>
+      <a class="auth-link" href="{{ url_for('auth.signup') }}">ユーザ新規登録</a>    </div>
+  </div>
 </div>
 {% endblock %}

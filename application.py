@@ -1,192 +1,144 @@
-import pymysql
-import uuid
-import os # 環境変数用に追加
-from flask import Flask, request, session, redirect, url_for, render_template, flash
-from flask_login import LoginManager, login_user, current_user, login_required
-from flask_migrate import Migrate
-from werkzeug.security import generate_password_hash # パスワード生成用に追加
-from werkzeug.middleware.proxy_fix import ProxyFix
-from pylti.flask import lti # LTI用に追加
-from config import config
-from models import db, User
+import os
 from dotenv import load_dotenv
+
+from flask import Flask
+from flask_login import LoginManager
+from flask_migrate import Migrate
+from werkzeug.middleware.proxy_fix import ProxyFix
 from datetime import timezone
 from zoneinfo import ZoneInfo
+from models import User
 
-# Blueprintのインポート
+import os
+from flask import Flask
+from dotenv import load_dotenv
+
+# ★ .env は最初に読む（configがenv参照する可能性があるので）
+load_dotenv()
+
+from config import config
+from extensions import db
+
+application = Flask(__name__)
+
+# ★ 先にconfigを載せる（DB URI もここで入る想定）
+application.config.from_object(config["default"])
+
+# SECRET_KEY（なければ開発用）
+application.config["SECRET_KEY"] = os.environ.get(
+    "FLASK_SECRET",
+    application.config.get("SECRET_KEY", "dev-secret-key")
+)
+
+# 開発用 dev-login を使うか（auth.py 側で参照）
+application.config["ENABLE_DEV_LOGIN"] = os.environ.get("ENABLE_DEV_LOGIN", "0") == "1"
+
+# ★ 念のため：DB URI が入ってるかチェック（未設定ならここで落とす）
+if not application.config.get("SQLALCHEMY_DATABASE_URI") and not application.config.get("SQLALCHEMY_BINDS"):
+    raise RuntimeError("DB設定が未設定です。SQLALCHEMY_DATABASE_URI / BINDS を config または環境変数で設定してください。")
+
+# ★ ここで初めて db をアプリに紐づける
+db.init_app(application)
+
+# ★ テーブル定義を登録（db.init_app後）
+import models  # noqa: F401
+
+# Blueprint は（できれば）この後に import/register すると事故りにくい
 from Blueprints.main import main_bp
 from Blueprints.auth import auth_bp
 from Blueprints.step_card import step_card_bp
 from Blueprints.help import help_bp
 from Blueprints.personal import personal_bp
 from Blueprints.share import share_bp
+from Blueprints.total import total_bp
 from Blueprints.api import api_bp
-from Blueprints.admin import admin_bp
-from Blueprints.lti import lti_bp
-
-# .env読み込み
-load_dotenv()
-
-application = Flask(__name__)
 
 # ---------------------------------------------------
-# ★追加: プロキシ対応 (HTTPSとして認識させる)
-# AWS ELBやCloud9の背後で動く場合に必須です
+# プロキシ対応（必要なら）
 # ---------------------------------------------------
-
-# x_proto=1 は、手前のWebサーバー(Apache/Nginx)から「httpで来てるよ」という情報を受け取る設定です
-application.wsgi_app = ProxyFix(application.wsgi_app, x_proto=1, x_host=1)
-
-
-# application.config.update(
-#     LTI_CONSUMER_KEY='errormate',        # Moodleに登録した値
-#     LTI_SHARED_SECRET='your_secret_here' # Moodleと同じ値
-# )
+application.wsgi_app = ProxyFix(
+    application.wsgi_app,
+    x_proto=1,
+    x_host=1,
+    x_for=1,
+    x_prefix=1
+)
 
 # ---------------------------------------------------
-# ミドルウェア（URL修正用）
+# ミドルウェア（/errormate プレフィックス）
 # ---------------------------------------------------
-class PrefixMiddleware(object):
-    def __init__(self, app, prefix=''):
+class PrefixMiddleware:
+    def __init__(self, app, prefix=""):
         self.app = app
         self.prefix = prefix
 
     def __call__(self, environ, start_response):
-        if environ['PATH_INFO'].startswith(self.prefix):
-            environ['PATH_INFO'] = environ['PATH_INFO'][len(self.prefix):]
-            environ['SCRIPT_NAME'] = self.prefix
+        if environ.get("PATH_INFO", "").startswith(self.prefix):
+            environ["PATH_INFO"] = environ["PATH_INFO"][len(self.prefix):]
+            environ["SCRIPT_NAME"] = self.prefix
             return self.app(environ, start_response)
         else:
-            environ['SCRIPT_NAME'] = self.prefix
+            # /errormate 以外で来ても SCRIPT_NAME は付与しておく
+            environ["SCRIPT_NAME"] = self.prefix
             return self.app(environ, start_response)
 
-application.wsgi_app = PrefixMiddleware(application.wsgi_app, prefix='/errormate')
+application.wsgi_app = PrefixMiddleware(application.wsgi_app, prefix="/errormate")
+
+
+@application.template_filter("jst")
+def jst(dt):
+    """
+    UTC/naiveなdatetimeを Asia/Tokyo 表示に変換して文字列化する
+    """
+    if not dt:
+        return ""
+    # naiveならUTC扱いにする（DBによりnaiveで来がち）
+    if getattr(dt, "tzinfo", None) is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(ZoneInfo("Asia/Tokyo")).strftime("%Y-%m-%d %H:%M")
+
 
 # ---------------------------------------------------
-# Moodle通知取得関数
-# ---------------------------------------------------
-def get_moodle_notifications(username):
-    # セキュリティ向上: 環境変数から取得するように変更推奨
-    db_host = 'errormate-db.csw63pcdluwh.us-east-1.rds.amazonaws.com'
-    db_user = 'admin'
-    db_password = os.environ.get('MOODLE_DB_PASSWORD', 'Sukoyakana314') # .envになければデフォルト使用
-
-    try:
-        connection = pymysql.connect(
-            host=db_host,
-            user=db_user,
-            password=db_password,
-            database='moodle',
-            cursorclass=pymysql.cursors.DictCursor,
-            connect_timeout=5
-        )
-        with connection.cursor() as cursor:
-            # SQL: ErrorMateのusernameとMoodleのusernameが一致する前提
-            sql = """
-            SELECT n.subject, n.smallmessage, n.timecreated
-            FROM mdl_notifications n
-            JOIN mdl_user u ON n.useridto = u.id
-            WHERE u.username = %s
-            AND n.timeread IS NULL
-            ORDER BY n.timecreated DESC
-            LIMIT 5
-            """
-            cursor.execute(sql, (username,))
-            result = cursor.fetchall()
-            return result
-    except Exception as e:
-        print(f"Moodle DB Error: {e}")
-        return [] 
-    finally:
-        # connectionが未定義の場合のエラーを防ぐ
-        if 'connection' in locals() and connection.open:
-            connection.close()
-
-# ---------------------------------------------------
-# コンテキストプロセッサ
+# 「notices」をテンプレに渡すだけ（Moodle通知は完全に無効化）
 # ---------------------------------------------------
 @application.context_processor
 def inject_notifications():
-    notices = []
-    if current_user.is_authenticated:
-        try:
-            # 注意: LTIで作成されたユーザーの user_name が Moodleの username と一致している必要があります
-            notices = get_moodle_notifications(current_user.user_name)
-        except Exception as e:
-            print(f"Notification Error: {e}")
-    return dict(notices=notices)
-
+    return dict(notices=[])
 
 # ---------------------------------------------------
-# LTI ログインルート (ここを追加・修正)
-
-def lti_error(exception=None):
-    print("====== LTI ERROR START ======")
-    print(exception)
-    print("====== LTI ERROR END ======")
-    return render_template(
-        'error.html',
-        message="LTI認証エラーが発生しました。",
-        exception=exception
-    ), 500
-
-
+# DB / migrate / login
 # ---------------------------------------------------
-# フィルタ設定・初期化
-# ---------------------------------------------------
-@application.template_filter('jst')
-def jst(dt):
-    if not dt:
-        return ''
-    if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
-    return dt.astimezone(ZoneInfo("Asia/Tokyo")).strftime('%Y-%m-%d %H:%M')
-
-application.config.from_object(config['default'])
-
-# ... (既存のLTI設定) ...
-
-application.config['LTI_CONFIG'] = {
-    'consumers': {
-        'my_errormate_key': {
-            'secret': 'my_errormate_secret'
-        }
-    },
-    'is_secure': False  # HTTPの場合は必須
-}
-
-
-db.init_app(application)
 migrate = Migrate(application, db)
+
 login_manager = LoginManager()
 login_manager.init_app(application)
-login_manager.login_view = 'auth.login'
-
+login_manager.login_view = "auth.login"   # Blueprint endpoint
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# Blueprint登録
+# ---------------------------------------------------
+# Blueprint登録（単体運用）
+# ---------------------------------------------------
 application.register_blueprint(main_bp)
-application.register_blueprint(step_card_bp, url_prefix='/card')
-application.register_blueprint(auth_bp, url_prefix='/auth')
-application.register_blueprint(help_bp, url_prefix='/help')
-application.register_blueprint(personal_bp, url_prefix='/personal')
-application.register_blueprint(share_bp, url_prefix='/share')
-application.register_blueprint(api_bp, url_prefix='/api')
-application.register_blueprint(admin_bp, url_prefix='/admin')
-application.register_blueprint(lti_bp, url_prefix='/lti')
+application.register_blueprint(step_card_bp, url_prefix="/card")
+application.register_blueprint(auth_bp, url_prefix="/auth")
+application.register_blueprint(help_bp, url_prefix="/help")
+application.register_blueprint(personal_bp, url_prefix="/personal")
+application.register_blueprint(share_bp, url_prefix="/share")
+application.register_blueprint(total_bp, url_prefix="/total")
+application.register_blueprint(api_bp, url_prefix="/api")
 
-
+# テーブル作成（既存DBは壊さない：不足分のみ作られる）
 with application.app_context():
     db.create_all()
 
 # ---------------------------------------------------
 # 起動処理
 # ---------------------------------------------------
-if __name__ == '__main__':
-    print("--------------------------------------------------") 
-    print("★接続先:", application.config.get('SQLALCHEMY_DATABASE_URI')) 
+if __name__ == "__main__":
     print("--------------------------------------------------")
-    application.run(debug=True, port=8080, host='0.0.0.0')
+    print("★接続先:", application.config.get("SQLALCHEMY_DATABASE_URI"))
+    print("--------------------------------------------------")
+    application.run(debug=True, port=8080, host="0.0.0.0")

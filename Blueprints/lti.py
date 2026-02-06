@@ -1,63 +1,106 @@
-# Blueprints/lti.py
-from flask import (
-    Blueprint, request, redirect,
-    url_for, render_template
+import os
+from flask import Blueprint, request, redirect, url_for, jsonify, session
+from pylti1p3.contrib.flask import (
+    FlaskOIDCLogin,
+    FlaskMessageLaunch,
+    FlaskCookieService,
+    FlaskRequest
 )
+from pylti1p3.tool_config import ToolConfDict
 from flask_login import login_user
-from pylti.flask import lti
 from models import db, User
 
-lti_bp = Blueprint('lti', __name__)
+lti_bp = Blueprint("lti", __name__, url_prefix="/lti")
 
 # ---------------------------------------------------
-# LTIエラー処理
+# HTTP環境用 Cookie Service
 # ---------------------------------------------------
-def lti_error(exception=None):
-    print("====== LTI ERROR START ======")
-    print(exception)
-    print("====== LTI ERROR END ======")
+class HttpCookieService(FlaskCookieService):
+    def __init__(self, flask_request: FlaskRequest):
+        super().__init__(flask_request)
+        self._cookie_secure = False
+        self._cookie_samesite = "None"
 
-    return render_template(
-        'error.html',
-        message="LTI認証エラーが発生しました。",
-        exception=exception
-    ), 500
 
 
 # ---------------------------------------------------
-# LTI Launch（Moodle → ErrorMate）
+# LTI設定
 # ---------------------------------------------------
-@lti_bp.route('/launch', methods=['POST'])
-# @lti(current_app, error=lti_error)
-def lti_launch(lti):
-    print("LTI LAUNCH VERIFIED")
+def get_lti_config():
+    settings = {
+        "client_id": "SVoztigx4Gmmv78",
+        "auth_login_url": "http://54.208.71.44/mod/lti/auth.php",
+        "auth_token_url": "http://54.208.71.44/mod/lti/token.php",
+        "key_set_url": "http://54.208.71.44/mod/lti/certs.php",
+        "private_key_file": "/home/ec2-user/environment/ErrorMate/keys/private.key",
+        "public_key_file": "/home/ec2-user/environment/ErrorMate/keys/public.key",
+        "deployment_ids": ["1"],
+        "launch_url": "http://54.208.71.44/errormate/lti/launch",
+    }
 
-    moodle_user_id = lti.user_id
-    email = lti.lis_person_contact_email_primary
-    fullname = lti.lis_person_name_full or "Moodle User"
-    roles = (lti.roles or "").lower()
+    return ToolConfDict({
+        "http://54.208.71.44": settings,
+        "http://54.208.71.44/": settings,
+    })
 
-    # ロール判定
-    if "instructor" in roles or "teacher" in roles:
-        role = "teacher"
-    else:
-        role = "student"
 
-    # ユーザー取得 or 作成
-    user = User.query.filter_by(moodle_user_id=moodle_user_id).first()
-    if not user:
-        user = User(
-            moodle_user_id=moodle_user_id,
-            mail=email,
-            username=fullname,
-            role=role
+# ---------------------------------------------------
+# LTI Login
+# ---------------------------------------------------
+@lti_bp.route("/login", methods=["GET", "POST"])
+def lti_login():
+    print("--- OIDC LOGIN START ---")
+    try:
+        tool_config = get_lti_config()
+
+        flask_request = FlaskRequest()
+
+        oidc_login = FlaskOIDCLogin(
+            flask_request,
+            tool_config,
+            cookie_service=HttpCookieService(flask_request),
         )
-        db.session.add(user)
-        db.session.commit()
+        
+        print("LOGIN SESSION:", dict(session))
 
-    # ★これが今まで無かった
-    login_user(user, fresh=True)
+        return oidc_login.enable_check_cookies().redirect(
+            request.values.get("target_link_uri")
+        )
 
-    print("LOGIN SUCCESS:", user.username)
-    return redirect(url_for('main.index'))
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
 
+
+
+
+# ---------------------------------------------------
+# LTI Launch
+# ---------------------------------------------------
+@lti_bp.route("/launch", methods=["POST"])
+def lti_launch():
+    print("--- LTI LAUNCH RECEIVED ---")
+    try:
+        tool_config = get_lti_config()
+
+        flask_request = FlaskRequest()
+
+        message_launch = FlaskMessageLaunch(
+            flask_request,
+            tool_config,
+            cookie_service=HttpCookieService(flask_request),
+        )
+
+        launch_data = message_launch.get_launch_data()
+        print("LAUNCH SESSION:", dict(session))
+
+        return "OK"
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": "Launch failed", "details": str(e)}), 500
+
+
+ 

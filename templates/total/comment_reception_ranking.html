@@ -1,0 +1,16 @@
+{% extends "total_base.html" %}
+{% block title %}全体データ｜コメント受信数{% endblock %}
+
+{% block personal_content %}
+<h2>コメント受信数</h2>
+
+<canvas id="commentReceiveBar"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script id="chart-data" type="application/json">
+  {{ chart_data | tojson }}
+</script>
+
+<script src="{{ url_for('static', filename='js/comment_receive_ranking.js') }}"></script>
+{% endblock %}

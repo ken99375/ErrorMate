@@ -1,0 +1,17 @@
+{% extends "total_base.html" %}
+{% block title %}全体データ｜コメント送信数{% endblock %}
+
+{% block personal_content %}
+<h2>コメント送信数</h2>
+
+<canvas id="commentBar"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Pythonから渡された dict を安全にJSONとして埋め込む -->
+<script id="chart-data" type="application/json">
+  {{ chart_data | tojson }}
+</script>
+
+<script src="{{ url_for('static', filename='js/comment_post_ranking.js') }}"></script>
+{% endblock %}

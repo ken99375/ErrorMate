@@ -1,0 +1,22 @@
+{
+    "http://54.208.71.44": {
+        "client_id": "SVoztigx4Gmmv78",
+        "auth_login_url": "http://54.208.71.44/mod/lti/auth.php",
+        "auth_token_url": "http://54.208.71.44/mod/lti/token.php",
+        "key_set_url": "http://54.208.71.44/mod/lti/certs.php",
+        "private_key_file": "/home/ec2-user/environment/ErrorMate/keys/private.key",
+        "public_key_file": "/home/ec2-user/environment/ErrorMate/keys/public.key",
+        "deployment_ids": ["1"],
+        "launch_url": "http://54.208.71.44/errormate/lti/launch"
+    },
+    "http://54.208.71.44/": {
+        "client_id": "SVoztigx4Gmmv78",
+        "auth_login_url": "http://54.208.71.44/mod/lti/auth.php",
+        "auth_token_url": "http://54.208.71.44/mod/lti/token.php",
+        "key_set_url": "http://54.208.71.44/mod/lti/certs.php",
+        "private_key_file": "/home/ec2-user/environment/ErrorMate/keys/private.key",
+        "public_key_file": "/home/ec2-user/environment/ErrorMate/keys/public.key",
+        "deployment_ids": ["1"],
+        "launch_url": "http://54.208.71.44/errormate/lti/launch"
+    }
+}
