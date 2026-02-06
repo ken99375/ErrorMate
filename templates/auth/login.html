@@ -11,9 +11,6 @@
     justify-content: center;
     padding: 32px 16px;
     background:
-      radial-gradient(1200px 600px at 10% 10%, rgba(99, 102, 241, .18), transparent 60%),
-      radial-gradient(1200px 600px at 90% 20%, rgba(16, 185, 129, .14), transparent 60%),
-      radial-gradient(1000px 600px at 50% 100%, rgba(59, 130, 246, .12), transparent 60%),
       linear-gradient(180deg, rgba(240, 253, 250, 1), rgba(236, 254, 255, 1));
   }
 
@@ -40,8 +37,8 @@
     width: 36px;
     height: 36px;
     border-radius: 12px;
-    background: linear-gradient(135deg, rgba(59,130,246,1), rgba(99,102,241,1));
-    box-shadow: 0 10px 20px rgba(59,130,246,.22);
+    background: linear-gradient(135deg, #fb923c, #f97316);
+    box-shadow: 0 10px 20px rgba(249, 115, 22, .22);
   }
 
   .auth-title {
@@ -99,19 +96,21 @@
   }
 
   .auth-btn {
-    width: 100%;
-    border: none;
-    border-radius: 12px;
-    padding: 12px 14px;
-    font-weight: 800;
-    color: white;
-    background: linear-gradient(135deg, rgba(37, 99, 235, 1), rgba(99, 102, 241, 1));
-    box-shadow: 0 14px 26px rgba(37,99,235,.22);
-    transition: transform .08s ease, box-shadow .2s ease, filter .2s ease;
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-weight: 800;
+      color: white;
+    
+      background: linear-gradient(135deg, #fb923c, #f97316);
+      box-shadow: 0 14px 26px rgba(249, 115, 22, .25);
+    
+      transition: transform .08s ease, box-shadow .2s ease, filter .2s ease;
   }
 
-  .auth-btn:hover { filter: brightness(1.02); }
-  .auth-btn:active { transform: translateY(1px); box-shadow: 0 10px 20px rgba(37,99,235,.18); }
+  .auth-btn:hover { filter: brightness(1.03); }
+  .auth-btn:active { transform: translateY(1px); box-shadow: 0 10px 20px rgba(249, 115, 22, .20); }
 
   .auth-footer {
     padding: 16px 28px 22px;

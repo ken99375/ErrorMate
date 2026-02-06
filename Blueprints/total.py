@@ -173,7 +173,7 @@ def comment_reception_ranking():
 
     return render_template(
         "total/comment_reception_ranking.html",
-        active_key="comment_reception_ranking   ",
+        active_key="comment_reception_ranking",
         chart_data=chart
     )
     
