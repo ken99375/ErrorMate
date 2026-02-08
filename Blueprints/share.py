@@ -1,9 +1,9 @@
 import re
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, g, session, abort,flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, g, session, abort,flash, current_app
 from sqlalchemy import func
 from flask_login import current_user, login_required
 from sqlalchemy.orm import joinedload, load_only
-from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError, DataError
 from models import db, StepCard, Tag, STATUS_PUBLIC, STATUS_DELETED, User, Comment, CardLike, STATUS_STEP
 from datetime import datetime, timedelta
 
@@ -159,35 +159,75 @@ def share_card_detail(card_id):
         replies_map=replies_map,
     )
 
-@share_bp.route('/card/<int:card_id>/comment', methods=['POST'])
+@share_bp.route("/card/<int:card_id>/comment", methods=["POST"])
+@login_required
 def post_comment(card_id):
-    body = (request.form.get('body') or '').strip()
-    parent_id_raw = request.form.get('parent_id')
-    parent_id = int(parent_id_raw) if parent_id_raw else None
+    uid = current_user.user_id
 
+    body = (request.form.get("body") or "").strip()
+    parent_id = request.form.get("parent_id") or None
+
+    # parent_id を int 化（入ってる時だけ）
+    if parent_id is not None:
+        try:
+            parent_id = int(parent_id)
+        except ValueError:
+            parent_id = None
+
+    # 空チェック
     if not body:
-        return redirect(url_for('share.share_card_detail', card_id=card_id))
+        flash("コメントが空です。", "warning")
+        return redirect(url_for("share.share_card_detail", card_id=card_id))
 
-    uid = current_user.user_id if getattr(current_user, 'is_authenticated', False) else 1
-    
-    
-    # このカードにこのユーザがこの本文(コメント)で親コメント宛に直近3秒以内に同じコメントをすでにしてない？
+    # 文字数チェック（DBに行く前に止める）
+    max_chars = current_app.config.get("MAX_COMMENT_CHARS", 5000)
+    if len(body) > max_chars:
+        return render_template(
+            "share/comment_too_long.html",
+            card_id=card_id,
+            max_chars=max_chars,
+            actual_chars=len(body),
+        ), 400
+
+    # ★重複投稿防止：直近3秒以内に同じコメントがあるか？
+    # created_at の基準はモデル側が naive datetime なので、ここも naive で合わせる
+    cutoff = datetime.utcnow() - timedelta(seconds=3)
+
     recent = Comment.query.filter(
         Comment.card_id == card_id,
         Comment.user_id == uid,
         Comment.body == body,
         Comment.parent_id == parent_id,
-        Comment.created_at >= datetime.utcnow() - timedelta(seconds=3)
+        Comment.created_at >= cutoff
     ).first()
 
     if recent:
-        return redirect(url_for('share.share_card_detail', card_id=card_id))
+        flash("同じコメントを連続投稿しました。少し待ってからもう一度お試しください。", "warning")
+        return redirect(url_for("share.share_card_detail", card_id=card_id))
 
+    # 保存（DBが弾いても500にしない）
+    try:
+        comment = Comment(
+            card_id=card_id,
+            user_id=uid,
+            body=body,
+            parent_id=parent_id,
+            created_at=datetime.utcnow(),  # 比較基準と合わせる
+        )
+        db.session.add(comment)
+        db.session.commit()
 
-    c = Comment(card_id=card_id, user_id=uid, body=body, parent_id=parent_id)
-    db.session.add(c)
-    db.session.commit()
-    return redirect(url_for('share.share_card_detail', card_id=card_id))
+    except DataError:
+        db.session.rollback()
+        return render_template(
+            "share/comment_too_long.html",
+            card_id=card_id,
+            max_chars=max_chars,
+            actual_chars=len(body),
+            db_rejected=True,
+        ), 400
+
+    return redirect(url_for("share.share_card_detail", card_id=card_id))
 
 
 # -------------------------------------------------------------------------
@@ -379,3 +419,24 @@ def admin_delete_shared_help_card(card_id):
     
     
     return redirect(request.referrer or url_for('share.share_help_card_list'))
+    
+
+### コメント削除
+@share_bp.route("/comment/<int:comment_id>/delete", methods=["POST"])
+@login_required
+def delete_comment(comment_id):
+    comment = Comment.query.get_or_404(comment_id)
+
+    # 権限：本人 or teacher/admin（roleはNULLありなので安全に比較）
+    role = (getattr(current_user, "role", None) or "").lower()
+    can_delete = (comment.user_id == current_user.user_id) or (role in ["teacher", "admin"])
+
+    if not can_delete:
+        abort(403)
+
+    # ソフト削除（本文だけ置換）
+    comment.body = "(このコメントは削除されました)"
+    db.session.commit()
+
+    flash("コメントを削除しました。", "success")
+    return redirect(url_for("share.share_card_detail", card_id=comment.card_id))

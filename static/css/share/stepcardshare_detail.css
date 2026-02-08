@@ -80,6 +80,14 @@
     border-radius:8px
 }
 
+.comment-body,
+.comment-text,
+.comment-content {
+  white-space: pre-wrap;        /* 改行を保持しつつ折り返す */
+  overflow-wrap: anywhere;      /* どこでも折り返してOK（最強） */
+  word-break: break-word;       /* 古いブラウザ対策 */
+}
+
 .comment-form{
     display:flex;
     gap:8px;
@@ -198,4 +206,21 @@
 
 .comment-form {
     width: 100%;
+}
+
+.comment-item{ position: relative; }
+.comment-item.reply{ margin-left: 18px; border-left: 2px solid rgba(0,0,0,.06); padding-left: 10px; }
+
+.comment-delete-form{ position:absolute; top:8px; right:8px; margin:0; }
+.comment-delete-btn{
+  width:28px; height:28px; border-radius:999px;
+  border:1px solid rgba(0,0,0,.18); background:#fff; cursor:pointer;
+  line-height:26px; font-size:16px;
+}
+.comment-delete-btn:hover{ background: rgba(0,0,0,.05); }
+
+.comment-body{
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }

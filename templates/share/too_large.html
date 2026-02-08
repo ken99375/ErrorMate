@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}送信データが大きすぎます - ErrorMate{% endblock %}
+{% block content %}
+<div style="max-width:720px;margin:48px auto;padding:22px;border:1px solid rgba(0,0,0,.08);border-radius:14px;background:#fff;">
+  <h2>送信データが大きすぎます</h2>
+  <p>文章や貼り付けが大きすぎて送信できませんでした。内容を短くして再送してください。</p>
+  <a href="{{ url_for('main.index') }}">トップへ</a>
+</div>
+{% endblock %}

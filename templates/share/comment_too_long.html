@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}コメントが長すぎます - ErrorMate{% endblock %}
+
+{% block content %}
+<style>
+  .err-wrap{max-width:720px;margin:48px auto;padding:22px 20px;border:1px solid rgba(0,0,0,.08);
+    border-radius:14px;background:#fff;box-shadow:0 10px 30px rgba(0,0,0,.06);}
+  .err-title{font-size:20px;margin:0 0 10px 0;}
+  .err-text{color:rgba(0,0,0,.7);line-height:1.7;margin:0 0 14px 0;}
+  .err-box{background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.08);border-radius:12px;padding:12px 12px;margin:14px 0;}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
+  .btn-a{display:inline-block;padding:10px 12px;border-radius:10px;border:1px solid rgba(0,0,0,.14);
+    text-decoration:none;color:#111;background:#fff;}
+  .btn-a.primary{background:#111;color:#fff;border:none;}
+</style>
+
+<div class="err-wrap">
+  <h2 class="err-title">コメントが長すぎます</h2>
+  <p class="err-text">
+    コメント本文が上限を超えているため、投稿できませんでした。
+  </p>
+
+  <div class="err-box">
+    <div>上限： <b>{{ max_chars }}</b> 文字</div>
+    <div>今回： <b>{{ actual_chars }}</b> 文字</div>
+    {% if db_rejected %}
+      <div style="margin-top:8px;color:rgba(0,0,0,.65);font-size:13px;">
+        ※DB側でも弾かれました（安全のため投稿を停止しました）
+      </div>
+    {% endif %}
+  </div>
+
+  <p class="err-text">
+    長文は「要点を先に」→「詳細はステップカード本文へ」みたいに分けるのがおすすめです。
+  </p>
+
+  <div class="btn-row">
+    <a class="btn-a" href="{{ url_for('share.share_card_detail', card_id=card_id) }}">カード詳細に戻る</a>
+    <a class="btn-a primary" href="{{ url_for('share.share_step_card_list') }}">共有一覧へ</a>
+  </div>
+</div>
+{% endblock %}

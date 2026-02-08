@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, jsonify, g
+from flask import Blueprint, render_template, jsonify, g, request
 from flask_login import login_required, current_user
 from models import db, StepCard, Comment, Tag
 from sqlalchemy import func
@@ -12,6 +12,17 @@ personal_bp = Blueprint('personal', __name__,  url_prefix="/personal")
 @personal_bp.before_request
 def set_header_color():
     g.header_class = "header-analysis"
+
+    # エンドポイント名 → active_key の対応
+    key_map = {
+        "personal.data_error_count": "errors",
+        "personal.language_ratio_page": "lang",
+        "personal.data_error_type_ratio": "types",
+        "personal.data_comment_count": "comments",
+        "personal.data_comment_trend": "trend",
+    }
+    g.active_key = key_map.get(request.endpoint)
+
 
 
 # エラー発生回数------------------------------------------------------------------------
@@ -149,20 +160,24 @@ def language_ratio_api():
 
 # エラー種別比率------------------------------------------------------------------------
 @personal_bp.route('/ErrorTypes', methods=['GET', 'POST'])
+@login_required
 def data_error_type_ratio():
     user_id = current_user.user_id
     user_cards = StepCard.query.filter_by(user_id=user_id).all()
 
     if not user_cards:
         chart_data_json = json.dumps({"labels": [], "datasets": [{"data": [], "backgroundColor": []}]})
-        return render_template('personal/PersonalDataErrorTypes.html', chart_data=chart_data_json)
+        return render_template('personal/PersonalDataErrorTypes.html',
+                               active_key='types',
+                               chart_data=chart_data_json)
 
-    # エラーコード（error_code）をカウント
     error_codes = [card.error_code for card in user_cards if card.error_code]
-    
+
     if not error_codes:
         chart_data_json = json.dumps({"labels": [], "datasets": [{"data": [], "backgroundColor": []}]})
-        return render_template('personal/PersonalDataErrorTypes.html', chart_data=chart_data_json)
+        return render_template('personal/PersonalDataErrorTypes.html',
+                               active_key='types',
+                               chart_data=chart_data_json)
 
     error_count = Counter(error_codes)
 
@@ -196,6 +211,7 @@ def data_error_type_ratio():
 
 # コメント回数------------------------------------------------------------------------
 @personal_bp.route('/Comment', methods=['GET', 'POST'])
+@login_required
 def data_comment_count():
     user_id = current_user.user_id
     
@@ -245,6 +261,7 @@ def data_comment_count():
 
 # コメント傾向------------------------------------------------------------------------
 @personal_bp.route('/Trend', methods=['GET', 'POST'])
+@login_required
 def data_comment_trend():
     user_id = current_user.user_id
     
@@ -282,3 +299,9 @@ def data_comment_trend():
     chart_data_json = json.dumps(chart_data_py)
 
     return render_template('personal/PersonalDataTrend.html', chart_data=chart_data_json)
+    
+    
+@personal_bp.context_processor
+def inject_active_key():
+    return {"active_key": getattr(g, "active_key", None)}
+

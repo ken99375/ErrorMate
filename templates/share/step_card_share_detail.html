@@ -1,91 +1,159 @@
-    {% extends "base.html" %}
-    {% block title %}共有カード詳細 | ErrorMate{% endblock %}
-    {% block extra_css %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/share/stepcardshare_detail.css') }}">
-    {% endblock %}
+{% extends "base.html" %}
 
-    {% block content %}
-    <section class="share-detail">
-    <h1 class="detail-title">{{ card.title }}</h1>
+{% block title %}共有カード詳細 | ErrorMate{% endblock %}
 
-    <div class="grid-2">
-        <div class="pane">
-        <h3>エラーコード</h3>
-        <pre class="code-box">{{ card.error_code or '' }}</pre>
-        </div>
-        <div class="pane">
-        <h3>修正コード</h3>
-        <pre class="code-box">{{ card.modifying_code or '' }}</pre>
-        </div>
-        <div class="pane">
-        <h3>エラーメッセージ</h3>
-        <div class="text-box">{{ card.error_message or '' }}</div>
-        </div>
-        <div class="pane">
-        <h3>実装結果</h3>
-        <div class="text-box">{{ card.execution_result or '' }}</div>
-        </div>
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/share/stepcardshare_detail.css') }}">
+<style>
+/* 右上の削除ボタン */
+.comment-item, .reply-item{
+  position: relative;
+}
+
+.comment-delete-form{
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  margin: 0;
+}
+
+.comment-delete-btn{
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,.18);
+  background: #fff;
+  cursor: pointer;
+  line-height: 24px;
+  font-size: 16px;
+}
+
+.comment-delete-btn:hover{
+  background: rgba(0,0,0,.06);
+}
+
+/* 長文がはみ出さない */
+.comment-body{
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="share-detail">
+  <h1 class="detail-title">{{ card.title }}</h1>
+
+  <div class="grid-2">
+    <div class="pane">
+      <h3>エラーコード</h3>
+      <pre class="code-box">{{ card.error_code or '' }}</pre>
     </div>
+    <div class="pane">
+      <h3>修正コード</h3>
+      <pre class="code-box">{{ card.modifying_code or '' }}</pre>
+    </div>
+    <div class="pane">
+      <h3>エラーメッセージ</h3>
+      <div class="text-box">{{ card.error_message or '' }}</div>
+    </div>
+    <div class="pane">
+      <h3>実装結果</h3>
+      <div class="text-box">{{ card.execution_result or '' }}</div>
+    </div>
+  </div>
 
-    <div class="meta">
-        <span>{{ card.author.user_name }}</span>
-        {% for t in card.tags %}<span class="tag">#{{ t.tag_name }}</span>{% endfor %}
-        </div>
+  <div class="meta">
+    <span>{{ card.author.user_name }}</span>
+    {% for t in card.tags %}
+      <span class="tag">#{{ t.tag_name }}</span>
+    {% endfor %}
+  </div>
 
+  <div class="comment-block">
+    <h3>コメント</h3>
 
-        <div class="comment-block">
-            <h3>コメント</h3>
+    {# 入力フォーム #}
+    <form method="post"
+          action="{{ url_for('share.post_comment', card_id=card.card_id) }}"
+          class="comment-form">
+      <textarea name="body" class="comment-textarea"
+                maxlength="5000" placeholder="コメントを入力(最大5000文字)"
+                required></textarea>
+      <button type="submit" class="btn-send">送信</button>
+    </form>
 
-            {# 入力フォーム #}
-            <form method="post"
-                    action="{{ url_for('share.post_comment', card_id=card.card_id) }}"
-                    class="comment-form">
-                    <textarea name="body" placeholder="コメントを入力" required></textarea>
-                    <button type="submit" class="btn-send">送信</button>
-            </form>
+    {# 一覧 #}
+    <div class="comment-list">
+      {% if roots and roots|length > 0 %}
+        {% for c in roots %}
+          <div class="comment-item">
+            <div class="comment-meta">
+              <span>{{ c.author.user_name if c.author else ('ユーザID: ' ~ c.user_id) }}</span>
+              <span>{{ c.created_at|jst }}</span>
+            </div>
 
-            {# 一覧 #}
-            <div class="comment-list">
-                {% if roots and roots|length > 0 %}
-                {% for c in roots %}
-                    <div class="comment-item">
+            {# 削除ボタン（親コメント） #}
+            {% set role = (current_user.role or '') %}
+            {% if c.body != "(このコメントは削除されました)"
+               and current_user.is_authenticated
+               and (current_user.user_id == c.user_id or role in ['teacher','admin']) %}
+              <form method="post"
+                    action="{{ url_for('share.delete_comment', comment_id=c.comment_id) }}"
+                    class="comment-delete-form"
+                    onsubmit="return confirm('このコメントを削除しますか？');">
+                <button type="submit" class="comment-delete-btn" title="削除" aria-label="削除">×</button>
+              </form>
+            {% endif %}
+
+            <div class="comment-body">{{ c.body }}</div>
+
+            {% if replies_map.get(c.comment_id) %}
+              <div class="replies">
+                {% for r in replies_map[c.comment_id] %}
+                  <div class="reply-item">
                     <div class="comment-meta">
-                        <span>{{ c.author.user_name if c.author else ('ユーザID: ' ~ c.user_id) }}</span>
-                        <span>{{ c.created_at|jst}}</span>
+                      <span>{{ r.author.user_name if r.author else ('ユーザID: ' ~ r.user_id) }}</span>
+                      <span>{{ r.created_at|jst }}</span>
                     </div>
-                    <div class="comment-body">{{ c.body }}</div>
 
-                    {% if replies_map.get(c.comment_id) %}
-                        <div class="replies">
-                        {% for r in replies_map[c.comment_id] %}
-                            <div class="reply-item">
-                            <div class="comment-meta">
-                                <span>{{ r.author.user_name if r.author else ('ユーザID: ' ~ r.user_id) }}</span>
-                                <span>{{ r.created_at|jst }}</span>
-                            </div>
-                            <div class="comment-body">{{ r.body }}</div>
-                            </div>
-                        {% endfor %}
-                        </div>
+                    {# 削除ボタン（返信） #}
+                    {% if r.body != "(このコメントは削除されました)"
+                       and current_user.is_authenticated
+                       and (current_user.user_id == r.user_id or role in ['teacher','admin']) %}
+                      <form method="post"
+                            action="{{ url_for('share.delete_comment', comment_id=r.comment_id) }}"
+                            class="comment-delete-form"
+                            onsubmit="return confirm('この返信を削除しますか？');">
+                        <button type="submit" class="comment-delete-btn" title="削除" aria-label="削除">×</button>
+                      </form>
                     {% endif %}
 
-                    <form method="post"
-                          action="{{ url_for('share.post_comment', card_id=card.card_id) }}"
-                          class="reply-form">
-                        <input type="hidden" name="parent_id" value="{{ c.comment_id }}">
-                        <input type="text" name="body" placeholder="返信を入力" required>
-                        <button type="submit">返信</button>
-                    </form>
-                    </div>
+                    <div class="comment-body">{{ r.body }}</div>
+                  </div>
                 {% endfor %}
-                {% else %}
-                <div class="comment-empty">まだコメントはありません。</div>
-                {% endif %}
-            </div>
-        </div>
+              </div>
+            {% endif %}
 
-    <div class="footer-links">
-        <a href="{{ url_for('share.share_step_card_list') }}">一覧に戻る</a>
+            <form method="post"
+                  action="{{ url_for('share.post_comment', card_id=card.card_id) }}"
+                  class="reply-form">
+              <input type="hidden" name="parent_id" value="{{ c.comment_id }}">
+              <input type="text" name="body" maxlength="5000" placeholder="返信を入力（最大5000文字）" required>
+              <button type="submit">返信</button>
+            </form>
+
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="comment-empty">まだコメントはありません。</div>
+      {% endif %}
     </div>
-    </section>
-    {% endblock %}
+  </div>
+
+  <div class="footer-links">
+    <a href="{{ url_for('share.share_step_card_list') }}">一覧に戻る</a>
+  </div>
+</section>
+{% endblock %}
