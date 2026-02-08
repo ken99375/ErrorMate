@@ -5,15 +5,20 @@ from sqlalchemy import func
 from datetime import datetime, timedelta
 import json
 from collections import Counter
+from typing import Optional
+
+import re
+import json
+
 
 personal_bp = Blueprint('personal', __name__,  url_prefix="/personal")
 
 ## ヘッダーの色指定
+## アクティブキー
 @personal_bp.before_request
 def set_header_color():
     g.header_class = "header-analysis"
 
-    # エンドポイント名 → active_key の対応
     key_map = {
         "personal.data_error_count": "errors",
         "personal.language_ratio_page": "lang",
@@ -21,7 +26,19 @@ def set_header_color():
         "personal.data_comment_count": "comments",
         "personal.data_comment_trend": "trend",
     }
+
     g.active_key = key_map.get(request.endpoint)
+
+    # endpointが取れない/想定外の時の保険（なくてもOK）
+    if not g.active_key:
+        path_map = {
+            "/personal/ErrorCount": "errors",
+            "/personal/language_ratio": "lang",
+            "/personal/ErrorTypes": "types",
+            "/personal/Comment": "comments",
+            "/personal/Trend": "trend",
+        }
+        g.active_key = path_map.get(request.path)
 
 
 
@@ -159,54 +176,92 @@ def language_ratio_api():
     
 
 # エラー種別比率------------------------------------------------------------------------
-@personal_bp.route('/ErrorTypes', methods=['GET', 'POST'])
+# ----------------------------
+# 例外名抽出 & カテゴリ統合
+# ----------------------------
+CATEGORIES = [
+    "SyntaxError",
+    "TypeError",
+    "NameError",
+    "IndexError",
+    "KeyError",
+    "AttributeError",
+    "ImportError",
+    "RuntimeError",
+    "その他",
+]
+
+IMPORT_EQUIV = {"ImportError", "ModuleNotFoundError"}
+TARGET_SET = set(CATEGORIES) - {"その他"}
+
+def extract_exception_name(error_message: str) -> Optional[str]:
+    """Traceback文字列から例外名（例: TypeError）を抽出。取れなければ None。"""
+    if not error_message:
+        return None
+
+    lines = [ln.strip() for ln in str(error_message).splitlines() if ln.strip()]
+
+    # 末尾付近の "TypeError: ..." 形式を拾う
+    pattern = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*(?:Error|Exception))\s*:")
+
+    for ln in reversed(lines):
+        m = pattern.search(ln)
+        if m:
+            return m.group(1)
+
+    return None
+
+
+def normalize_category(exc_name: Optional[str]) -> str:
+    """抽出した例外名を指定カテゴリへ統合"""
+    if not exc_name:
+        return "その他"
+
+    if exc_name in TARGET_SET:
+        return exc_name
+
+    if exc_name in IMPORT_EQUIV:
+        return "ImportError"
+
+    if exc_name == "RuntimeError":
+        return "RuntimeError"
+
+    return "その他"
+
+
+# ----------------------------
+# エラー種別比率（統合版）
+# ----------------------------
+@personal_bp.route("/ErrorTypes", methods=["GET"])
 @login_required
 def data_error_type_ratio():
     user_id = current_user.user_id
-    user_cards = StepCard.query.filter_by(user_id=user_id).all()
 
-    if not user_cards:
-        chart_data_json = json.dumps({"labels": [], "datasets": [{"data": [], "backgroundColor": []}]})
-        return render_template('personal/PersonalDataErrorTypes.html',
-                               active_key='types',
-                               chart_data=chart_data_json)
+    cards = StepCard.query.filter(
+        StepCard.user_id == user_id,
+        StepCard.error_message.isnot(None),
+        StepCard.error_message != ""
+    ).all()
 
-    error_codes = [card.error_code for card in user_cards if card.error_code]
+    counter = Counter()
+    for card in cards:
+        exc = extract_exception_name(card.error_message)
+        cat = normalize_category(exc)
+        counter[cat] += 1
 
-    if not error_codes:
-        chart_data_json = json.dumps({"labels": [], "datasets": [{"data": [], "backgroundColor": []}]})
-        return render_template('personal/PersonalDataErrorTypes.html',
-                               active_key='types',
-                               chart_data=chart_data_json)
+    labels = CATEGORIES
+    data = [counter.get(k, 0) for k in labels]
 
-    error_count = Counter(error_codes)
-
-    # 色パレット
-    colors = [
-        'rgba(255, 99, 132, 0.8)',
-        'rgba(54, 162, 235, 0.8)',
-        'rgba(255, 206, 86, 0.8)',
-        'rgba(75, 192, 192, 0.8)',
-        'rgba(153, 102, 255, 0.8)',
-        'rgba(255, 159, 64, 0.8)',
-    ]
-
-    # Chart.js用のデータ形式に整形
     chart_data_py = {
-        "labels": list(error_count.keys()),
+        "labels": labels,
         "datasets": [
-            {
-                "data": list(error_count.values()),
-                "backgroundColor": colors[:len(error_count)],
-                "borderColor": 'rgba(255, 255, 255, 1)',
-                "borderWidth": 2
-            }
+            {"label": "エラー種別比率", "data": data}
         ]
     }
-    
-    chart_data_json = json.dumps(chart_data_py)
+    chart_data_json = json.dumps(chart_data_py, ensure_ascii=False)
 
-    return render_template('personal/PersonalDataErrorTypes.html', chart_data=chart_data_json)
+    return render_template("personal/PersonalDataErrorTypes.html", chart_data=chart_data_json)
+
 
 
 # コメント回数------------------------------------------------------------------------
@@ -304,4 +359,3 @@ def data_comment_trend():
 @personal_bp.context_processor
 def inject_active_key():
     return {"active_key": getattr(g, "active_key", None)}
-

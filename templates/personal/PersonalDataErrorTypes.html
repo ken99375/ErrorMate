@@ -1,36 +1,22 @@
 {% extends "personal_base.html" %}
-{% set active_key = "errors" %}
 
-{% block title %}エラー種別比率 - ErrorMate{% endblock %}
+{% block title %}エラー種別比率｜ErrorMate{% endblock %}
 
 {% block personal_content %}
-<div class="analysis-container">
-    <h2>エラー種別比率</h2>
-    <div style="max-width: 500px; margin: 0 auto;">
-        <canvas id="errorTypeChart"></canvas>
-    </div>
-</div>
+  <h2>エラー種別比率</h2>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    const chartData = {{ chart_data | safe }};
+  <div style="width: 520px; height: 360px;">
+    <canvas id="errorTypePie"></canvas>
+  </div>
 
-    const ctx = document.getElementById('errorTypeChart').getContext('2d');
-    const errorTypeChart = new Chart(ctx, {
-        type: 'pie',
-        data: chartData,
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'bottom'
-                },
-                title: {
-                    display: true,
-                    text: 'エラー種別の割合'
-                }
-            }
-        }
-    });
-</script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Pythonから渡したデータ -->
+  <script>
+    window.ERROR_TYPE_RATIO_DATA = {{ chart_data|safe }};
+  </script>
+
+  <!-- このページ専用JS -->
+  <script src="{{ url_for('static', filename='js/error_type_ratio.js') }}" defer></script>
 {% endblock %}

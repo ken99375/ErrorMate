@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% set header_theme = "header-analysis" %}
+{% set active_key = active_key|default(g.active_key, true) %}
 {% block title %}個人データ｜ErrorMate{% endblock %}
 
 {% block extra_css %}

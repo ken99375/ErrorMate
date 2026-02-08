@@ -1,7 +1,21 @@
 {% extends "total_base.html" %}
-
-{% block title %}ErrorMate｜取得エラー{% endblock %}
+{% block title %}全体データ｜総エラー発生回数{% endblock %}
 
 {% block personal_content %}
-<h2>データが取得できませんでした</h2>
+  <h2>総エラー発生回数（週ごと）</h2>
+
+  <div style="width: min(1100px, 100%); height: 560px;">
+    <canvas id="totalErrorsWeeklyChart"></canvas>
+  </div>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Pythonから渡したデータ -->
+  <script>
+    window.TOTAL_ERRORS_WEEKLY_DATA = {{ chart_data|safe }};
+  </script>
+
+  <!-- ページ専用JS -->
+  <script src="{{ url_for('static', filename='js/total_errors_weekly.js') }}" defer></script>
 {% endblock %}

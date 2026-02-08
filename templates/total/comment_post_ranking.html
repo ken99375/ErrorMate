@@ -4,14 +4,16 @@
 {% block personal_content %}
 <h2>コメント送信数</h2>
 
-<canvas id="commentBar"></canvas>
+<div style="width: min(980px, 100%); height: 520px;">
+  <canvas id="commentPostBar"></canvas>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- Pythonから渡された dict を安全にJSONとして埋め込む -->
-<script id="chart-data" type="application/json">
-  {{ chart_data | tojson }}
+<script>
+  // JSが読む形式で渡す（超重要）
+  window.COMMENT_POST_RANKING_DATA = {{ chart_data | tojson }};
 </script>
 
-<script src="{{ url_for('static', filename='js/comment_post_ranking.js') }}"></script>
+<script src="{{ url_for('static', filename='js/comment_post_ranking.js') }}" defer></script>
 {% endblock %}

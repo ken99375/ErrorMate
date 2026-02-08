@@ -36,13 +36,13 @@ document.addEventListener("DOMContentLoaded", () => {
     chartData = {
       labels: chartData.map((x) => x.name ?? ""),
       datasets: [
-        {
-          label: "コメント送信数",
-          data: chartData.map((x) => Number(x.count ?? 0)),
-          backgroundColor: "rgba(120, 144, 156, 0.7)",
-          borderColor: "rgba(0, 0, 0, 0.5)",
-          borderWidth: 1,
-        },
+          {
+            label: "コメント送信数",
+            data: chartData.map((x) => Number(x.count ?? 0)),
+            backgroundColor: "rgba(255, 99, 132, 0.85)", // 赤（半透明）
+            borderColor: "rgba(255, 99, 132, 1)",      // 赤（枠）
+            borderWidth: 1,
+          },
       ],
     };
   }
