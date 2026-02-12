@@ -37,7 +37,7 @@ def share_step_card_list():
         .filter(StepCard.status == STATUS_PUBLIC)
         .options(
             joinedload(StepCard.tags).load_only(Tag.tag_id, Tag.tag_name),
-            joinedload(StepCard.author).load_only(User.user_name),
+            joinedload(StepCard.author).load_only(User.username),
             load_only(
                 StepCard.card_id,
                 StepCard.title,

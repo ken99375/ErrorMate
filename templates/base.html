@@ -51,7 +51,7 @@
         {# ここを追加（ユーザー名表示 / ログイン状態で切替） #}
         {% if current_user.is_authenticated %}
         <div class="header-user d-flex align-items-center ms-auto">
-            <span class="me-2">ようこそ、{{ current_user.user_name }}</span>
+            <span class="me-2">ようこそ、{{ current_user.full_name }}</span>
             <a href="{{ url_for('auth.logout') }}" class="btn btn-sm btn-outline-secondary">ログアウト</a>
         </div>
         {% else %}

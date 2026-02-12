@@ -2,9 +2,134 @@
 
 {% block title %}ユーザー登録 - ErrorMate{% endblock %}
 
+
 {% block content %}
+
+<style>
+/* 背景 */
+.auth-container {
+    max-width: 480px;
+    margin: 60px auto;
+    padding: 40px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    animation: fadeIn 0.4s ease;
+}
+
+.auth-container h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-weight: 600;
+    color: #333;
+}
+
+/* フォーム */
+.auth-form .form-group {
+    margin-bottom: 18px;
+}
+
+.auth-form label {
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+    color: #555;
+}
+
+.auth-form input,
+.auth-form select {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 0.95rem;
+    transition: border 0.2s ease, box-shadow 0.2s ease;
+    background-color: #fafafa;
+}
+
+.auth-form input:focus,
+.auth-form select:focus {
+    border-color: #4a90e2;
+    outline: none;
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.15);
+}
+
+/* ボタン */
+.btn-primary {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, #ff9f43, #ff7b00);
+    color: white;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(53, 122, 189, 0.25);
+}
+
+/* フラッシュ */
+.flash-danger {
+    background-color: #ffe3e3;
+    color: #c62828;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+}
+
+.flashes {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 15px;
+}
+
+.flashes li {
+    padding: 8px 10px;
+    border-radius: 5px;
+    font-size: 0.85rem;
+}
+
+.flash-warning {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.flash-danger {
+    background: #ffe3e3;
+    color: #c62828;
+}
+
+/* 下部リンク */
+.auth-link {
+    margin-top: 18px;
+    text-align: center;
+    font-size: 0.85rem;
+}
+
+.auth-link a {
+    color: #4a90e2;
+    text-decoration: none;
+}
+
+.auth-link a:hover {
+    text-decoration: underline;
+}
+
+</style>
+
 <div class="auth-container">
-    <h2>開発用ユーザー登録</h2>
+    <h2>ユーザー登録</h2>
+
+    {% if error %}
+      <div class="flash-danger">{{ error }}</div>
+    {% endif %}
 
     <!-- フラッシュメッセージの表示エリア -->
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -19,17 +144,30 @@
 
     <form method="post" class="auth-form">
         <div class="form-group">
-            <label for="user_name">ユーザー名</label>
-            <input type="text" id="user_name" name="user_name" required placeholder="例: 山田 太郎">
+            <label for="full_name">氏名（表示名）</label>
+            <input type="text" id="full_name" name="full_name" placeholder="例: 山田 太郎">
         </div>
+
+        <div class="form-group">
+            <label for="username">ユーザー名（ID）</label>
+            <input type="text" id="username" name="username" placeholder="未入力ならメールの@前が入ります">
+        </div>
+
         <div class="form-group">
             <label for="mail">メールアドレス</label>
             <input type="email" id="mail" name="mail" required placeholder="example@school.ac.jp">
         </div>
+
         <div class="form-group">
             <label for="password">パスワード</label>
-            <input type="password" id="password" name="password" required placeholder="パスワードを入力">
+            <input type="password" id="password" name="password" required placeholder="8文字以上">
         </div>
+
+        <div class="form-group">
+            <label for="organization_code">組織コード（任意）</label>
+            <input type="text" id="organization_code" name="organization_code" placeholder="例: A001">
+        </div>
+
         <div class="form-group">
             <label for="role">ロール（役割）</label>
             <select name="role" id="role" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
@@ -37,6 +175,7 @@
                 <option value="teacher">教師</option>
             </select>
         </div>
+
         <button type="submit" class="btn-primary">登録</button>
     </form>
 

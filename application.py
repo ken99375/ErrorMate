@@ -7,7 +7,6 @@ from flask_migrate import Migrate
 from werkzeug.middleware.proxy_fix import ProxyFix
 from datetime import timezone
 from zoneinfo import ZoneInfo
-from models import User
 
 import os
 from flask import Flask
@@ -113,6 +112,8 @@ migrate = Migrate(application, db)
 login_manager = LoginManager()
 login_manager.init_app(application)
 login_manager.login_view = "auth.login"   # Blueprint endpoint
+
+from models import User
 
 @login_manager.user_loader
 def load_user(user_id):

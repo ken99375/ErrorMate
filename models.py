@@ -29,18 +29,18 @@ class User(UserMixin, db.Model):
     """ユーザテーブル (設計書: USER)"""
     __tablename__ = 'users'
 
-    user_id = db.Column(db.Integer, primary_key=True)
-    moodle_user_id = db.Column(db.Integer, unique=True, nullable=True, index=True)
-    username = db.Column(db.String(100), nullable=True, index=True)
-    mail = db.Column(db.String(255), nullable=False, index=True)
-    role = db.Column(db.String(50), nullable=True)
+    user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    mail = db.Column(db.String(255), nullable=False)
 
-    # ★追加：パスワード（卒制用：平文で保存する運用）
-    # DB側は password_hash カラムが既にあるのでそれに合わせる
+    role = db.Column(db.String(50), nullable=True)
+    organization_code = db.Column(db.String(50), nullable=True, index=True)
+
     password_hash = db.Column(db.String(255), nullable=True)
 
-    # 互換：過去コードの user_name を username に寄せる（DBカラムは増えない）
-    user_name = synonym("username")
+    moodle_user_id = db.Column(db.Integer, nullable=True, unique=True)
+
+    username = db.Column(db.String(100), nullable=True)
+    full_name = db.Column(db.String(255), nullable=True)
 
     # もし「password」という名前で扱いたいなら（任意）
     # password = synonym("password_hash")
