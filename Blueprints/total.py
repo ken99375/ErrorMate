@@ -22,7 +22,10 @@ def set_header_color():
 @login_required
 def stepcard_post_ranking():
     # 生徒一覧
-    students = db.session.query(User.user_id, User.user_name).filter(
+    students = db.session.query(
+    User.user_id,
+    func.coalesce(User.full_name, User.username).label("display_name")
+).filter(
         User.role == "student"
     ).all()
 
@@ -72,7 +75,10 @@ def stepcard_post_ranking():
 @login_required
 def comment_post_ranking():
     # 生徒一覧
-    students = db.session.query(User.user_id, User.user_name).filter(
+    students = db.session.query(
+    User.user_id,
+    func.coalesce(User.full_name, User.username).label("display_name")
+).filter(
         User.role == "student"
     ).all()
 
@@ -122,7 +128,10 @@ def comment_post_ranking():
 @login_required
 def comment_reception_ranking():
     # 生徒一覧
-    students = db.session.query(User.user_id, User.user_name).filter(
+    students = db.session.query(
+    User.user_id,
+    func.coalesce(User.full_name, User.username).label("display_name")
+).filter(
         User.role == "student"
     ).all()
 
