@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 
-from flask import Flask
+from flask import Flask, render_template, request
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -118,6 +118,51 @@ from models import User
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+    
+    
+# -----------------------------
+# 403 Forbidden
+# -----------------------------
+@application.errorhandler(403)
+def forbidden(e):
+    return render_template(
+        "errors/403.html",
+        message="アクセス権が存在しません。ログイン状態や権限をご確認ください。"
+    ), 403
+
+
+# -----------------------------
+# 404 Not Found
+# -----------------------------
+@application.errorhandler(404)
+def not_found(e):
+    return render_template(
+        "errors/404.html",
+        message="お探しのページが見つかりませんでした。URLをご確認ください。",
+        path=request.path
+    ), 404
+
+
+# -----------------------------
+# 500 Internal Server Error
+# -----------------------------
+@application.errorhandler(500)
+def internal_error(e):
+    return render_template(
+        "errors/500.html",
+        message="予期しないエラーが発生しました。時間をおいて再度お試しください。"
+    ), 500
+
+
+# -----------------------------
+# 501 Not Implemented
+# -----------------------------
+@application.errorhandler(501)
+def not_implemented(e):
+    return render_template(
+        "errors/501.html",
+        message="この機能は現在未対応です。別の操作をお試しください。"
+    ), 501
 
 # ---------------------------------------------------
 # Blueprint登録（単体運用）
@@ -142,4 +187,4 @@ if __name__ == "__main__":
     print("--------------------------------------------------")
     print("★接続先:", application.config.get("SQLALCHEMY_DATABASE_URI"))
     print("--------------------------------------------------")
-    application.run(debug=True, port=8080, host="0.0.0.0")
+    application.run(debug=False, port=8080, host="0.0.0.0")

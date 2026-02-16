@@ -231,6 +231,12 @@ def edit_card(card_id):
         MAX_CODE    = 65535
         MAX_MESSAGE = 65535
         MAX_RESULT  = 65535
+        
+        # テスト用文字数制限調節コード
+        # MAX_TITLE   = 1
+        # MAX_CODE    = 1
+        # MAX_MESSAGE = 1
+        # MAX_RESULT  = 1
 
         # 必須チェック
         if not title: errors['text_title'] = 'エラータイトルを入力してください。'
@@ -240,11 +246,11 @@ def edit_card(card_id):
         if not result: errors['text_result'] = '実装結果を入力してください。'
 
         # 文字数チェック
-        if title and len(title) > MAX_TITLE: errors['text_title'] = f'エラータイトルは{MAX_TITLE}文字以内で入力してください。'
-        if error_code and len(error_code) > MAX_CODE: errors['text_error'] = f'エラーコードは{MAX_CODE}文字以内で入力してください。'
-        if fix_code and len(fix_code) > MAX_CODE: errors['text_fixcode'] = f'修正コードは{MAX_CODE}文字以内で入力してください。'
-        if message and len(message) > MAX_MESSAGE: errors['text_message'] = f'エラーメッセージは{MAX_MESSAGE}文字以内で入力してください。'
-        if result and len(result) > MAX_RESULT: errors['text_result'] = f'実装結果は{MAX_RESULT}文字以内で入力してください。'
+        if title and len(title) > MAX_TITLE: errors['text_title'] = f'エラータイトルは255文字以内で入力してください。'
+        if error_code and len(error_code) > MAX_CODE: errors['text_error'] = f'エラーコードは65535文字以内で入力してください。'
+        if fix_code and len(fix_code) > MAX_CODE: errors['text_fixcode'] = f'修正コードは65535文字以内で入力してください。'
+        if message and len(message) > MAX_MESSAGE: errors['text_message'] = f'エラーメッセージは65535文字以内で入力してください。'
+        if result and len(result) > MAX_RESULT: errors['text_result'] = f'実装結果は65535文字以内で入力してください。'
 
         if errors:
             # エラーがあれば編集画面に戻す
