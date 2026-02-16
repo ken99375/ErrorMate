@@ -33,3 +33,19 @@
 - パスワードリセット機能
 - テストコード追加
 - UI/UX改善
+
+- ---
+
+## 工夫した点
+
+- Blueprintによる機能分割設計
+- AWS RDSとの安全な接続設定
+- 週次エラー統計APIの実装
+- mysqldumpによるDBバックアップ取得
+- AIタグ付け機能により検索性能、効率向上
+
+## 苦労した点
+- AWS RDSの接続、チーム全員のGithub,Cloud9の接続。
+- JavaScript非同期処理のバグ修正
+- MoodleとErrorMateのLTI接続
+
