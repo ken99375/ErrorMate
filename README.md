@@ -71,20 +71,25 @@ Windowsの場合...
 ```bash
 python -m venv venv
 venv\Scripts\activate
-pip install -r requirements.txt
+pip install -r requirements_local.txt
 ```
 
-### ④　環境変数の設定
-DB_HOST=  
-DB_USER=  
-DB_PASSWORD=  
-DB_NAME=  
-
+### ④　環境変数の設定(SQLite)
+ErrorMateの直下に.envファイルを作成し、下記のコードを書き込む。
+```bash
+USE_SQLITE=1  
+SQLITE_PATH=errormate_local.db  
+```
 (AI機能を使うのならば、Gemini APIキーを作成し、下記に追加する)  
 GEMINI_API_KEY=""
 
-### ⑤ アプリケーション起動
+### ⑤ データベースの作成
+```basu
+python create_db_local.py
+```
+
+### ⑥ アプリケーション起動
 python applicaion.py
 
-### ⑥　ブラウザ起動
+### ⑦　ブラウザ起動
 
