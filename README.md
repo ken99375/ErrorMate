@@ -44,6 +44,8 @@
 - mysqldumpによるDBバックアップ取得
 - AIタグ付け機能により検索性能、効率向上
 
+---
+
 ## 苦労した点
 - AWS RDSの接続、チーム全員のGithub,Cloud9の接続。
 - JavaScript非同期処理のバグ修正
