@@ -55,6 +55,7 @@
 
 ## 起動方法（VSCode）
 
+### ①　事前構築
 - Python 3.9.25 をインストール
 - VSCode をインストール
 
@@ -81,15 +82,16 @@ USE_SQLITE=1
 SQLITE_PATH=errormate_local.db  
 ```
 (AI機能を使うのならば、Gemini APIキーを作成し、下記に追加する)  
+```bash
 GEMINI_API_KEY=""
-
+```
 ### ⑤ データベースの作成
-```basu
+```bash
 python create_db_local.py
+python import_dump_to_sqlite.py
 ```
 
 ### ⑥ アプリケーション起動
-python applicaion.py
-
-### ⑦　ブラウザ起動
-
+```bash
+python application.py
+```
